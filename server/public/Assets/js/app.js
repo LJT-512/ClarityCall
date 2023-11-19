@@ -36,18 +36,22 @@ const AppProcess = (function () {
       }
       if (isAudioMute) {
         audio.enabled = true;
-        icon.textContent = "mic";
+        micBtn.innerHTML =
+          '<span class="material-icons" style="width: 100%">mic</span>';
+        // icon.textContent = "mic";
         updateMediaSenders(audio, rtpAudSenders);
       } else {
         audio.enabled = false;
-        icon.textContent = "mic_off";
+        micBtn.innerHTML =
+          '<span class="material-icons" style="width: 100%">mic_off</span>';
+        // icon.textContent = "mic_off";
         removeMediaSenders(rtpAudSenders);
       }
       isAudioMute = !isAudioMute;
     });
     const videoBtn = document.getElementById("videoCamOnOff");
     videoBtn.addEventListener("click", async (e) => {
-      if (videoSt == videoStates.camera) {
+      if (videoSt === videoStates.camera) {
         await videoProcess(videoStates.none);
       } else {
         await videoProcess(videoStates.camera);
@@ -55,12 +59,25 @@ const AppProcess = (function () {
     });
     const screenShareBtn = document.getElementById("screenShareOnOff");
     screenShareBtn.addEventListener("click", async (e) => {
-      if (videoSt == videoStates.screenShare) {
+      if (videoSt === videoStates.screenShare) {
         await videoProcess(videoStates.none);
       } else {
         await videoProcess(videoStates.screenShare);
       }
     });
+  }
+
+  async function loadAudio() {
+    try {
+      let aStream = await navigator.mediaDevices.getUserMedia({
+        video: false,
+        audio: true,
+      });
+      audio = aStream.getAudioTracks()[0];
+      audio.enabled = false;
+    } catch (err) {
+      console.error("Failed to load audio: ", err);
+    }
   }
 
   function connectionStatus(connection) {
@@ -89,7 +106,37 @@ const AppProcess = (function () {
     }
   }
 
+  function removeMediaSenders(rtpSenders) {
+    for (let conId in peersConnectionIds) {
+      if (rtpSenders[conId] && connectionStatus(peersConnection[conId])) {
+        peersConnection[conId].removeTrack(rtpSenders[conId]);
+        rtpSenders[conId] = null;
+      }
+    }
+  }
+
+  function removeVideoStream(rtpVidSenders) {
+    if (videoCamTrack) {
+      videoCamTrack.stop();
+      videoCamTrack = null;
+      localDiv.srcObject = null;
+      removeMediaSenders(rtpVidSenders);
+    }
+  }
+
   async function videoProcess(newVideoState) {
+    if (newVideoState === videoStates.none) {
+      document.getElementById("videoCamOnOff").innerHTML =
+        '<span class="material-icons" style="width: 100%">videocam_off</span>';
+
+      videoSt = newVideoState;
+      removeVideoStream(rtpVidSenders);
+      return;
+    }
+    if (newVideoState === videoStates.camera) {
+      document.getElementById("videoCamOnOff").innerHTML =
+        '<span class="material-icons" style="width: 100%">videocam_on</span>';
+    }
     try {
       let vStream;
       if (newVideoState == videoStates.camera) {
@@ -177,7 +224,7 @@ const AppProcess = (function () {
       if (!remoteAudStream[connId]) {
         remoteAudStream[connId] = new MediaStream();
       }
-      if (event.track.kind == "video") {
+      if (event.track.kind === "video") {
         if (!remoteVidStream[connId]) {
           remoteVidStream[connId] = new MediaStream();
         }
@@ -194,7 +241,7 @@ const AppProcess = (function () {
         } else {
           console.error("Video element not found for connection ID:", connId);
         }
-      } else if (event.track.kind == "audio") {
+      } else if (event.track.kind === "audio") {
         remoteAudStream[connId]
           .getAudioTracks()
           .forEach((t) => remoteAudStream[connId].removeTrack(t));
