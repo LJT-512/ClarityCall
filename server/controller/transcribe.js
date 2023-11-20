@@ -33,7 +33,7 @@ function sendFileToWhisper(filePath) {
       io.emit("newSubtitle", {
         subtitle: response.data.text,
       });
-      //   fs.unlinkSync(filePath);
+      fs.unlinkSync(filePath);
     })
     .catch((err) => {
       console.error(
