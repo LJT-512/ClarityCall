@@ -57,6 +57,27 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("userVideoToggle", (data) => {
+    console.log("userVideoToggle got the message");
+    const { connId, status } = data;
+    const meetingId = userConnections.find(
+      (u) => u.connId === userConnections.connectionId
+    ).meetingId;
+    const userId = userConnections.find(
+      (u) => u.connId === userConnections.connectionId
+    ).userId;
+    const list = userConnections.filter(
+      (p) => p.meetingId === meetingId && p.userId !== userId
+    );
+    console.log("the list to inform to disable the video is...", list);
+    list.forEach((v) => {
+      socket.to(v.connectionId).emit("updateUserVideo", {
+        connId,
+        status,
+      });
+    });
+  });
+
   socket.on("disconnect", function () {
     console.log("Disconnected");
     const disUser = userConnections.find((p) => p.connectionId === socket.id);

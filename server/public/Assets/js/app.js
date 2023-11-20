@@ -5,6 +5,7 @@ const AppProcess = (function () {
   let remoteAudStream = [];
   let localDiv;
   let serverProcess;
+  let onCameraToggle;
   let audio;
   let isAudioMute = true;
   let rtpAudSenders = [];
@@ -19,9 +20,10 @@ const AppProcess = (function () {
   let recorder;
   let intervalId;
 
-  async function _init(SDPFunction, myConnId) {
+  async function _init(SDPFunction, myConnId, cameraToggleCallback) {
     serverProcess = SDPFunction;
     myConnectionId = myConnId;
+    onCameraToggle = cameraToggleCallback;
     eventProcess();
     localDiv = document.getElementById("localVideoPlayer");
   }
@@ -31,7 +33,6 @@ const AppProcess = (function () {
     micBtn.addEventListener("click", async (e) => {
       if (!audio) {
         await loadAudio();
-        startRecording();
       }
       if (!audio) {
         alert("Audio permission has not granted.");
@@ -83,6 +84,7 @@ const AppProcess = (function () {
         mimeType: "audio/webm;codecs=opus",
         bitsPerSecond: 128000,
       });
+      startRecording();
     } catch (err) {
       console.error("Failed to load audio: ", err);
     }
@@ -193,6 +195,8 @@ const AppProcess = (function () {
 
       videoSt = newVideoState;
       removeVideoStream(rtpVidSenders);
+      console.log("!!!setting onCameraToggle off!!!! ");
+      onCameraToggle("off", myConnectionId);
       return;
     }
     if (newVideoState === videoStates.camera) {
@@ -474,8 +478,8 @@ const AppProcess = (function () {
       console.log("setNewConnection: ", connId);
       await setConnection(connId);
     },
-    init: async function (SDPFunction, myConnId) {
-      await _init(SDPFunction, myConnId);
+    init: async function (SDPFunction, myConnId, onCameraToggle) {
+      await _init(SDPFunction, myConnId, onCameraToggle);
     },
     processClientFunc: async function (data, fromConnId) {
       await SDPProcess(data, fromConnId);
@@ -515,9 +519,16 @@ const MyApp = (function () {
       console.log("After emitting SPDProcess...");
     };
 
+    function onCameraToggle(status, connId) {
+      console.log("onCameraToggle is being called!");
+      socket.emit("userVideoToggle", { connId, status });
+    }
+
     socket.on("connect", () => {
       if (socket.connected) {
-        AppProcess.init(SDPFunction, socket.id);
+        AppProcess.init(SDPFunction, socket.id, (status) =>
+          onCameraToggle(status, socket.id)
+        );
         if (userId != "" && meetingId != "") {
           socket.emit("userconnect", {
             displayName: userId,
@@ -553,6 +564,16 @@ const MyApp = (function () {
         `Received SDPProcess message, toConnId: ${data.toConnId}, fromConnId: ${socket.id}`
       );
       await AppProcess.processClientFunc(data.message, data.fromConnId);
+    });
+
+    socket.on("updateUserVideo", (data) => {
+      console.log("client got the updateUserVideo event!!!!");
+      const { connId, status } = data;
+      const userVideoToRemoved = document.getElementById(`v_${connId}`);
+
+      if (userVideoToRemoved && status === "off") {
+        userVideoToRemoved.srcObject = null;
+      }
     });
 
     socket.on("newSubtitle", (data) => {
