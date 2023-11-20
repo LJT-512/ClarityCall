@@ -56,6 +56,25 @@ io.on("connection", (socket) => {
       fromConnId: socket.id,
     });
   });
+
+  socket.on("disconnect", function () {
+    console.log("Disconnected");
+    const disUser = userConnections.find((p) => p.connectionId === socket.id);
+    console.log("this is the disUser:", disUser);
+    if (disUser) {
+      const meetingId = disUser.meetingId;
+      console.log("this is the disUser meetingId:", meetingId);
+      userConnections = userConnections.filter(
+        (p) => p.connectionId != socket.id
+      );
+      const list = userConnections.filter((p) => p.meetingId === meetingId);
+      list.forEach((v) => {
+        socket.to(v.connectionId).emit("informOtherAboutDisconnectedUser", {
+          connId: socket.id,
+        });
+      });
+    }
+  });
 });
 
 module.exports = io;

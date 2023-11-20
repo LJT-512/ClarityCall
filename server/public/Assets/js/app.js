@@ -168,6 +168,7 @@ const AppProcess = (function () {
       if (rtpSenders[conId] && connectionStatus(peersConnection[conId])) {
         peersConnection[conId].removeTrack(rtpSenders[conId]);
         rtpSenders[conId] = null;
+        console.log(`${peersConnection[conId]}'s video track is removed.`);
       }
     }
   }
@@ -179,12 +180,16 @@ const AppProcess = (function () {
       localDiv.srcObject = null;
       removeMediaSenders(rtpVidSenders);
     }
+    console.log("local video is removed.");
   }
 
   async function videoProcess(newVideoState) {
     if (newVideoState === videoStates.none) {
       document.getElementById("videoCamOnOff").innerHTML =
         '<span class="material-icons" style="width: 100%">videocam_off</span>';
+
+      document.getElementById("screenShareOnOff").innerHTML =
+        '<span class="material-icons">present_to_all</span><div>Present Now</div>';
 
       videoSt = newVideoState;
       removeVideoStream(rtpVidSenders);
@@ -212,6 +217,11 @@ const AppProcess = (function () {
           },
           audio: false,
         });
+        vStream.oninactive = (e) => {
+          remoteVidStream(rtpVidSenders);
+          document.getElementById("screenShareOnOff").innerHTML =
+            '<span class="material-icons">present_to_all</span><div> Present Now</div>';
+        };
       }
       if (vStream && vStream.getVideoTracks().length > 0) {
         videoCamTrack = vStream.getVideoTracks()[0];
@@ -225,6 +235,17 @@ const AppProcess = (function () {
       return;
     }
     videoSt = newVideoState;
+    if (newVideoState === videoStates.camera) {
+      document.getElementById("videoCamOnOff").innerHTML =
+        '<span class="material-icons" style="width: 100%">videocam_on</span>';
+      document.getElementById("screenShareOnOff").innerHTML =
+        '<span class="material-icons">present_to_all</span><div> Present Now</div>';
+    } else if (newVideoState === videoStates.screenShare) {
+      document.getElementById("screenShareOnOff").innerHTML =
+        '<span class="material-icons text-success">present_to_all</span><div class="text-success">Stop Present Now</div>';
+      document.getElementById("videoCamOnOff").innerHTML =
+        '<span class="material-icons" style="width: 100%">videocam_off</span>';
+    }
   }
 
   let iceConfiguration = {
@@ -427,6 +448,27 @@ const AppProcess = (function () {
     }
   }
 
+  async function closeConnectionCall(connId) {
+    peersConnectionIds[connId] = null;
+    if (peersConnection[connId]) {
+      peersConnection[connId].close();
+      peersConnection[connId] = null;
+    }
+    if (remoteAudStream[connId]) {
+      remoteAudStream[connId].getTracks().forEach((t) => {
+        if (t.stop) t.stop();
+      });
+      remoteAudStream[connId] = null;
+    }
+    if (remoteVidStream[connId]) {
+      remoteVidStream[connId].getTracks().forEach((t) => {
+        if (t.stop) t.stop();
+      });
+      remoteVidStream[connId] = null;
+    }
+    console.log("connection closed");
+  }
+
   return {
     setNewConnection: async function (connId) {
       console.log("setNewConnection: ", connId);
@@ -437,6 +479,9 @@ const AppProcess = (function () {
     },
     processClientFunc: async function (data, fromConnId) {
       await SDPProcess(data, fromConnId);
+    },
+    closeConnectionCall: async function (connId) {
+      await closeConnectionCall(connId);
     },
   };
 })();
@@ -498,6 +543,11 @@ const MyApp = (function () {
       }
     });
 
+    socket.on("informOtherAboutDisconnectedUser", function (data) {
+      document.getElementById(`${data.connId}`).remove();
+      AppProcess.closeConnectionCall(data.connId);
+    });
+
     socket.on("SDPProcess", async function (data) {
       console.log(
         `Received SDPProcess message, toConnId: ${data.toConnId}, fromConnId: ${socket.id}`
@@ -508,7 +558,10 @@ const MyApp = (function () {
     socket.on("newSubtitle", (data) => {
       console.log("Received subtitle:", data.subtitle);
       const subtitleDiv = document.getElementById("subtitle");
-      subtitleDiv.innerHTML = `<p>${data.subtitle}</p>`;
+
+      if (data.subtitle) {
+        subtitleDiv.innerHTML = `<p>${data.subtitle}</p>`;
+      }
     });
   }
 
