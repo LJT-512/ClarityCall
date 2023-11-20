@@ -5,3 +5,5 @@ ca.crt
 ca.key
 cert.crt
 cert.key
+uploads/*
+!uploads/.gitkeep 

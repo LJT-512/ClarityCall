@@ -16,6 +16,8 @@ const AppProcess = (function () {
   let videoSt = videoStates.none;
   let videoCamTrack;
   let rtpVidSenders = [];
+  let recorder;
+  let intervalId;
 
   async function _init(SDPFunction, myConnId) {
     serverProcess = SDPFunction;
@@ -29,6 +31,7 @@ const AppProcess = (function () {
     micBtn.addEventListener("click", async (e) => {
       if (!audio) {
         await loadAudio();
+        startRecording();
       }
       if (!audio) {
         alert("Audio permission has not granted.");
@@ -38,14 +41,14 @@ const AppProcess = (function () {
         audio.enabled = true;
         micBtn.innerHTML =
           '<span class="material-icons" style="width: 100%">mic</span>';
-        // icon.textContent = "mic";
         updateMediaSenders(audio, rtpAudSenders);
+        startRecording();
       } else {
         audio.enabled = false;
         micBtn.innerHTML =
           '<span class="material-icons" style="width: 100%">mic_off</span>';
-        // icon.textContent = "mic_off";
         removeMediaSenders(rtpAudSenders);
+        stopRecording();
       }
       isAudioMute = !isAudioMute;
     });
@@ -75,9 +78,63 @@ const AppProcess = (function () {
       });
       audio = aStream.getAudioTracks()[0];
       audio.enabled = false;
+      recorder = RecordRTC(aStream, {
+        type: "audio",
+        mimeType: "audio/webm;codecs=opus",
+        bitsPerSecond: 128000,
+      });
     } catch (err) {
       console.error("Failed to load audio: ", err);
     }
+  }
+
+  function startRecording() {
+    if (!recorder) {
+      recorder = RecordRTC(aStream, {
+        type: "audio",
+        mimeType: "audio/webm;codecs=opus",
+        bitsPerSecond: 128000,
+      });
+    }
+
+    recorder.startRecording();
+    console.log("Audio recording start!");
+
+    intervalId = setInterval(() => {
+      recorder.stopRecording(() => {
+        uploadAudioToServer();
+        recorder.reset();
+        recorder.startRecording();
+      });
+    }, 5000);
+  }
+
+  function stopRecording() {
+    if (recorder) {
+      clearInterval(intervalId);
+      recorder.stopRecording(() => {
+        console.log("Stopping audio recording...");
+        uploadAudioToServer();
+        console.log("Recording audio stopped");
+      });
+    }
+  }
+
+  function uploadAudioToServer() {
+    let blob = recorder.getBlob();
+    let formData = new FormData();
+    formData.append("audio", blob, `recorded_segment_${Date.now()}.webm`);
+    fetch("http://localhost:3000/api/upload", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("upload to server successful:", data);
+      })
+      .catch((error) => {
+        console.error("upload failed:", "error");
+      });
   }
 
   function connectionStatus(connection) {
@@ -189,6 +246,7 @@ const AppProcess = (function () {
     console.log("Setting up connection for ID:", connId);
     let connection = new RTCPeerConnection(iceConfiguration);
     console.log("!!!!!!!!!!setting up RTCPeerConnection!!!!!!!", connection);
+
     connection.onnegotiationneeded = async function (event) {
       await setOffer(connId);
     };
@@ -255,7 +313,9 @@ const AppProcess = (function () {
     };
 
     peersConnectionIds[connId] = connId;
+    console.log("in setConnection - peersConnectionIds:", peersConnectionIds);
     peersConnection[connId] = connection;
+    console.log("in setConnection - peersConnection:", peersConnection);
 
     if (videoSt == videoStates.camera || videoSt == videoStates.screenShare) {
       if (videoCamTrack) {
@@ -317,6 +377,14 @@ const AppProcess = (function () {
       await peersConnection[fromConnId].setRemoteDescription(
         new RTCSessionDescription(message.answer)
       );
+      console.log(
+        "Here's the offer, the is the overall peersConnection: ",
+        peersConnection
+      );
+      console.log(
+        "Here's the offer, the is the overall peersConnection[fromConnId]: ",
+        peersConnection[fromConnId]
+      );
     } else if (message.offer) {
       console.log(
         `Setting remote description with offer for connection [${fromConnId}]`
@@ -334,6 +402,14 @@ const AppProcess = (function () {
           answer: answer,
         }),
         fromConnId
+      );
+      console.log(
+        "Here's an answerer, the is the overall peersConnection: ",
+        peersConnection
+      );
+      console.log(
+        "Here's an answerer, the is the overall peersConnection[fromConnId]: ",
+        peersConnection[fromConnId]
       );
     } else if (message.iceCandidate) {
       console.log(
@@ -386,10 +462,12 @@ const MyApp = (function () {
     socket = io.connect();
 
     const SDPFunction = function (data, toConnId) {
+      console.log("========== SDPFunction being called ==========");
       socket.emit("SDPProcess", {
         message: data,
         toConnId: toConnId,
       });
+      console.log("After emitting SPDProcess...");
     };
 
     socket.on("connect", () => {
@@ -409,20 +487,28 @@ const MyApp = (function () {
       console.log("informOthersAboutMe connId: ", data.connId);
       AppProcess.setNewConnection(data.connId);
     });
+
     socket.on("informMeAboutOtherUser", function (otherUsers) {
       if (otherUsers) {
         for (let i = 0; i < otherUsers.length; i++) {
-          console.log(otherUsers[i]);
+          console.log("who are the others:", otherUsers[i]);
           addUser(otherUsers[i].userId, otherUsers[i].connectionId);
           AppProcess.setNewConnection(otherUsers[i].connectionId);
         }
       }
     });
+
     socket.on("SDPProcess", async function (data) {
       console.log(
         `Received SDPProcess message, toConnId: ${data.toConnId}, fromConnId: ${socket.id}`
       );
       await AppProcess.processClientFunc(data.message, data.fromConnId);
+    });
+
+    socket.on("newSubtitle", (data) => {
+      console.log("Received subtitle:", data.subtitle);
+      const subtitleDiv = document.getElementById("subtitle");
+      subtitleDiv.innerHTML = `<p>${data.subtitle}</p>`;
     });
   }
 
