@@ -13,6 +13,7 @@ const apiKey = process.env.OPENAI_API_KEY;
 function sendFileToWhisper(filePath) {
   const form = new FormData();
   form.append("file", fs.createReadStream(filePath));
+  form.append("language", "zh");
   form.append("model", "whisper-1");
 
   const config = {
@@ -81,9 +82,8 @@ watcher.on("add", (filePath) => {
   console.log(`File ${filePath} has been added`);
   sendFileToWhisper(filePath);
 });
-//   .on("unlink", (filePath) => {
-//     console.log(`File ${filePath} has been removed`);
-//     // Handle file removal if necessary
-//   });
+watcher.on("unlink", (filePath) => {
+  console.log(`File ${filePath} has been removed`);
+});
 
 processUploads();

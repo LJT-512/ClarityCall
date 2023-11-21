@@ -33,6 +33,7 @@ const AppProcess = (function () {
     micBtn.addEventListener("click", async (e) => {
       if (!audio) {
         await loadAudio();
+        startRecording();
       }
       if (!audio) {
         alert("Audio permission has not granted.");
@@ -70,6 +71,7 @@ const AppProcess = (function () {
       }
     });
   }
+  let isRecording = false;
 
   async function loadAudio() {
     try {
@@ -82,42 +84,38 @@ const AppProcess = (function () {
       recorder = RecordRTC(aStream, {
         type: "audio",
         mimeType: "audio/webm;codecs=opus",
-        bitsPerSecond: 128000,
+        bitsPerSecond: 512000,
       });
-      startRecording();
     } catch (err) {
       console.error("Failed to load audio: ", err);
     }
   }
 
   function startRecording() {
-    if (!recorder) {
-      recorder = RecordRTC(aStream, {
-        type: "audio",
-        mimeType: "audio/webm;codecs=opus",
-        bitsPerSecond: 128000,
-      });
+    console.log("recorder state", recorder.getState());
+    if (!isRecording) {
+      recorder.startRecording();
+      console.log("Audio recording start!");
+      isRecording = true;
+
+      intervalId = setInterval(() => {
+        recorder.stopRecording(() => {
+          uploadAudioToServer();
+          recorder.reset();
+          recorder.startRecording();
+        });
+      }, 5000);
     }
-
-    recorder.startRecording();
-    console.log("Audio recording start!");
-
-    intervalId = setInterval(() => {
-      recorder.stopRecording(() => {
-        uploadAudioToServer();
-        recorder.reset();
-        recorder.startRecording();
-      });
-    }, 5000);
   }
 
   function stopRecording() {
-    if (recorder) {
+    if (isRecording) {
       clearInterval(intervalId);
       recorder.stopRecording(() => {
         console.log("Stopping audio recording...");
         uploadAudioToServer();
         console.log("Recording audio stopped");
+        isRecording = false;
       });
     }
   }
