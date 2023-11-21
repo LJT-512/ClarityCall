@@ -47,7 +47,6 @@ app.post("/api/breakoutroom", (req, res) => {
       i * sliceIndex,
       (i + 1) * sliceIndex
     );
-
     const roomId = Math.random().toString(36).substring(2, 12);
     roomIds.push({ roomId });
     rooms.push({
@@ -74,6 +73,7 @@ app.post("/api/breakoutroom", (req, res) => {
   rooms.forEach((room) => {
     room.roomUsers.forEach((user) => {
       console.log("About to emit informAboutBreakRooms!!!!");
+      console.log(user.roomId, user.connId, user.userId);
       io.to(user.connId).emit("informAboutBreakRooms", {
         roomId: user.roomId,
         connId: user.connId,

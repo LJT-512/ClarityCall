@@ -493,11 +493,11 @@ const AppProcess = (function () {
 const MyApp = (function () {
   let socket;
   let userId;
-  let meetingId;
+  //   let meetingId;
 
   function init(uid, mid) {
     userId = uid;
-    meetingId = mid;
+    // meetingId = mid;
     const meetingContainer = document.getElementById("meetingContainer");
     if (meetingContainer) {
       meetingContainer.style.display = "block";
@@ -610,12 +610,12 @@ const MyApp = (function () {
 
     socket.on("informAboutBreakRooms", (data) => {
       console.log("informAboutBreakRooms is running!!!!!");
+      console.error(`Breakout room is about to start ${data.roomId}`);
       window.location.href = `/?meetingID=${data.roomId}`;
     });
 
     socket.on("informBackToOriginalMeeting", (data) => {
       console.log("got informBackToOriginalMeeting");
-      alert("Breakout room is about to end");
       window.location.href = `/?meetingID=${data.meetingId}`;
     });
   }
