@@ -5,6 +5,7 @@ const app = express();
 require("dotenv").config();
 const upload = require("./middleware/multer.js");
 const { init } = require("./io.js");
+const bodyParser = require("body-parser");
 const PORT = process.env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
@@ -16,12 +17,59 @@ const io = init(server);
 require("./controller/transcribe.js");
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser.json());
 
 app.post("/api/upload", upload.single("audio"), (req, res) => {
   res.send({ message: "File uploaded successfully." });
 });
 
 let userConnections = [];
+let userMeetingRooms = [];
+
+app.post("/api/breakoutroom", (req, res) => {
+  const { meetingId, numOfRoom } = req.body;
+  let rooms = [];
+  const usersInThisMeeting = userConnections.filter(
+    (u) => u.meetingId === meetingId
+  );
+  if (usersInThisMeeting.length % numOfRoom !== 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Users cannot be evenly distributed into rooms",
+    });
+  }
+
+  const sliceIndex = Math.ceil(usersInThisMeeting.length / numOfRoom);
+  let roomUsers = [];
+
+  for (let i = 0; i < numOfRoom; i++) {
+    const roomUsers = usersInThisMeeting.slice(
+      i * sliceIndex,
+      (i + 1) * sliceIndex
+    );
+
+    const roomId = Math.random().toString(36).substring(2, 12);
+    rooms.push({
+      roomUsers: roomUsers.map((u) => ({
+        roomId,
+        userId: u.userId,
+        connId: u.connectionId,
+      })),
+    });
+  }
+  res.status(200).json({ success: true, message: rooms });
+  console.log("rooms: ", rooms);
+  rooms.forEach((room) => {
+    room.roomUsers.forEach((user) => {
+      console.log("About to emit informAboutBreakRooms!!!!");
+      io.to(user.connId).emit("informAboutBreakRooms", {
+        roomId: user.roomId,
+        connId: user.connId,
+        userId: user.userId,
+      });
+    });
+  });
+});
 
 io.on("connection", (socket) => {
   console.log("socket id is", socket.id);

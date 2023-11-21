@@ -524,6 +524,28 @@ const MyApp = (function () {
       socket.emit("userVideoToggle", { connId, status });
     }
 
+    const breakoutroomBtn = document.getElementById("breakoutRoomOnOff");
+    const urlParams = new URLSearchParams(window.location.search);
+    const meetingId = urlParams.get("meetingID");
+    breakoutroomBtn.addEventListener("click", (e) => {
+      fetch("/api/breakoutroom", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          meetingId,
+          numOfRoom: 2,
+        }),
+      })
+        .then((response) => {
+          response = response.json();
+          console.log(response);
+        })
+
+        .catch((err) => console.error("Failed to get breakroom info", err));
+    });
+
     socket.on("connect", () => {
       if (socket.connected) {
         AppProcess.init(SDPFunction, socket.id, (status) =>
@@ -583,6 +605,11 @@ const MyApp = (function () {
       if (data.subtitle) {
         subtitleDiv.innerHTML = `<p>${data.subtitle}</p>`;
       }
+    });
+
+    socket.on("informAboutBreakRooms", (data) => {
+      console.log("informAboutBreakRooms is running!!!!!");
+      window.location.href = `/?meetingID=${data.roomId}`;
     });
   }
 
