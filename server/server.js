@@ -24,10 +24,10 @@ app.post("/api/upload", upload.single("audio"), (req, res) => {
 });
 
 let userConnections = [];
-let userMeetingRooms = [];
+let userMeetingRooms = {};
 
 app.post("/api/breakoutroom", (req, res) => {
-  const { meetingId, numOfRoom } = req.body;
+  const { meetingId, numOfRoom, setTime } = req.body;
   let rooms = [];
   const usersInThisMeeting = userConnections.filter(
     (u) => u.meetingId === meetingId
@@ -40,7 +40,7 @@ app.post("/api/breakoutroom", (req, res) => {
   }
 
   const sliceIndex = Math.ceil(usersInThisMeeting.length / numOfRoom);
-  let roomUsers = [];
+  let roomIds = [];
 
   for (let i = 0; i < numOfRoom; i++) {
     const roomUsers = usersInThisMeeting.slice(
@@ -49,6 +49,7 @@ app.post("/api/breakoutroom", (req, res) => {
     );
 
     const roomId = Math.random().toString(36).substring(2, 12);
+    roomIds.push({ roomId });
     rooms.push({
       roomUsers: roomUsers.map((u) => ({
         roomId,
@@ -57,6 +58,17 @@ app.post("/api/breakoutroom", (req, res) => {
       })),
     });
   }
+
+  userMeetingRooms[meetingId] = {
+    setTime,
+    rooms: rooms.map((room) => room.roomUsers),
+  };
+
+  console.log("userMeetingRooms: ", userMeetingRooms);
+  setTimeout(() => {
+    endBreakoutSession(meetingId);
+  }, setTime * 1000); // setTime in seconds
+
   res.status(200).json({ success: true, message: rooms });
   console.log("rooms: ", rooms);
   rooms.forEach((room) => {
@@ -70,6 +82,29 @@ app.post("/api/breakoutroom", (req, res) => {
     });
   });
 });
+
+function endBreakoutSession(meetingId) {
+  console.log("===============Breakoutroom session is ending ==========");
+  const breakoutInfo = userMeetingRooms[meetingId];
+  console.log("breakoutInfo", breakoutInfo);
+  if (breakoutInfo) {
+    breakoutInfo.rooms.forEach((roomUsers) => {
+      roomUsers.forEach((user) => {
+        const currentConnections = userConnections.find(
+          (u) => u.userId === user.userId
+        );
+        if (currentConnections) {
+          console.log("user.connId", user.connId);
+          console.log("meetingId", meetingId);
+          io.to(
+            currentConnections.connectionId
+          ).emit("informBackToOriginalMeeting", { meetingId });
+        }
+      });
+    });
+  }
+  delete userMeetingRooms[meetingId];
+}
 
 io.on("connection", (socket) => {
   console.log("socket id is", socket.id);

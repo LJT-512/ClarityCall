@@ -536,6 +536,7 @@ const MyApp = (function () {
         body: JSON.stringify({
           meetingId,
           numOfRoom: 2,
+          setTime: 30,
         }),
       })
         .then((response) => {
@@ -610,6 +611,12 @@ const MyApp = (function () {
     socket.on("informAboutBreakRooms", (data) => {
       console.log("informAboutBreakRooms is running!!!!!");
       window.location.href = `/?meetingID=${data.roomId}`;
+    });
+
+    socket.on("informBackToOriginalMeeting", (data) => {
+      console.log("got informBackToOriginalMeeting");
+      alert("Breakout room is about to end");
+      window.location.href = `/?meetingID=${data.meetingId}`;
     });
   }
 
