@@ -624,6 +624,7 @@ const MyApp = (function () {
 
     clonedDiv.setAttribute("id", connId);
     clonedDiv.classList.add("other");
+    clonedDiv.classList.remove("d-none");
 
     const h2 = clonedDiv.querySelector("h2");
     h2.textContent = otherUserId;
@@ -634,7 +635,7 @@ const MyApp = (function () {
     const audio = clonedDiv.querySelector("audio");
     audio.setAttribute("id", "a_" + connId);
 
-    clonedDiv.style.display = "block";
+    // clonedDiv.style.display = "block";
     const divUsers = document.getElementById("div-users");
     divUsers.appendChild(clonedDiv);
   }
