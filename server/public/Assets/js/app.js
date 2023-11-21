@@ -493,11 +493,9 @@ const AppProcess = (function () {
 const MyApp = (function () {
   let socket;
   let userId;
-  //   let meetingId;
 
-  function init(uid, mid) {
+  function init(uid) {
     userId = uid;
-    // meetingId = mid;
     const meetingContainer = document.getElementById("meetingContainer");
     if (meetingContainer) {
       meetingContainer.style.display = "block";

@@ -17,14 +17,15 @@
       const urlParams = new URLSearchParams(window.location.search);
       const meetingId = urlParams.get("meetingID");
       let userId = localStorage.getItem("userId");
-      // const userId = window.prompt("Enter your username");
       if (!userId) {
-        const userId = String(Math.random().toString(36).substring(2, 12));
-        localStorage.setItem("userId", userId);
+        userId = window.prompt("Enter your username");
+        if (userId) {
+          localStorage.setItem("userId", userId);
+        }
       }
 
-      if (!userId || !meetingId) {
-        alert("User id or meeting id missing");
+      if (!meetingId) {
+        alert("Meeting id missing");
         window.location.href = "/action.html";
       }
 

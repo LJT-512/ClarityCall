@@ -149,9 +149,7 @@ io.on("connection", (socket) => {
     const userId = userConnections.find(
       (u) => u.connId === userConnections.connectionId
     ).userId;
-    const list = userConnections.filter(
-      (p) => p.meetingId === meetingId && p.userId !== userId
-    );
+    const list = userConnections.filter((p) => p.meetingId === meetingId);
     console.log("the list to inform to disable the video is...", list);
     list.forEach((v) => {
       socket.to(v.connectionId).emit("updateUserVideo", {
