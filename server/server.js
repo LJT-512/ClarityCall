@@ -1,11 +1,13 @@
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
+
 const app = express();
 require("dotenv").config();
+
+const bodyParser = require("body-parser");
 const upload = require("./middleware/multer.js");
 const { init } = require("./io.js");
-const bodyParser = require("body-parser");
+
 const PORT = process.env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
@@ -143,12 +145,12 @@ io.on("connection", (socket) => {
   socket.on("userVideoToggle", (data) => {
     console.log("userVideoToggle got the message");
     const { connId, status } = data;
+    // eslint-disable-next-line prefer-destructuring
     const meetingId = userConnections.find(
       (u) => u.connId === userConnections.connectionId
     ).meetingId;
-    const userId = userConnections.find(
-      (u) => u.connId === userConnections.connectionId
-    ).userId;
+
+    console.log("camera status chaned: ", meetingId);
     const list = userConnections.filter((p) => p.meetingId === meetingId);
     console.log("the list to inform to disable the video is...", list);
     list.forEach((v) => {
@@ -159,15 +161,15 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("disconnect", function () {
+  socket.on("disconnect", () => {
     console.log("Disconnected");
     const disUser = userConnections.find((p) => p.connectionId === socket.id);
     console.log("this is the disUser:", disUser);
     if (disUser) {
-      const meetingId = disUser.meetingId;
+      const { meetingId } = disUser;
       console.log("this is the disUser meetingId:", meetingId);
       userConnections = userConnections.filter(
-        (p) => p.connectionId != socket.id
+        (p) => p.connectionId !== socket.id
       );
       const list = userConnections.filter((p) => p.meetingId === meetingId);
       list.forEach((v) => {
