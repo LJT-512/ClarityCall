@@ -26,11 +26,35 @@ app.post("/api/upload", upload.single("audio"), (req, res) => {
 });
 
 let userConnections = [];
-let userMeetingRooms = {};
+const userMeetingRooms = {};
 
+function endBreakoutSession(meetingId) {
+  console.log("===============Breakoutroom session is ending ==========");
+  const breakoutInfo = userMeetingRooms[meetingId];
+  console.log("breakoutInfo", breakoutInfo);
+  if (breakoutInfo) {
+    breakoutInfo.rooms.forEach((roomUsers) => {
+      roomUsers.forEach((user) => {
+        const currentConnections = userConnections.find(
+          (u) => u.userId === user.userId
+        );
+        if (currentConnections) {
+          console.log("user.connId", user.connId);
+          console.log("meetingId", meetingId);
+          io.to(
+            currentConnections.connectionId
+          ).emit("informBackToOriginalMeeting", { meetingId });
+        }
+      });
+    });
+  }
+  delete userMeetingRooms[meetingId];
+}
+
+/* eslint-disable consistent-return */
 app.post("/api/breakoutroom", (req, res) => {
   const { meetingId, numOfRoom, setTime } = req.body;
-  let rooms = [];
+  const rooms = [];
   const usersInThisMeeting = userConnections.filter(
     (u) => u.meetingId === meetingId
   );
@@ -42,9 +66,9 @@ app.post("/api/breakoutroom", (req, res) => {
   }
 
   const sliceIndex = Math.ceil(usersInThisMeeting.length / numOfRoom);
-  let roomIds = [];
+  const roomIds = [];
 
-  for (let i = 0; i < numOfRoom; i++) {
+  for (let i = 0; i < numOfRoom; i += 1) {
     const roomUsers = usersInThisMeeting.slice(
       i * sliceIndex,
       (i + 1) * sliceIndex
@@ -84,29 +108,7 @@ app.post("/api/breakoutroom", (req, res) => {
     });
   });
 });
-
-function endBreakoutSession(meetingId) {
-  console.log("===============Breakoutroom session is ending ==========");
-  const breakoutInfo = userMeetingRooms[meetingId];
-  console.log("breakoutInfo", breakoutInfo);
-  if (breakoutInfo) {
-    breakoutInfo.rooms.forEach((roomUsers) => {
-      roomUsers.forEach((user) => {
-        const currentConnections = userConnections.find(
-          (u) => u.userId === user.userId
-        );
-        if (currentConnections) {
-          console.log("user.connId", user.connId);
-          console.log("meetingId", meetingId);
-          io.to(
-            currentConnections.connectionId
-          ).emit("informBackToOriginalMeeting", { meetingId });
-        }
-      });
-    });
-  }
-  delete userMeetingRooms[meetingId];
-}
+/* eslint-enable consistent-return */
 
 io.on("connection", (socket) => {
   console.log("socket id is", socket.id);
