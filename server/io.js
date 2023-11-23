@@ -1,17 +1,15 @@
-const socketIO = require("socket.io");
+import { Server } from "socket.io";
 
 let io;
 
-const init = (server) => {
-  io = socketIO(server);
+export const init = (server) => {
+  io = new Server(server);
   return io;
 };
 
-const getIO = () => {
+export const getIO = () => {
   if (!io) {
     throw new Error("Must call .init(server) before .getIO()");
   }
   return io;
 };
-
-module.exports = { init, getIO };

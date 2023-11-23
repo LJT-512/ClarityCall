@@ -1,24 +1,24 @@
-const express = require("express");
-const path = require("path");
+import express from "express";
+import path from "path";
+import dotenv from "dotenv";
+import bodyParser from "body-parser";
+import { createServer } from "http";
+import { init as initIO } from "./io.js";
+import upload from "./middleware/multer.js";
+import { startTranscriptionWorker } from "./workers/transcribe.js";
 
 const app = express();
-require("dotenv").config();
-
-const bodyParser = require("body-parser");
-const upload = require("./middleware/multer.js");
-const { init } = require("./io.js");
-
+dotenv.config();
+const httpServer = createServer(app);
+const io = initIO(httpServer);
 const PORT = process.env.PORT || 3000;
 
-const server = app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  startTranscriptionWorker(io);
 });
 
-const io = init(server);
-
-require("./controller/transcribe.js");
-
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 app.use(bodyParser.json());
 
 app.post("/api/upload", upload.single("audio"), (req, res) => {
@@ -182,5 +182,3 @@ io.on("connection", (socket) => {
     }
   });
 });
-
-module.exports = io;
