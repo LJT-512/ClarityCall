@@ -1,184 +1,30 @@
 import express from "express";
-import path from "path";
 import dotenv from "dotenv";
-import bodyParser from "body-parser";
+import router from "./router.js";
+import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import { init as initIO } from "./io.js";
-import upload from "./middleware/multer.js";
+import setupSocketEvents from "./controllers/socketEvents.js";
 import { startTranscriptionWorker } from "./workers/transcribe.js";
+import { errorHandler } from "./utils/errorHandler.js";
+
+dotenv.config();
 
 const app = express();
-dotenv.config();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.static("public"));
+app.use(express.json());
+app.use(cookieParser());
+app.use(router);
+
+app.use(errorHandler);
+
 const httpServer = createServer(app);
 const io = initIO(httpServer);
-const PORT = process.env.PORT || 3000;
+setupSocketEvents(io);
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   startTranscriptionWorker(io);
-});
-
-app.use(express.static("public"));
-app.use(bodyParser.json());
-
-app.post("/api/upload", upload.single("audio"), (req, res) => {
-  res.send({ message: "File uploaded successfully." });
-});
-
-let userConnections = [];
-const userMeetingRooms = {};
-
-function endBreakoutSession(meetingId) {
-  console.log("===============Breakoutroom session is ending ==========");
-  const breakoutInfo = userMeetingRooms[meetingId];
-  console.log("breakoutInfo", breakoutInfo);
-  if (breakoutInfo) {
-    breakoutInfo.rooms.forEach((roomUsers) => {
-      roomUsers.forEach((user) => {
-        const currentConnections = userConnections.find(
-          (u) => u.userId === user.userId
-        );
-        if (currentConnections) {
-          console.log("user.connId", user.connId);
-          console.log("meetingId", meetingId);
-          io.to(
-            currentConnections.connectionId
-          ).emit("informBackToOriginalMeeting", { meetingId });
-        }
-      });
-    });
-  }
-  delete userMeetingRooms[meetingId];
-}
-
-/* eslint-disable consistent-return */
-app.post("/api/breakoutroom", (req, res) => {
-  const { meetingId, numOfRoom, setTime } = req.body;
-  const rooms = [];
-  const usersInThisMeeting = userConnections.filter(
-    (u) => u.meetingId === meetingId
-  );
-  if (usersInThisMeeting.length % numOfRoom !== 0) {
-    return res.status(400).json({
-      success: false,
-      message: "Users cannot be evenly distributed into rooms",
-    });
-  }
-
-  const sliceIndex = Math.ceil(usersInThisMeeting.length / numOfRoom);
-  const roomIds = [];
-
-  for (let i = 0; i < numOfRoom; i += 1) {
-    const roomUsers = usersInThisMeeting.slice(
-      i * sliceIndex,
-      (i + 1) * sliceIndex
-    );
-    const roomId = Math.random().toString(36).substring(2, 12);
-    roomIds.push({ roomId });
-    rooms.push({
-      roomUsers: roomUsers.map((u) => ({
-        roomId,
-        userId: u.userId,
-        connId: u.connectionId,
-      })),
-    });
-  }
-
-  userMeetingRooms[meetingId] = {
-    setTime,
-    rooms: rooms.map((room) => room.roomUsers),
-  };
-
-  console.log("userMeetingRooms: ", userMeetingRooms);
-  setTimeout(() => {
-    endBreakoutSession(meetingId);
-  }, setTime * 1000); // setTime in seconds
-
-  res.status(200).json({ success: true, message: rooms });
-  console.log("rooms: ", rooms);
-  rooms.forEach((room) => {
-    room.roomUsers.forEach((user) => {
-      console.log("About to emit informAboutBreakRooms!!!!");
-      console.log(user.roomId, user.connId, user.userId);
-      io.to(user.connId).emit("informAboutBreakRooms", {
-        roomId: user.roomId,
-        connId: user.connId,
-        userId: user.userId,
-      });
-    });
-  });
-});
-/* eslint-enable consistent-return */
-
-io.on("connection", (socket) => {
-  console.log("socket id is", socket.id);
-  socket.on("userconnect", (data) => {
-    console.log("userconnect", data.displayName, data.meetingId);
-
-    const otherUsers = userConnections.filter(
-      (p) => p.meetingId === data.meetingId
-    );
-    console.log("otherUsers: ", otherUsers);
-
-    userConnections.push({
-      connectionId: socket.id,
-      userId: data.displayName,
-      meetingId: data.meetingId,
-    });
-
-    console.log("userConnections: ", userConnections);
-
-    otherUsers.forEach((v) => {
-      socket.to(v.connectionId).emit("informOthersAboutMe", {
-        otherUserId: data.displayName,
-        connId: socket.id,
-      });
-    });
-    console.log("Informing new user about others", otherUsers);
-    socket.emit("informMeAboutOtherUser", otherUsers);
-  });
-  socket.on("SDPProcess", (data) => {
-    socket.to(data.toConnId).emit("SDPProcess", {
-      message: data.message,
-      fromConnId: socket.id,
-    });
-  });
-
-  socket.on("userVideoToggle", (data) => {
-    console.log("userVideoToggle got the message");
-    const { connId, status } = data;
-    // eslint-disable-next-line prefer-destructuring
-    const meetingId = userConnections.find(
-      (u) => u.connId === userConnections.connectionId
-    ).meetingId;
-
-    console.log("camera status chaned: ", meetingId);
-    const list = userConnections.filter((p) => p.meetingId === meetingId);
-    console.log("the list to inform to disable the video is...", list);
-    list.forEach((v) => {
-      socket.to(v.connectionId).emit("updateUserVideo", {
-        connId,
-        status,
-      });
-    });
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Disconnected");
-    const disUser = userConnections.find((p) => p.connectionId === socket.id);
-    console.log("this is the disUser:", disUser);
-    if (disUser) {
-      const { meetingId } = disUser;
-      console.log("this is the disUser meetingId:", meetingId);
-      userConnections = userConnections.filter(
-        (p) => p.connectionId !== socket.id
-      );
-      const list = userConnections.filter((p) => p.meetingId === meetingId);
-      list.forEach((v) => {
-        socket.to(v.connectionId).emit("informOtherAboutDisconnectedUser", {
-          connId: socket.id,
-        });
-      });
-    }
-  });
 });

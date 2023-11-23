@@ -1,18 +1,35 @@
 import pool from "./databasePool.js";
 
-export const PROVIDER = {
-  NATIVE: "native",
-  FACEBOOK: "facebook",
-  GOOGLE: "google",
-};
-
-export async function createNativeProvider(userId, password) {
-  const token = await argon2.hash(password);
-  await pool.query(
+export async function createUser(email, name) {
+  const result = await pool.query(
     `
-      INSERT INTO user_providers (user_id, name, token)
-      VALUES($1, $2, $3)
+      INSERT INTO users (email, name)
+      VALUES($1, $2)
+      RETURNING user_id
     `,
-    [userId, PROVIDER.NATIVE, token]
+    [email, name]
   );
+  return result.rows[0].id;
+}
+
+export async function findUser(email) {
+  const result = await pool.query(
+    `
+        SELECT * FROM users
+        WHERE email = $1
+    `,
+    [email]
+  );
+  return result.rows[0];
+}
+
+export async function findUserById(userId) {
+  const result = await pool.query(
+    `
+      SELECT * FROM users
+      WHERE user_id = ?
+    `,
+    [userId]
+  );
+  return result.rows[0];
 }
