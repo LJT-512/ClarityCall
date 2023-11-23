@@ -8,7 +8,7 @@ export async function authenticate(req, res, next) {
       res.status(401).json({ errors: "invalid token" });
       return;
     }
-    const decode = await verifyJWT(token);
+    const decoded = await verifyJWT(token);
     res.locals.userId = decoded.userId;
     next();
   } catch (err) {

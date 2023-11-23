@@ -27,6 +27,7 @@
     "pg": "^8.11.3",
     "recordrtc": "^5.6.2",
     "socket.io": "^4.7.2",
+    "validator": "^13.11.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
