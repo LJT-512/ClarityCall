@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Google Meet</title>
+    <title>Clarity Call</title>
     <link rel="stylesheet" href="Assets/css/bootstrap.min.css" />
     <link
       rel="stylesheet"
@@ -14,28 +14,42 @@
     <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
     <script src="Assets/js/app.js"></script>
     <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const meetingId = urlParams.get("meetingID");
-      let userId = localStorage.getItem("userId");
-      if (!userId) {
-        userId = window.prompt("Enter your username");
-        if (userId) {
-          localStorage.setItem("userId", userId);
+      document.addEventListener("DOMContentLoaded", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const meetingId = urlParams.get("meetingID");
+
+        if (!meetingId) {
+          alert("Meeting id missing");
+          window.location.href = "/action.html";
+        } else {
+          try {
+            const response = await fetch("/api/user/info");
+
+            if (!response.ok) {
+              throw new Error("Authentication required");
+            }
+
+            const data = await response.json();
+            console.log("this is data", data.username);
+            const username = data.username;
+            console.log("username:", username);
+
+            if (username) {
+              const meetingContainer = document.getElementById(
+                "meetingContainer"
+              );
+              if (meetingContainer) {
+                meetingContainer.style.display = "block";
+              }
+              MyApp._init(username, meetingId);
+            } else {
+              throw new Error("Username not found");
+            }
+          } catch (err) {
+            console.error(err);
+            window.location.href = "/signin.html";
+          }
         }
-      }
-
-      if (!meetingId) {
-        alert("Meeting id missing");
-        window.location.href = "/action.html";
-      }
-
-      const meetingContainer = document.getElementById("meetingContainer");
-      if (meetingContainer) {
-        meetingContainer.style.display = "block";
-      }
-
-      document.addEventListener("DOMContentLoaded", (event) => {
-        MyApp._init(userId, meetingId);
       });
     </script>
   </head>

@@ -10,7 +10,7 @@ function endBreakoutSession(meetingId) {
     breakoutInfo.rooms.forEach((roomUsers) => {
       roomUsers.forEach((user) => {
         const currentConnections = userConnections.find(
-          (u) => u.userId === user.userId
+          (u) => u.username === user.username
         );
         if (currentConnections) {
           console.log("user.connId", user.connId);
@@ -53,7 +53,7 @@ export async function breakoutRooms(req, res) {
     rooms.push({
       roomUsers: roomUsers.map((u) => ({
         roomId,
-        userId: u.userId,
+        username: u.username,
         connId: u.connectionId,
       })),
     });
@@ -74,11 +74,11 @@ export async function breakoutRooms(req, res) {
   rooms.forEach((room) => {
     room.roomUsers.forEach((user) => {
       console.log("About to emit informAboutBreakRooms!!!!");
-      console.log(user.roomId, user.connId, user.userId);
+      console.log(user.roomId, user.connId, user.username);
       io.to(user.connId).emit("informAboutBreakRooms", {
         roomId: user.roomId,
         connId: user.connId,
-        userId: user.userId,
+        username: user.username,
       });
     });
   });

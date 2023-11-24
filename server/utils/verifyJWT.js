@@ -1,22 +1,18 @@
 import jwt from "jsonwebtoken";
-import { z } from "zod";
+import dotenv from "dotenv";
+dotenv.config();
 
-const JWT_KEY = process.env.JWT_KEY || "";
+const JWT_KEY = process.env.JWT_KEY;
 
-const DecodedSchema = z.object({
-  userId: z.number(),
-});
-
-export default function verifyJWT(token) {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, JWT_KEY, (err, decoded) => {
-      try {
+export default async function verifyJWT(token) {
+  try {
+    return new Promise((resolve, reject) => {
+      jwt.verify(token, JWT_KEY, (err, decoded) => {
         if (err) reject(err);
-        const result = DecodedSchema.parse(decoded);
-        resolve(resolve);
-      } catch (err) {
-        reject(new Error("invalid decoded value"));
-      }
+        resolve(decoded);
+      });
     });
-  });
+  } catch (err) {
+    console.error("verify JWT error: ", err);
+  }
 }

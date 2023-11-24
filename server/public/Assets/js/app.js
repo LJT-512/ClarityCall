@@ -490,16 +490,16 @@ const AppProcess = (function () {
 
 const MyApp = (function () {
   let socket;
-  let userId;
+  let username;
 
   function init(uid) {
-    userId = uid;
+    username = uid;
     const meetingContainer = document.getElementById("meetingContainer");
     if (meetingContainer) {
       meetingContainer.style.display = "block";
     }
-    document.querySelector("#me h2").textContent = userId + " (me)";
-    document.title = userId;
+    document.querySelector("#me h2").textContent = username + " (me)";
+    document.title = username;
     eventProcessForSignalingServer();
   }
 
@@ -548,9 +548,9 @@ const MyApp = (function () {
         AppProcess.init(SDPFunction, socket.id, (status) =>
           onCameraToggle(status, socket.id)
         );
-        if (userId != "" && meetingId != "") {
+        if (username != "" && meetingId != "") {
           socket.emit("userconnect", {
-            displayName: userId,
+            displayName: username,
             meetingId,
           });
         }
@@ -567,7 +567,7 @@ const MyApp = (function () {
       if (otherUsers) {
         for (let i = 0; i < otherUsers.length; i++) {
           console.log("who are the others:", otherUsers[i]);
-          addUser(otherUsers[i].userId, otherUsers[i].connectionId);
+          addUser(otherUsers[i].username, otherUsers[i].connectionId);
           AppProcess.setNewConnection(otherUsers[i].connectionId);
         }
       }

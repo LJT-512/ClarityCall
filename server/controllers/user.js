@@ -1,8 +1,15 @@
-import axios from "axios";
+import { fileURLToPath } from "url";
+import { join, dirname } from "path";
 import * as userModel from "../models/user.js";
-import * as userProviderModel from "../models/userProvider.js";
-import signJWT, { EXPIRE_TIME } from "../utils/signJWT.js";
+import {
+  signJWT,
+  getUserInfoWithToken,
+  EXPIRE_TIME,
+} from "../utils/generateJWTToken.js";
 import validator from "validator";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -10,6 +17,10 @@ const COOKIE_OPTIONS = {
   secure: true,
   samesite: "strict",
 };
+
+export async function serveSigninPage(req, res) {
+  res.sendFile(join(__dirname + "./../public/signin.html"));
+}
 
 export async function signUp(req, res) {
   try {
@@ -42,8 +53,9 @@ export async function signUp(req, res) {
     }
 
     const userId = await userModel.createNativeUser(name, email, password);
+    const user = await userModel.findUserByEmail(email);
 
-    const token = await signJWT(userId);
+    const token = await generateJWTToken(user);
     res
       .cookie("jwtToken", token, COOKIE_OPTIONS)
       .status(200)
@@ -53,7 +65,7 @@ export async function signUp(req, res) {
           access_expired: EXPIRE_TIME,
           user: {
             id: userId,
-            provider: userProviderModel.PROVIDER.NATIVE,
+            provider: userModel.PROVIDER.NATIVE,
             name,
             email,
           },
@@ -86,7 +98,7 @@ export async function signIn(req, res) {
     if (!isValidPassword) {
       throw new Error("invalid password");
     }
-    const token = await signJWT(user.user_id);
+    const token = await signJWT(user);
     res
       .cookie("jwtToken", token, COOKIE_OPTIONS)
       .status(200)
@@ -96,7 +108,7 @@ export async function signIn(req, res) {
           access_expired: EXPIRE_TIME,
           user: {
             ...user,
-            provider: userProviderModel.PROVIDER.NATIVE,
+            provider: userModel.PROVIDER.NATIVE,
           },
         },
       });
@@ -106,5 +118,13 @@ export async function signIn(req, res) {
       return;
     }
     res.status(500).json({ errors: "sign in failed" });
+  }
+}
+
+export async function getUserInfo(req, res) {
+  if (req.user) {
+    return res.status(200).json({ username: req.user.name });
+  } else {
+    return res.status(401).json({ errors: "Fail to get user info." });
   }
 }

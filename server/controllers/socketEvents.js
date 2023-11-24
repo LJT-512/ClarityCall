@@ -14,7 +14,7 @@ const setupSocketEvents = (io) => {
 
       userConnections.push({
         connectionId: socket.id,
-        userId: data.displayName,
+        username: data.displayName,
         meetingId: data.meetingId,
       });
 
