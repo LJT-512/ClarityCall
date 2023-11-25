@@ -617,7 +617,6 @@ const MyApp = (function () {
     });
 
     socket.on("showChatMessage", (data) => {
-      console.log("message data send from server: ", data);
       const time = new Date();
       const lTime = time.toLocaleString("en-US", {
         hour: "numeric",
@@ -633,12 +632,22 @@ const MyApp = (function () {
 
   function eventHandling() {
     const sendBtn = document.getElementById("btnsend");
-
     sendBtn.addEventListener("click", () => {
       const messageContent = document.getElementById("msgbox").value;
       if (messageContent.trim()) {
-        document.getElementById("msgbox").value = "";
         socket.emit("sendMessage", messageContent);
+        const time = new Date();
+        const lTime = time.toLocaleString("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        });
+        const div = document.createElement("div");
+        div.innerHTML = `<sapn class="font-weight-bold mr-3" style="color: black;">${username}</span>${lTime}</br>${messageContent}`;
+        const messagesDiv = document.getElementById("messages");
+        messagesDiv.appendChild(div);
+
+        document.getElementById("msgbox").value = "";
       }
     });
   }
