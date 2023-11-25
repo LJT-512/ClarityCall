@@ -55,6 +55,23 @@ const setupSocketEvents = (io) => {
       });
     });
 
+    socket.on("sendMessage", (msg) => {
+      console.log("this is the msg that the server got: ", msg);
+      const mUser = userConnections.find((p) => p.connectionId === socket.id);
+
+      if (mUser) {
+        const meetingId = mUser.meetingId;
+        const from = mUser.username;
+        const list = userConnections.filter((p) => p.meetingId === meetingId);
+        list.forEach((v) => {
+          socket.to(v.connectionId).emit("showChatMessage", {
+            from: from,
+            message: msg,
+          });
+        });
+      }
+    });
+
     socket.on("disconnect", () => {
       console.log("Disconnected");
       const disUser = userConnections.find((p) => p.connectionId === socket.id);

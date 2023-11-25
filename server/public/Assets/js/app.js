@@ -501,6 +501,7 @@ const MyApp = (function () {
     document.querySelector("#me h2").textContent = username + " (me)";
     document.title = username;
     eventProcessForSignalingServer();
+    eventHandling();
   }
 
   function eventProcessForSignalingServer() {
@@ -613,6 +614,32 @@ const MyApp = (function () {
     socket.on("informBackToOriginalMeeting", (data) => {
       console.log("got informBackToOriginalMeeting");
       window.location.href = `/?meetingID=${data.meetingId}`;
+    });
+
+    socket.on("showChatMessage", (data) => {
+      console.log("message data send from server: ", data);
+      const time = new Date();
+      const lTime = time.toLocaleString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      });
+      const div = document.createElement("div");
+      div.innerHTML = `<sapn class="font-weight-bold mr-3" style="color: black;">${data.from}</span>${lTime}</br>${data.message}`;
+      const messagesDiv = document.getElementById("messages");
+      messagesDiv.appendChild(div);
+    });
+  }
+
+  function eventHandling() {
+    const sendBtn = document.getElementById("btnsend");
+
+    sendBtn.addEventListener("click", () => {
+      const messageContent = document.getElementById("msgbox").value;
+      if (messageContent.trim()) {
+        document.getElementById("msgbox").value = "";
+        socket.emit("sendMessage", messageContent);
+      }
     });
   }
 
