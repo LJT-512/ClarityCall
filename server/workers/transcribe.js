@@ -4,6 +4,7 @@ import axios from "axios";
 import { fileURLToPath } from "url";
 import FormData from "form-data";
 import chokidar from "chokidar";
+import { Socket } from "socket.io";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "../public/uploads");
@@ -12,12 +13,12 @@ const apiKey = process.env.OPENAI_API_KEY;
 function sendFileToWhisper(filePath, io) {
   const form = new FormData();
   form.append("file", fs.createReadStream(filePath));
-  form.append("language", "zh");
+  // form.append("language", "zh");
   form.append("model", "whisper-1");
 
   const config = {
     method: "POST",
-    url: "https://api.openai.com/v1/audio/transcriptions",
+    url: "https://api.openai.com/v1/audio/translations",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       ...form.getHeaders(),
@@ -80,7 +81,7 @@ export function startTranscriptionWorker(io) {
       return;
     }
     console.log(`File ${filePath} has been added`);
-    sendFileToWhisper(filePath);
+    sendFileToWhisper(filePath, io);
   });
   watcher.on("unlink", (filePath) => {
     console.log(`File ${filePath} has been removed`);

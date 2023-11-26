@@ -18,6 +18,8 @@ const AppProcess = (function () {
   let videoCamTrack;
   let rtpVidSenders = [];
   let recorder;
+  let audioChunks = [];
+  let isRecording = false;
   let intervalId;
 
   async function _init(SDPFunction, myConnId, cameraToggleCallback) {
@@ -71,7 +73,6 @@ const AppProcess = (function () {
       }
     });
   }
-  let isRecording = false;
 
   async function loadAudio() {
     try {
@@ -81,10 +82,8 @@ const AppProcess = (function () {
       });
       audio = aStream.getAudioTracks()[0];
       audio.enabled = false;
-      recorder = RecordRTC(aStream, {
-        type: "audio",
+      recorder = new MediaRecorder(aStream, {
         mimeType: "audio/webm;codecs=opus",
-        bitsPerSecond: 512000,
       });
     } catch (err) {
       console.error("Failed to load audio: ", err);
@@ -92,18 +91,27 @@ const AppProcess = (function () {
   }
 
   function startRecording() {
-    console.log("recorder state", recorder.getState());
     if (!isRecording) {
-      recorder.startRecording();
+      audioChunks = [];
+      recorder.start();
       console.log("Audio recording start!");
       isRecording = true;
 
+      recorder.ondataavailable = (event) => {
+        audioChunks.push(event.data);
+      };
+
+      recorder.onstop = async () => {
+        console.log("Stopping audio recording...");
+        await uploadAudioToServer();
+        audioChunks = [];
+        if (isRecording) {
+          recorder.start();
+        }
+      };
+
       intervalId = setInterval(() => {
-        recorder.stopRecording(() => {
-          uploadAudioToServer();
-          recorder.reset();
-          recorder.startRecording();
-        });
+        recorder.stop();
       }, 5000);
     }
   }
@@ -111,30 +119,26 @@ const AppProcess = (function () {
   function stopRecording() {
     if (isRecording) {
       clearInterval(intervalId);
-      recorder.stopRecording(() => {
-        console.log("Stopping audio recording...");
-        uploadAudioToServer();
-        console.log("Recording audio stopped");
-        isRecording = false;
-      });
+      recorder.stop();
+      isRecording = false;
     }
   }
 
-  function uploadAudioToServer() {
-    let blob = recorder.getBlob();
+  async function uploadAudioToServer() {
+    let blob = new Blob(audioChunks, { type: "audio/webm" });
     let formData = new FormData();
     formData.append("audio", blob, `recorded_segment_${Date.now()}.webm`);
-    fetch("http://localhost:3000/api/upload", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("upload to server successful:", data);
-      })
-      .catch((error) => {
-        console.error("upload failed:", "error");
+    try {
+      let response = await fetch("http://localhost:3000/api/upload", {
+        method: "POST",
+        body: formData,
       });
+
+      let data = response.json();
+      console.log("upload to server successful:", data);
+    } catch (err) {
+      console.error("upload audo failed: ", err);
+    }
   }
 
   function connectionStatus(connection) {
