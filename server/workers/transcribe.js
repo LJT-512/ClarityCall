@@ -4,13 +4,13 @@ import axios from "axios";
 import { fileURLToPath } from "url";
 import FormData from "form-data";
 import chokidar from "chokidar";
-import { Socket } from "socket.io";
+import { userConnections } from "./../controllers/socketEvents.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "../public/uploads");
 const apiKey = process.env.OPENAI_API_KEY;
 
-function sendFileToWhisper(filePath, io) {
+function sendFileToWhisper(filePath, io, connId) {
   const form = new FormData();
   form.append("file", fs.createReadStream(filePath));
   // form.append("language", "zh");
@@ -33,6 +33,7 @@ function sendFileToWhisper(filePath, io) {
       console.log("Emitting subtitle:", response.data.text);
       io.emit("newSubtitle", {
         subtitle: response.data.text,
+        speakerId: connId,
       });
       fs.unlinkSync(filePath);
     })
@@ -80,8 +81,11 @@ export function startTranscriptionWorker(io) {
       console.log("Ignoring .gitkeep file.");
       return;
     }
+    const fileName = path.basename(filePath);
+    const connId = fileName.split("_")[2];
+    console.log("checking speaker connId", connId);
     console.log(`File ${filePath} has been added`);
-    sendFileToWhisper(filePath, io);
+    sendFileToWhisper(filePath, io, connId);
   });
   watcher.on("unlink", (filePath) => {
     console.log(`File ${filePath} has been removed`);

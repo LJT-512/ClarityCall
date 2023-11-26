@@ -127,7 +127,9 @@ const AppProcess = (function () {
   async function uploadAudioToServer() {
     let blob = new Blob(audioChunks, { type: "audio/webm" });
     let formData = new FormData();
-    formData.append("audio", blob, `recorded_segment_${Date.now()}.webm`);
+    let fileName = `recorded_segment_${myConnectionId}_${Date.now()}.webm`;
+    formData.append("audio", blob, fileName);
+
     try {
       let response = await fetch("http://localhost:3000/api/upload", {
         method: "POST",
@@ -611,10 +613,16 @@ const MyApp = (function () {
 
     socket.on("newSubtitle", (data) => {
       console.log("Received subtitle:", data.subtitle);
-      const subtitleDiv = document.getElementById("subtitle");
+      const userDivId =
+        data.speakerId === myConnectionId ? "me" : data.speakerId;
+      console.log("which user is speaking: ", userDivId);
+      const userDiv = document.getElementById(userDivId);
+      if (userDiv) {
+        const subtitleDiv = userDiv.querySelector(".subtitle");
 
-      if (data.subtitle) {
-        subtitleDiv.innerHTML = `<p>${data.subtitle}</p>`;
+        if (data.subtitle) {
+          subtitleDiv.innerHTML = `<p>${data.subtitle}</p>`;
+        }
       }
     });
 
