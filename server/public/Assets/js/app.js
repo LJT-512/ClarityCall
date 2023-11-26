@@ -559,16 +559,22 @@ const MyApp = (function () {
     });
 
     socket.on("informOthersAboutMe", function (data) {
-      addUser(data.otherUserId, data.connId);
+      addUser(data.otherUserId, data.connId), data.userNumber;
       console.log("informOthersAboutMe connId: ", data.connId);
       AppProcess.setNewConnection(data.connId);
     });
 
     socket.on("informMeAboutOtherUser", function (otherUsers) {
+      const userNumberWithoutMe = otherUsers.length;
+      const userNumber = userNumberWithoutMe + 1;
       if (otherUsers) {
         for (let i = 0; i < otherUsers.length; i++) {
           console.log("who are the others:", otherUsers[i]);
-          addUser(otherUsers[i].username, otherUsers[i].connectionId);
+          addUser(
+            otherUsers[i].username,
+            otherUsers[i].connectionId,
+            userNumber
+          );
           AppProcess.setNewConnection(otherUsers[i].connectionId);
         }
       }
@@ -576,6 +582,9 @@ const MyApp = (function () {
 
     socket.on("informOtherAboutDisconnectedUser", function (data) {
       document.getElementById(`${data.connId}`).remove();
+      const participantCount = document.querySelector(".participant-count");
+      participantCount.textContent = data.uNumber;
+      document.getElementById(`participant-${data.connId}`).remove();
       AppProcess.closeConnectionCall(data.connId);
     });
 
@@ -652,7 +661,7 @@ const MyApp = (function () {
     });
   }
 
-  function addUser(otherUserId, connId) {
+  function addUser(otherUserUsername, connId, userNumber) {
     const template = document.getElementById("other-template");
     let clonedDiv = template.cloneNode(true);
 
@@ -661,7 +670,7 @@ const MyApp = (function () {
     clonedDiv.classList.remove("d-none");
 
     const h2 = clonedDiv.querySelector("h2");
-    h2.textContent = otherUserId;
+    h2.textContent = otherUserUsername;
 
     const video = clonedDiv.querySelector("video");
     video.setAttribute("id", "v_" + connId);
@@ -669,10 +678,154 @@ const MyApp = (function () {
     const audio = clonedDiv.querySelector("audio");
     audio.setAttribute("id", "a_" + connId);
 
-    // clonedDiv.style.display = "block";
     const divUsers = document.getElementById("div-users");
     divUsers.appendChild(clonedDiv);
+
+    const participantTemplate = document.getElementById("participant-template");
+    let clonedParticipantDiv = participantTemplate.cloneNode(true);
+    clonedParticipantDiv.setAttribute("id", "participant-" + connId);
+    clonedParticipantDiv.classList.remove("d-none");
+    const participantImg = clonedParticipantDiv.querySelector(
+      ".participant-img img"
+    );
+    participantImg.src = "./Assets/images/other.jpg";
+    const participantName = clonedParticipantDiv.querySelector(
+      ".participant-name"
+    );
+    participantName.textContent = otherUserUsername;
+    const participantList = document.querySelector(".in-call-wrap-up");
+    participantList.appendChild(clonedParticipantDiv);
+
+    const participantCount = document.querySelector(".participant-count");
+    participantCount.textContent = userNumber;
   }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM fully loaded and parsed");
+    const peopleHeading = document.querySelector(".people-heading");
+    if (peopleHeading) {
+      peopleHeading.addEventListener("click", () => {
+        console.log("peopleHeading is clicked.");
+        const chatShowWrap = document.querySelector(".chat-show-wrap");
+        const inCallWrapUp = document.querySelector(".in-call-wrap-up");
+        peopleHeading.classList.add("active");
+        chatHeading.classList.remove("active");
+
+        if (chatShowWrap) {
+          chatShowWrap.classList.add("transition");
+          setTimeout(() => {
+            chatShowWrap.style.display = "none";
+            chatShowWrap.classList.remove("d-flex");
+          }, 300);
+        }
+
+        if (inCallWrapUp) {
+          inCallWrapUp.classList.remove("transition");
+
+          setTimeout(() => {
+            inCallWrapUp.style.display = "block";
+          }, 0);
+        }
+      });
+    } else {
+      console.error('The element with "people-heading" not found.');
+    }
+
+    const chatHeading = document.querySelector(".chat-heading");
+    if (chatHeading) {
+      chatHeading.addEventListener("click", () => {
+        const chatShowWrap = document.querySelector(".chat-show-wrap");
+        const inCallWrapUp = document.querySelector(".in-call-wrap-up");
+        peopleHeading.classList.remove("active");
+        chatHeading.classList.add("active");
+
+        if (chatShowWrap) {
+          chatShowWrap.classList.remove("transition");
+          setTimeout(() => {
+            chatShowWrap.style.display = "flex";
+          }, 0);
+        }
+
+        if (inCallWrapUp) {
+          inCallWrapUp.classList.add("transition");
+          setTimeout(() => {
+            inCallWrapUp.style.display = "none";
+          }, 0);
+        }
+      });
+    } else {
+      console.error('The element with "chat-heading" not found.');
+    }
+
+    const meetingHeadingCross = document.querySelector(
+      ".meeting-heading-cross"
+    );
+    const meetingDetailsWrap = document.querySelector(".g-right-details-wrap");
+    if (meetingHeadingCross) {
+      meetingHeadingCross.addEventListener("click", () => {
+        meetingDetailsWrap.classList.add("transition");
+        meetingDetailsWrap.classList.add("d-none");
+      });
+    } else {
+      console.error('The element with "meeting-heading-cross" not found.');
+    }
+    const participantWrap = document.querySelector(
+      ".top-left-participant-wrap"
+    );
+
+    if (participantWrap) {
+      participantWrap.addEventListener("click", () => {
+        peopleHeading.classList.add("active");
+        chatHeading.classList.remove("active");
+        meetingDetailsWrap.classList.remove("transition");
+        meetingDetailsWrap.classList.remove("d-none");
+        if (chatShowWrap) {
+          chatShowWrap.classList.add("transition");
+          setTimeout(() => {
+            chatShowWrap.style.display = "none";
+            chatShowWrap.classList.remove("d-flex");
+          }, 300);
+        }
+
+        if (inCallWrapUp) {
+          inCallWrapUp.classList.remove("transition");
+
+          setTimeout(() => {
+            inCallWrapUp.style.display = "block";
+          }, 0);
+        }
+      });
+    } else {
+      console.error('The element with "top-left-participant-wrap" not found.');
+    }
+
+    const chatWrap = document.querySelector(".top-left-chat-wrap");
+
+    if (chatWrap) {
+      chatWrap.addEventListener("click", () => {
+        meetingDetailsWrap.classList.remove("transition");
+        meetingDetailsWrap.classList.remove("d-none");
+        peopleHeading.classList.remove("active");
+        chatHeading.classList.add("active");
+
+        if (chatShowWrap) {
+          chatShowWrap.classList.remove("transition");
+          setTimeout(() => {
+            chatShowWrap.style.display = "flex";
+          }, 0);
+        }
+
+        if (inCallWrapUp) {
+          inCallWrapUp.classList.add("transition");
+          setTimeout(() => {
+            inCallWrapUp.style.display = "none";
+          }, 0);
+        }
+      });
+    } else {
+      console.error('The element with "top-left-participant-wrap" not found.');
+    }
+  });
 
   return {
     _init: function (uid, mid) {

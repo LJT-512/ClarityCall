@@ -20,10 +20,14 @@ const setupSocketEvents = (io) => {
 
       console.log("userConnections: ", userConnections);
 
+      const userCount = userConnections.length;
+      console.log(userCount);
+
       otherUsers.forEach((v) => {
         socket.to(v.connectionId).emit("informOthersAboutMe", {
           otherUserId: data.displayName,
           connId: socket.id,
+          userNumber: userCount,
         });
       });
       console.log("Informing new user about others", otherUsers);
@@ -84,8 +88,10 @@ const setupSocketEvents = (io) => {
         );
         const list = userConnections.filter((p) => p.meetingId === meetingId);
         list.forEach((v) => {
+          const userNumberAfterUserLeaves = userConnections.length;
           socket.to(v.connectionId).emit("informOtherAboutDisconnectedUser", {
             connId: socket.id,
+            uNumber: userNumberAfterUserLeaves,
           });
         });
       }
