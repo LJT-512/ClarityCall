@@ -10,6 +10,22 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
     />
     <link rel="stylesheet" href="Assets/css/style.css" />
+    <script type="module">
+      import {
+        HandLandmarker,
+        FilesetResolver,
+      } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+      window.FilesetResolver = FilesetResolver;
+      window.HandLandmarker = HandLandmarker;
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+      crossorigin="anonymous"
+    ></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
     <script src="Assets/js/app.js"></script>
@@ -64,10 +80,23 @@
                 id="div-users"
                 style="display: flex; flex-wrap: wrap; height: 100vh"
               >
-                <div id="me" class="userbox display-center flex-column">
+                <div
+                  id="me"
+                  class="userbox display-center flex-column"
+                  style="position: relative"
+                >
                   <h2 class="display-center" style="font: size 14px"></h2>
                   <div class="display-center flex-column">
                     <video autoplay muted id="localVideoPlayer"></video>
+                    <canvas
+                      class="output-canvas"
+                      id="me-output-canvas"
+                      style="position: absolute; top: 0; left: 0; z-index: 1"
+                    ></canvas>
+                    <canvas
+                      id="me-drawing-canvas"
+                      style="position: absolute; top: 0; left: 0; z-index: 2"
+                    ></canvas>
                     <div id="subtitle" class="subtitle"></div>
                   </div>
                 </div>
@@ -235,10 +264,16 @@
             <span class="material-icons" style="width: 100%">videocam_off</span>
           </div>
           <div
-            class="breakout-room-toggle-wrap action-icon-style display-center cursor-pointer"
+            class="breakout-room-toggle-wrap action-icon-style display-center cursor-pointer mr-2"
             id="breakoutRoomOnOff"
           >
             <span class="material-icons" style="width: 100%">view_cozy</span>
+          </div>
+          <div
+            class="draw-toggle-wrap action-icon-style display-center cursor-pointer"
+            id="drawOnOff"
+          >
+            <span class="material-icons" style="width: 100%">edit_off</span>
           </div>
         </div>
         <div

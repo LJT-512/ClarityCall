@@ -13,6 +13,14 @@ const AppProcess = (function () {
     none: 0,
     camera: 1,
     screenShare: 2,
+    draw: 3,
+  };
+  let handLandmarker;
+  let runningMode = "IMAGE";
+  let isDrawing = false;
+  let previousPosition = {
+    x: -1,
+    y: -1,
   };
   let videoSt = videoStates.none;
   let videoCamTrack;
@@ -28,6 +36,110 @@ const AppProcess = (function () {
     onCameraToggle = cameraToggleCallback;
     eventProcess();
     localDiv = document.getElementById("localVideoPlayer");
+  }
+
+  async function initializeHandTracking() {
+    console.log("this is the beginning of handTracker function.......");
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+    );
+    console.log("vision", vision);
+    handLandmarker = await HandLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+        delegate: "GPU",
+      },
+      runningMode: runningMode,
+      numHands: 2,
+    });
+
+    console.log("handLandmarker", handLandmarker);
+
+    // if (!handLandmarker) {
+    //   console.log("Hand tracking model not loaded yet.");
+    //   return;
+    // }
+    console.log("this is the end of handTracker function.......");
+  }
+
+  function processHandLandmarks(landmarks) {
+    const drawingCanvas = document.getElementById("me-drawing-canvas");
+    console.log("processHandLandmarks is being called");
+    const indexFingerTip = landmarks[8];
+    console.log("indexFingerTip", indexFingerTip);
+    const currentX = indexFingerTip.x * drawingCanvas.width;
+    const currentY = indexFingerTip.y * drawingCanvas.height;
+
+    if (indexFingerTip) {
+      if (!isDrawing) {
+        isDrawing = true;
+        previousPosition = { x: currentX, y: currentY };
+      } else {
+        if (previousPosition.x !== -1 && previousPosition.y !== -1) {
+          drawPath(previousPosition.x, previousPosition.y, currentX, currentY);
+        }
+        previousPosition = { x: currentX, y: currentY };
+      }
+    } else {
+      isDrawing = false;
+      previousPosition = { x: -1, y: -1 };
+    }
+  }
+
+  function drawPath(startX, startY, endX, endY) {
+    const drawingCanvas = document.getElementById("me-drawing-canvas");
+    const drawingCtx = drawingCanvas.getContext("2d");
+    drawingCtx.beginPath();
+    drawingCtx.moveTo(startX, startY);
+    drawingCtx.lineTo(endX, endY);
+    drawingCtx.strokeStyle = "blue";
+    drawingCtx.lineWidth = 3;
+    drawingCtx.stroke();
+  }
+
+  let lastVideoTime = -1;
+  let detectionResults = undefined;
+
+  async function updateCanvas() {
+    const mainCanvas = document.getElementById("me-output-canvas");
+    const mainCtx = mainCanvas.getContext("2d");
+    const drawingCanvas = document.getElementById("me-drawing-canvas");
+    const drawingCtx = drawingCanvas.getContext("2d");
+    console.log("updateCanvas is being called!");
+    if (runningMode === "IMAGE") {
+      runningMode = "VIDEO";
+      await handLandmarker.setOptions({ runningMode: "VIDEO" });
+    }
+
+    if (lastVideoTime != localDiv.currentTime) {
+      lastVideoTime = localDiv.currentTime;
+      console.log("Start getting detectionResults");
+      const detectionResults = await handLandmarker.detectForVideo(
+        localDiv,
+        performance.now()
+      );
+
+      mainCtx.clearRect(0, 0, mainCtx.width, mainCtx.height);
+      console.log("detectionResults.landmarks", detectionResults.landmarks);
+
+      if (detectionResults.landmarks) {
+        detectionResults.landmarks.forEach((landmarks) => {
+          console.log("Start processing processHandLandmarks");
+          processHandLandmarks(landmarks);
+          drawConnectors(mainCtx, landmarks, HAND_CONNECTIONS, {
+            color: "#00FF00",
+            lineWidth: 3,
+          });
+          drawLandmarks(mainCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
+        });
+      }
+    }
+
+    mainCtx.drawImage(drawingCtx, 0, 0);
+
+    if (videoCamTrack) {
+      window.requestAnimationFrame(updateCanvas);
+    }
   }
 
   function eventProcess() {
@@ -70,6 +182,14 @@ const AppProcess = (function () {
         await videoProcess(videoStates.none);
       } else {
         await videoProcess(videoStates.screenShare);
+      }
+    });
+    const drawBtn = document.getElementById("drawOnOff");
+    drawBtn.addEventListener("click", async (e) => {
+      if (videoSt === videoStates.draw) {
+        await videoProcess(videoStates.none);
+      } else {
+        await videoProcess(videoStates.draw);
       }
     });
   }
@@ -230,12 +350,40 @@ const AppProcess = (function () {
           document.getElementById("screenShareOnOff").innerHTML =
             '<span class="material-icons">present_to_all</span><div> Present Now</div>';
         };
+      } else if (newVideoState == videoStates.draw) {
+        if (vStream) {
+          vStream.oninactive = (e) => {
+            remoteVidStream(rtpVidSenders);
+          };
+        }
+        console.log("draw btn clicked!");
+        vStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: 1920,
+            height: 1080,
+          },
+          audio: false,
+        });
+
+        console.log("vStream", vStream);
+
+        console.log("After initializeHandTracking in videoProcess");
       }
       if (vStream && vStream.getVideoTracks().length > 0) {
         videoCamTrack = vStream.getVideoTracks()[0];
         if (videoCamTrack) {
           localDiv.srcObject = new MediaStream([videoCamTrack]);
+          console.log("localDiv.srcObject", localDiv.srcObject);
           updateMediaSenders(videoCamTrack, rtpVidSenders);
+        }
+      }
+      if (newVideoState == videoStates.draw) {
+        if (!handLandmarker) {
+          await initializeHandTracking();
+        }
+        console.log("Prepare to call updateCanvas in videoProcess");
+        if (localDiv.srcObject) {
+          localDiv.addEventListener("loadeddata", updateCanvas());
         }
       }
     } catch (err) {
@@ -248,7 +396,18 @@ const AppProcess = (function () {
         '<span class="material-icons" style="width: 100%">videocam_on</span>';
       document.getElementById("screenShareOnOff").innerHTML =
         '<span class="material-icons">present_to_all</span><div> Present Now</div>';
+      document.getElementById("drawOnOff").innerHTML =
+        '<span class="material-icons">edit_off</span>';
     } else if (newVideoState === videoStates.screenShare) {
+      document.getElementById("screenShareOnOff").innerHTML =
+        '<span class="material-icons text-success">present_to_all</span><div class="text-success">Stop Present Now</div>';
+      document.getElementById("videoCamOnOff").innerHTML =
+        '<span class="material-icons" style="width: 100%">videocam_off</span>';
+      document.getElementById("drawOnOff").innerHTML =
+        '<span class="material-icons">edit_off</span>';
+    } else if (newVideoState === videoStates.draw) {
+      document.getElementById("drawOnOff").innerHTML =
+        '<span class="material-icons">edit</span>';
       document.getElementById("screenShareOnOff").innerHTML =
         '<span class="material-icons text-success">present_to_all</span><div class="text-success">Stop Present Now</div>';
       document.getElementById("videoCamOnOff").innerHTML =
