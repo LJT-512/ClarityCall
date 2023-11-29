@@ -151,6 +151,12 @@ video {
   -moz-transform: rotateY(180deg);
 }
 
+#me-drawing-canvas {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+}
+
 .transition {
   transition: opacity 300ms ease-in-out;
   opacity: 0; /* Start with the element transparent */

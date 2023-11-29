@@ -30,6 +30,10 @@ const AppProcess = (function () {
   let audioChunks = [];
   let isRecording = false;
   let intervalId;
+  let mainCanvas;
+  let mainCtx;
+  let drawingCanvas;
+  let drawingCtx;
 
   async function _init(SDPFunction, myConnId, cameraToggleCallback) {
     serverProcess = SDPFunction;
@@ -37,6 +41,10 @@ const AppProcess = (function () {
     onCameraToggle = cameraToggleCallback;
     eventProcess();
     localDiv = document.getElementById("localVideoPlayer");
+    mainCanvas = document.getElementById("me-output-canvas");
+    mainCtx = mainCanvas.getContext("2d");
+    drawingCanvas = document.getElementById("me-drawing-canvas");
+    drawingCtx = drawingCanvas.getContext("2d");
   }
 
   async function initializeHandTracking() {
@@ -59,9 +67,6 @@ const AppProcess = (function () {
 
   function processHandLandmarks(landmarks) {
     console.log("processHandLandmarks is being called");
-    const mainCanvas = document.getElementById("me-output-canvas");
-    const mainCtx = mainCanvas.getContext("2d");
-    const drawingCanvas = document.getElementById("me-drawing-canvas");
     const indexFingerTip = landmarks[8];
     console.log("indexFingerTip", indexFingerTip);
     const currentX = indexFingerTip.x * drawingCanvas.width;
@@ -84,8 +89,6 @@ const AppProcess = (function () {
   }
 
   function drawPath(startX, startY, endX, endY) {
-    const drawingCanvas = document.getElementById("me-drawing-canvas");
-    const drawingCtx = drawingCanvas.getContext("2d");
     drawingCtx.beginPath();
     drawingCtx.moveTo(startX, startY);
     drawingCtx.lineTo(endX, endY);
@@ -101,10 +104,6 @@ const AppProcess = (function () {
 
   async function updateCanvas() {
     console.log("updateCanvas is running!");
-
-    const mainCanvas = document.getElementById("me-output-canvas");
-    const mainCtx = mainCanvas.getContext("2d");
-    const drawingCanvas = document.getElementById("me-drawing-canvas");
 
     if (runningMode === "IMAGE") {
       runningMode = "VIDEO";
@@ -135,7 +134,6 @@ const AppProcess = (function () {
 
     mainCtx.drawImage(drawingCanvas, 0, 0);
 
-    console.log("!!!!!!!!!!!!!!!!!!!!!in update cavans", webcamRunning);
     if (videoCamTrack) {
       window.requestAnimationFrame(updateCanvas);
     }
