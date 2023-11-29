@@ -122,6 +122,21 @@ input:focus {
   height: 100%;
 }
 
+.userbox {
+  position: relative;
+  width: 300px; /* Adjust to the size of the video */
+}
+
+.userbox video,
+.userbox canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* Make canvas and video fill the container */
+  height: 100%; /* Adjust if necessary */
+  border: 1px solid gray; /* Optional border for video */
+}
+
 video {
   border: 1px solid gray;
   width: 300px;

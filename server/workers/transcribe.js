@@ -13,12 +13,12 @@ const apiKey = process.env.OPENAI_API_KEY;
 function sendFileToWhisper(filePath, io, connId) {
   const form = new FormData();
   form.append("file", fs.createReadStream(filePath));
-  // form.append("language", "zh");
+  form.append("language", "zh");
   form.append("model", "whisper-1");
 
   const config = {
     method: "POST",
-    url: "https://api.openai.com/v1/audio/translations",
+    url: "https://api.openai.com/v1/audio/transcriptions",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       ...form.getHeaders(),
