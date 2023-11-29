@@ -34,6 +34,7 @@ const AppProcess = (function () {
   let mainCtx;
   let drawingCanvas;
   let drawingCtx;
+  let mode = "drawing";
 
   async function _init(SDPFunction, myConnId, cameraToggleCallback) {
     serverProcess = SDPFunction;
@@ -65,12 +66,42 @@ const AppProcess = (function () {
     console.log("handLandmarker in initializeHandTracking", handLandmarker);
   }
 
+  function fingersUp(landmarks) {
+    let fingers = [];
+    const tipIds = [4, 8, 12, 16, 20];
+    if (landmarks[tipIds[0]].x > landmarks[tipIds[0] - 1].x) {
+      fingers.push(1);
+    } else {
+      fingers.push(0);
+    }
+
+    for (let i = 1; i < tipIds.length; i++) {
+      if (landmarks[tipIds[i]].y < landmarks[tipIds[i] - 2].y) {
+        fingers.push(1);
+      } else {
+        fingers.push(0);
+      }
+    }
+
+    return fingers;
+  }
+
   function processHandLandmarks(landmarks) {
     console.log("processHandLandmarks is being called");
+    const fingers = fingersUp(landmarks);
     const indexFingerTip = landmarks[8];
+    const middleFingerTip = landmarks[12];
     console.log("indexFingerTip", indexFingerTip);
     const currentX = indexFingerTip.x * drawingCanvas.width;
     const currentY = indexFingerTip.y * drawingCanvas.height;
+
+    if (fingers[1] === 1 && fingers[2] === 1) {
+      mode = "erasing";
+    } else if (fingers[1] === 1) {
+      mode = "drawing";
+    } else {
+      mode = "none";
+    }
 
     if (indexFingerTip) {
       if (!isDrawing) {
@@ -78,7 +109,14 @@ const AppProcess = (function () {
         previousPosition = { x: currentX, y: currentY };
       } else {
         if (previousPosition.x !== -1 && previousPosition.y !== -1) {
-          drawPath(previousPosition.x, previousPosition.y, currentX, currentY);
+          console.log("Current mode is .....", mode);
+          drawPath(
+            previousPosition.x,
+            previousPosition.y,
+            currentX,
+            currentY,
+            mode
+          );
         }
         previousPosition = { x: currentX, y: currentY };
       }
@@ -88,13 +126,24 @@ const AppProcess = (function () {
     }
   }
 
-  function drawPath(startX, startY, endX, endY) {
-    drawingCtx.beginPath();
-    drawingCtx.moveTo(startX, startY);
-    drawingCtx.lineTo(endX, endY);
-    drawingCtx.strokeStyle = "blue";
-    drawingCtx.lineWidth = 3;
-    drawingCtx.stroke();
+  function drawPath(startX, startY, endX, endY, mode) {
+    const eraserThickness = 10;
+    if (mode === "drawing") {
+      drawingCtx.beginPath();
+      drawingCtx.moveTo(startX, startY);
+      drawingCtx.lineTo(endX, endY);
+      drawingCtx.strokeStyle = "blue";
+      drawingCtx.lineWidth = 3;
+      drawingCtx.stroke();
+    } else if (mode === "erasing") {
+      drawingCtx.globalCompositeOperation = "destination-out";
+      drawingCtx.arc(startX, startY, eraserThickness, 0, Math.PI * 2, false);
+      drawingCtx.fill();
+
+      drawingCtx.globalCompositeOperation = "source-over";
+    } else {
+      return;
+    }
   }
 
   let lastVideoTime = -1;
