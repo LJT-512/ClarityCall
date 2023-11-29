@@ -22,6 +22,7 @@ const AppProcess = (function () {
     x: -1,
     y: -1,
   };
+  let webcamRunning = false;
   let videoSt = videoStates.none;
   let videoCamTrack;
   let rtpVidSenders = [];
@@ -53,18 +54,18 @@ const AppProcess = (function () {
       numHands: 2,
     });
 
-    console.log("handLandmarker", handLandmarker);
+    console.log("handLandmarker in initializeHandTracking", handLandmarker);
   }
 
   function processHandLandmarks(landmarks) {
+    console.log("processHandLandmarks is being called");
     const mainCanvas = document.getElementById("me-output-canvas");
     const mainCtx = mainCanvas.getContext("2d");
     const drawingCanvas = document.getElementById("me-drawing-canvas");
-    console.log("processHandLandmarks is being called");
     const indexFingerTip = landmarks[8];
     console.log("indexFingerTip", indexFingerTip);
-    const currentX = indexFingerTip.x * mainCanvas.width;
-    const currentY = indexFingerTip.y * mainCanvas.height;
+    const currentX = indexFingerTip.x * drawingCanvas.width;
+    const currentY = indexFingerTip.y * drawingCanvas.height;
 
     if (indexFingerTip) {
       if (!isDrawing) {
@@ -72,7 +73,7 @@ const AppProcess = (function () {
         previousPosition = { x: currentX, y: currentY };
       } else {
         if (previousPosition.x !== -1 && previousPosition.y !== -1) {
-          // drawPath(previousPosition.x, previousPosition.y, currentX, currentY);
+          drawPath(previousPosition.x, previousPosition.y, currentX, currentY);
         }
         previousPosition = { x: currentX, y: currentY };
       }
@@ -82,32 +83,29 @@ const AppProcess = (function () {
     }
   }
 
-  // function drawPath(startX, startY, endX, endY) {
-  //   const mainCanvas = document.getElementById("me-output-canvas");
-  //   const mainCtx = mainCanvas.getContext("2d");
-  //   // const drawingCanvas = document.getElementById("me-drawing-canvas");
-  //   // const drawingCtx = drawingCanvas.getContext("2d");
-  //   mainCtx.beginPath();
-  //   mainCtx.moveTo(startX, startY);
-  //   mainCtx.lineTo(endX, endY);
-  //   mainCtx.strokeStyle = "blue";
-  //   mainCtx.lineWidth = 3;
-  //   mainCtx.stroke();
-  // }
+  function drawPath(startX, startY, endX, endY) {
+    const drawingCanvas = document.getElementById("me-drawing-canvas");
+    const drawingCtx = drawingCanvas.getContext("2d");
+    drawingCtx.beginPath();
+    drawingCtx.moveTo(startX, startY);
+    drawingCtx.lineTo(endX, endY);
+    drawingCtx.strokeStyle = "blue";
+    drawingCtx.lineWidth = 3;
+    drawingCtx.stroke();
+  }
 
   let lastVideoTime = -1;
   let detectionResults = undefined;
 
   let shouldUpdateCanvas = true;
+
   async function updateCanvas() {
-    if (!shouldUpdateCanvas) {
-      return;
-    }
+    console.log("updateCanvas is running!");
+
     const mainCanvas = document.getElementById("me-output-canvas");
     const mainCtx = mainCanvas.getContext("2d");
-    // const drawingCanvas = document.getElementById("me-drawing-canvas");
-    // const drawingCtx = drawingCanvas.getContext("2d");
-    console.log("updateCanvas is being called!");
+    const drawingCanvas = document.getElementById("me-drawing-canvas");
+
     if (runningMode === "IMAGE") {
       runningMode = "VIDEO";
       await handLandmarker.setOptions({ runningMode: "VIDEO" });
@@ -115,18 +113,16 @@ const AppProcess = (function () {
 
     if (lastVideoTime != localDiv.currentTime) {
       lastVideoTime = localDiv.currentTime;
-      console.log("Start getting detectionResults");
       const detectionResults = await handLandmarker.detectForVideo(
         localDiv,
         performance.now()
       );
 
-      mainCtx.clearRect(0, 0, mainCtx.width, mainCtx.height);
-      console.log("detectionResults.landmarks", detectionResults.landmarks);
+      mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
 
       if (detectionResults.landmarks) {
         detectionResults.landmarks.forEach((landmarks) => {
-          console.log("Start processing processHandLandmarks");
+          console.log("landmarks of detectionResults", landmarks);
           processHandLandmarks(landmarks);
           drawConnectors(mainCtx, landmarks, HAND_CONNECTIONS, {
             color: "#00FF00",
@@ -137,8 +133,9 @@ const AppProcess = (function () {
       }
     }
 
-    mainCtx.drawImage(mainCanvas, 0, 0);
+    mainCtx.drawImage(drawingCanvas, 0, 0);
 
+    console.log("!!!!!!!!!!!!!!!!!!!!!in update cavans", webcamRunning);
     if (videoCamTrack) {
       window.requestAnimationFrame(updateCanvas);
     }
@@ -353,18 +350,6 @@ const AppProcess = (function () {
             '<span class="material-icons">present_to_all</span><div> Present Now</div>';
         };
       } else if (newVideoState == videoStates.draw) {
-        if (!handLandmarker) {
-          console.log("Initializing hand tracking...");
-          await initializeHandTracking();
-          console.log("Hand tracking initialized.");
-        } else {
-          console.log("Hand tracking already initialized.");
-        }
-        if (vStream) {
-          vStream.oninactive = (e) => {
-            remoteVidStream(rtpVidSenders);
-          };
-        }
         console.log("draw btn clicked!");
         vStream = await navigator.mediaDevices.getUserMedia({
           video: {
@@ -373,8 +358,30 @@ const AppProcess = (function () {
           },
           audio: false,
         });
+        if (vStream) {
+          webcamRunning = !webcamRunning;
+        }
+        if (!handLandmarker) {
+          console.log(
+            "====================== Initializing hand tracking ====================== "
+          );
+          await initializeHandTracking();
+          console.log(
+            "!!!!!!!!!!!!!!!!!!!!! Hand tracking initialized !!!!!!!!!!!!!!!!!!!!!!!!"
+          );
+        } else {
+          console.log("Hand tracking already initialized.");
+        }
+        if (vStream) {
+          vStream.oninactive = (e) => {
+            remoteVidStream(rtpVidSenders);
+          };
+        }
 
         localDiv.addEventListener("loadeddata", updateCanvas);
+        console.log(
+          "after evernt listener loadeddata updateCanvas is loading!"
+        );
 
         console.log("vStream", vStream);
       }
@@ -384,6 +391,10 @@ const AppProcess = (function () {
           localDiv.srcObject = new MediaStream([videoCamTrack]);
           console.log("localDiv.srcObject", localDiv.srcObject);
           updateMediaSenders(videoCamTrack, rtpVidSenders);
+          console.log(
+            "==================================this is the value of videoCamTrack",
+            videoCamTrack
+          );
         }
       }
     } catch (err) {
