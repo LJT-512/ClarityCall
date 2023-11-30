@@ -54,8 +54,7 @@ export async function signUp(req, res) {
 
     const userId = await userModel.createNativeUser(name, email, password);
     const user = await userModel.findUserByEmail(email);
-
-    const token = await generateJWTToken(user);
+    const token = await getUserInfoWithToken(user);
     res
       .cookie("jwtToken", token, COOKIE_OPTIONS)
       .status(200)

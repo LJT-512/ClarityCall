@@ -22,7 +22,6 @@ export function signJWT(payload) {
 
 export async function getUserInfoWithToken(user) {
   const token = await signJWT(user);
-
   return {
     token: token,
     userData: {
