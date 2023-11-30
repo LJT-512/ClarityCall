@@ -28,46 +28,7 @@
     ></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
-    <script src="Assets/js/app.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", async () => {
-        console.log("DOMContentLoaded in main.html");
-        const urlParams = new URLSearchParams(window.location.search);
-        const meetingId = urlParams.get("meetingID");
-
-        if (!meetingId) {
-          alert("Meeting id missing");
-          window.location.href = "/action.html";
-        } else {
-          try {
-            const response = await fetch("/api/user/info");
-
-            if (!response.ok) {
-              throw new Error("Authentication required");
-            }
-
-            const data = await response.json();
-            console.log("this is data", data.username);
-            const username = data.username;
-            console.log("username:", username);
-
-            if (username) {
-              const meetingContainer = document.getElementById(
-                "meetingContainer"
-              );
-              if (meetingContainer) {
-                meetingContainer.style.display = "block";
-              }
-              MyApp._init(username, meetingId);
-            } else {
-              throw new Error("Username not found");
-            }
-          } catch (err) {
-            console.error(err);
-          }
-        }
-      });
-    </script>
+    <script type="module" src="Assets/js/app.js"></script>
   </head>
   <body>
     <main class="d-flex flex-column home-wrap">
