@@ -160,7 +160,12 @@ async function updateCanvas() {
     await handLandmarker.setOptions({ runningMode: "VIDEO" });
   }
 
-  if (lastVideoTime != localDiv.currentTime) {
+  if (
+    localDiv.readyState >= 2 &&
+    localDiv.videoWidth > 0 &&
+    localDiv.videoHeight > 0 &&
+    lastVideoTime != localDiv.currentTime
+  ) {
     lastVideoTime = localDiv.currentTime;
     const detectionResults = await handLandmarker.detectForVideo(
       localDiv,
