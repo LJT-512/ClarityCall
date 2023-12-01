@@ -28,7 +28,7 @@ async function initApp() {
     document.querySelector("#me h2").textContent = username + " (me)";
     document.title = username;
     eventProcessForSignalingServer(socket, username, meetingId);
-    eventHandling();
+    eventHandling(username);
   } catch (err) {
     console.error(err);
   }

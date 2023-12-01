@@ -6,8 +6,6 @@ import {
 } from "./RTCConnection.js";
 import { myConnectionId } from "./RTCConnection.js";
 import { addUser } from "./uiHandler.js";
-import { drawPath } from "./media.js";
-
 export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
     console.log("========== SDPFunction being called ==========");
@@ -175,6 +173,8 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("showChatMessage", (data) => {
+    console.log("in showChatMessage the username is ", username);
+    console.log("in showChatMessage the data is", data);
     const time = new Date();
     const lTime = time.toLocaleString("en-US", {
       hour: "numeric",
@@ -182,13 +182,26 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
       hour12: true,
     });
     const div = document.createElement("div");
-    div.innerHTML = `<sapn class="font-weight-bold mr-3" style="color: black;">${data.from}</span>${lTime}</br>${data.message}`;
+    div.classList.add("chat-message");
+    if (data.from === username) {
+      console.log(
+        `this is data from:  ${data.from} and this is username: ${username}`
+      );
+      div.classList.add("message-from-me");
+      div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">You</span> ${lTime}</br>${data.message}</div>`;
+    } else {
+      div.classList.add("message-from-others");
+      div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">${data.from}</span> ${lTime}</br>${data.message}</div>`;
+    }
+
     const messagesDiv = document.getElementById("messages");
     messagesDiv.appendChild(div);
+
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
   });
 };
 
-export const eventHandling = () => {
+export const eventHandling = (username) => {
   const sendBtn = document.getElementById("btnsend");
   sendBtn.addEventListener("click", () => {
     const messageContent = document.getElementById("msgbox").value;
@@ -201,7 +214,9 @@ export const eventHandling = () => {
         hour12: true,
       });
       const div = document.createElement("div");
-      div.innerHTML = `<sapn class="font-weight-bold mr-3" style="color: black;">${username}</span>${lTime}</br>${messageContent}`;
+      div.classList.add("chat-message");
+      div.classList.add("message-from-me");
+      div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">Me</span> ${lTime}</br>${messageContent}</div>`;
       const messagesDiv = document.getElementById("messages");
       messagesDiv.appendChild(div);
 
