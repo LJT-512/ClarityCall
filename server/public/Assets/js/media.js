@@ -368,10 +368,16 @@ async function videoProcess(newVideoState) {
     document.getElementById("screenShareOnOff").innerHTML =
       '<span class="material-icons">present_to_all</span><div>Present Now</div>';
 
+    document.getElementById("drawOnOff").innerHTML =
+      '<span class="material-icons" style="width: 100%">edit_off</span>';
+
     videoSt = newVideoState;
     removeVideoStream(rtpVidSenders);
     console.log("!!!setting onCameraToggle off!!!! ");
     onCameraToggle("off", myConnectionId);
+    socket.emit("clearCanvas", { connId: myConnectionId });
+    mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+    drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
     return;
   }
   if (newVideoState === videoStates.camera) {
@@ -468,10 +474,11 @@ async function videoProcess(newVideoState) {
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons">edit_off</span>';
   } else if (newVideoState === videoStates.draw) {
+    console.log("should change ");
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons">edit</span>';
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons text-success">present_to_all</span><div class="text-success">Stop Present Now</div>';
+      '<span class="material-icons">present_to_all</span><div> Present Now</div>';
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
   }

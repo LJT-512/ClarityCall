@@ -79,6 +79,20 @@ const setupSocketEvents = (io) => {
       });
     });
 
+    socket.on("clearCanvas", (data) => {
+      const { connId } = data;
+      const meetingId = userConnections.find(
+        (u) => u.connId === userConnections.connectionId
+      ).meetingId;
+      const list = userConnections.filter((u) => u.meetingId === meetingId);
+      console.log("Inform these users about canvas drawing: ", list);
+      list.forEach((v) => {
+        socket
+          .to(v.connectionId)
+          .emit("informCanvasClear", { fromConnId: connId });
+      });
+    });
+
     socket.on("sendMessage", (msg) => {
       console.log("this is the msg that the server got: ", msg);
       const mUser = userConnections.find((p) => p.connectionId === socket.id);

@@ -125,6 +125,30 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     }
   });
 
+  socket.on("informCanvasClear", (data) => {
+    console.log(
+      "client side got informCanvasClear event to clear canvas: ",
+      data.fromConnId
+    );
+    const mainCanvasId = `mc_${data.fromConnId}`;
+    const drawingCanvasId = `dc_${data.fromConnId}`;
+
+    const mainCanvas = document.getElementById(mainCanvasId);
+    const drawingCanvas = document.getElementById(drawingCanvasId);
+
+    if (mainCanvas && drawingCanvas) {
+      const mainCtx = mainCanvas.getContext("2d");
+      const drawingCtx = drawingCanvas.getContext("2d");
+
+      mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+      drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+    } else {
+      console.error(
+        `One of the canvas elements was not found: mainCanvasId: ${mainCanvasId}, drawingCanvasId: ${drawingCanvasId}`
+      );
+    }
+  });
+
   socket.on("newSubtitle", (data) => {
     console.log("Received subtitle:", data.subtitle);
     const userDivId = data.speakerId === myConnectionId ? "me" : data.speakerId;
