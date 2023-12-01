@@ -123,7 +123,7 @@ function processHandLandmarks(landmarks) {
   }
 }
 
-function drawPath(startX, startY, endX, endY, mode) {
+export function drawPath(startX, startY, endX, endY, mode) {
   const eraserThickness = 10;
   if (mode === "drawing") {
     drawingCtx.beginPath();
@@ -141,6 +141,15 @@ function drawPath(startX, startY, endX, endY, mode) {
   } else {
     return;
   }
+
+  socket.emit("drawCanvas", {
+    startX,
+    startY,
+    endX,
+    endY,
+    mode,
+    myConnectionId,
+  });
 }
 
 async function updateCanvas() {
@@ -177,6 +186,10 @@ async function updateCanvas() {
 
   if (videoCamTrack) {
     window.requestAnimationFrame(updateCanvas);
+  } else {
+    console.log("videoCamTrack", videoCamTrack);
+    drawingCtx.clearRect(0, 0, drawingCanvas.width, mainCanvas.height);
+    mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
   }
 }
 

@@ -15,6 +15,12 @@ export function addUser(otherUserUsername, connId, userNumber) {
   const audio = clonedDiv.querySelector("audio");
   audio.setAttribute("id", "a_" + connId);
 
+  const outputCanvas = clonedDiv.querySelector(".output-canvas");
+  outputCanvas.setAttribute("id", "mc_" + connId);
+
+  const drawingCanvas = clonedDiv.querySelector(".drawing-canvas");
+  drawingCanvas.setAttribute("id", "dc_" + connId);
+
   const divUsers = document.getElementById("div-users");
   divUsers.appendChild(clonedDiv);
 

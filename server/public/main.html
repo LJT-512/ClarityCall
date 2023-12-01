@@ -69,6 +69,14 @@
                   <h2 class="display-center" style="font: size 14px"></h2>
                   <div class="display-center flex-column">
                     <video autoplay muted></video>
+                    <canvas
+                      class="output-canvas"
+                      style="position: absolute; top: 0; left: 0; z-index: 1"
+                    ></canvas>
+                    <canvas
+                      class="drawing-canvas"
+                      style="position: absolute; top: 0; left: 0; z-index: 2"
+                    ></canvas>
                     <audio autoplay controls style="display: none"></audio>
                     <div id="subtitle" class="subtitle"></div>
                   </div>
@@ -236,12 +244,6 @@
             id="drawOnOff"
           >
             <span class="material-icons" style="width: 100%">edit_off</span>
-          </div>
-          <div
-            class="erase-toggle-wrap action-icon-style display-center cursor-pointer mr-2"
-            id="drawOnOff"
-          >
-            <span class="material-icons" style="width: 100%">auto_fix_off</span>
           </div>
         </div>
         <div

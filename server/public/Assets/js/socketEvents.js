@@ -6,6 +6,7 @@ import {
 } from "./RTCConnection.js";
 import { myConnectionId } from "./RTCConnection.js";
 import { addUser } from "./uiHandler.js";
+import { drawPath } from "./media.js";
 
 export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
@@ -93,6 +94,34 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
 
     if (userVideoToRemoved && status === "off") {
       userVideoToRemoved.srcObject = null;
+    }
+  });
+
+  socket.on("updateCanvasDrawing", (data) => {
+    console.log("client side got updateCanvasDrawing event!!!!!");
+    const { startX, startY, endX, endY, mode, fromConnId } = data;
+    console.log("coordinates:", startX, startY, endX, endY);
+    const mainCanvas = document.getElementById(`mc_${fromConnId}`);
+    const mainCtx = mainCanvas.getContext("2d");
+    const drawingCanvas = document.getElementById(`dc_${fromConnId}`);
+    const drawingCtx = drawingCanvas.getContext("2d");
+    // drawPath(startX, startY, endX, endY, mode);
+    const eraserThickness = 10;
+    if (mode === "drawing") {
+      drawingCtx.beginPath();
+      drawingCtx.moveTo(startX, startY);
+      drawingCtx.lineTo(endX, endY);
+      drawingCtx.strokeStyle = "blue";
+      drawingCtx.lineWidth = 3;
+      drawingCtx.stroke();
+    } else if (mode === "erasing") {
+      drawingCtx.globalCompositeOperation = "destination-out";
+      drawingCtx.arc(startX, startY, eraserThickness, 0, Math.PI * 2, false);
+      drawingCtx.fill();
+
+      drawingCtx.globalCompositeOperation = "source-over";
+    } else {
+      return;
     }
   });
 

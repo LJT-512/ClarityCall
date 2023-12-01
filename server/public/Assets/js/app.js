@@ -37,6 +37,7 @@ async function initApp() {
 let socket;
 let username;
 socket = io.connect();
+window.socket = socket;
 
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM fully loaded and parsed");
