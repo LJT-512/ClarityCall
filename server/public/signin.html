@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="Assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="Assets/css/signin.css" />
+    <title>Signup/Signin</title>
+  </head>
+  <body style="padding-top: 3.5rem">
+    <main></main>
+      <div class="bg-image">
+          <div id="signin-form" class="signin-modal w-50 d-flex flex-column align-items-center gap-3" style="font-family: 'Noto Sans', sans-serif; color: #4a4a4a;"> <!-- Bootstrap width and flex classes, inline styles for font and color -->
+              <div class="px-5 py-2 d-flex flex-column mt-4">
+                  <h2 class="h2">Hello, who's this?</h2>
+                  <div class="w-auto h-px bg-black"></div>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                  <label>Name</label>
+                  <input id="name-input" type="text" class="border border-gray-100"> 
+              </input>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                  <label>Email*</label>
+                  <input id="email-input" type="text" class="border border-gray-100"></input>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                  <label>Password*</label>
+                  <input id="password-input" type="password" class="border border-gray-100"></input>
+              </div>
+              <div class="d-flex gap-2 text-sm mb-4">
+                  <button id="signup-btn" class="border border-dark text-dark py-1 px-2 bg-light hover:bg-gray-200" style="transition: ease-in-out .2s;" onclick="handleNativeSignup()">Sign up</button>
+                  <button id="signin-btn" class="bg-black text-white py-1 px-2 hover:bg-gray-800" style="transition: ease-in-out .2s;" onclick="handleNativeSignin()">Sign in</button>
+              </div>
+          </div>
+    </div>
+    <script>
+
+
+
+function handleNativeSignup() {
+const userName = document.getElementById("name-input").value;
+const userEmail = document.getElementById("email-input").value;
+const userPassword = document.getElementById("password-input").value;
+const params = new URLSearchParams(window.location.search);
+  const redirectUrl = params.get('redirect');
+
+
+  fetch("/api/user/signup", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      name: userName,
+      email: userEmail,
+      password: userPassword,
+    }),
+  })
+    .then(resonse => response.json())
+    .then((response) => {
+      if (resonse.data.access_token) {
+        alert(`Welcom, Happy meeting! ${response.user.name}`);
+        window.location.href = redirectUrl || '/action.html';
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+}
+
+function handleNativeSignin() {
+const userEmail = document.getElementById("email-input").value;
+const userPassword = document.getElementById("password-input").value;
+const params = new URLSearchParams(window.location.search);
+const redirectUrl = params.get('redirect');
+
+  fetch("/api/user/signin", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      email: userEmail,
+      password: userPassword,
+    }),
+  })
+    .then(response => response.json())
+    .then((response) => {
+      if (response.data.access_token) {
+        alert(`Happy meeting! ${response.data.user.name}`);
+        console.log('redirectURL:', redirectUrl);
+        window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : '/action.html';
+    }
+  })
+    .catch((err) => {
+      console.error(err);
+    });
+}
+
+    </script>
+  </body>
+</html>
