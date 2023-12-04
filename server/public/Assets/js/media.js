@@ -23,7 +23,6 @@ let previousPosition = {
   x: -1,
   y: -1,
 };
-let webcamRunning = false;
 export let videoSt = videoStates.none;
 export let videoCamTrack;
 export let rtpVidSenders = [];
@@ -193,6 +192,7 @@ async function updateCanvas() {
     window.requestAnimationFrame(updateCanvas);
   } else {
     console.log("videoCamTrack", videoCamTrack);
+
     drawingCtx.clearRect(0, 0, drawingCanvas.width, mainCanvas.height);
     mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
   }
@@ -373,10 +373,15 @@ async function videoProcess(newVideoState) {
     document.getElementById("screenShareOnOff").innerHTML =
       '<span class="material-icons">present_to_all</span><div>Present Now</div>';
 
+    document.getElementById("drawOnOff").innerHTML =
+      '<span class="material-icons" style="width: 100%">edit_off</span>';
+
     videoSt = newVideoState;
     removeVideoStream(rtpVidSenders);
     console.log("!!!setting onCameraToggle off!!!! ");
     onCameraToggle("off", myConnectionId);
+    console.log("turning off drawing camera!!!!!!!!!!!", myConnectionId);
+    socket.emit("drawerTurnsOffCanvas", { myConnectionId });
     return;
   }
   if (newVideoState === videoStates.camera) {
@@ -415,9 +420,6 @@ async function videoProcess(newVideoState) {
         },
         audio: false,
       });
-      if (vStream) {
-        webcamRunning = !webcamRunning;
-      }
       if (!handLandmarker) {
         console.log(
           "====================== Initializing hand tracking ====================== "
@@ -437,8 +439,6 @@ async function videoProcess(newVideoState) {
 
       localDiv.addEventListener("loadeddata", updateCanvas);
       console.log("after evernt listener loadeddata updateCanvas is loading!");
-
-      console.log("vStream", vStream);
     }
     if (vStream && vStream.getVideoTracks().length > 0) {
       videoCamTrack = vStream.getVideoTracks()[0];
@@ -464,19 +464,19 @@ async function videoProcess(newVideoState) {
     document.getElementById("screenShareOnOff").innerHTML =
       '<span class="material-icons">present_to_all</span><div> Present Now</div>';
     document.getElementById("drawOnOff").innerHTML =
-      '<span class="material-icons">edit_off</span>';
+      '<span class="material-icons" style="width: 100%">edit_off</span>';
   } else if (newVideoState === videoStates.screenShare) {
     document.getElementById("screenShareOnOff").innerHTML =
       '<span class="material-icons text-success">present_to_all</span><div class="text-success">Stop Present Now</div>';
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
     document.getElementById("drawOnOff").innerHTML =
-      '<span class="material-icons">edit_off</span>';
+      '<span class="material-icons" style="width: 100%">edit_off</span>';
   } else if (newVideoState === videoStates.draw) {
     document.getElementById("drawOnOff").innerHTML =
-      '<span class="material-icons">edit</span>';
+      '<span class="material-icons" style="width: 100%">edit_on</span>';
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons text-success">present_to_all</span><div class="text-success">Stop Present Now</div>';
+      '<span class="material-icons">present_to_all</span><div> Present Now</div>';
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
   }

@@ -3,10 +3,9 @@ import {
   setConnection,
   SDPProcess,
   closeConnectionCall,
+  myConnectionId,
 } from "./RTCConnection.js";
-import { myConnectionId } from "./RTCConnection.js";
 import { addUser } from "./uiHandler.js";
-import { drawPath } from "./media.js";
 
 export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
@@ -123,6 +122,17 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     } else {
       return;
     }
+  });
+
+  socket.on("clearCanvas", (data) => {
+    const { fromConnId } = data;
+    console.log("in clearCanvas, the fromConnId is......", fromConnId);
+    const mainCanvas = document.getElementById(`mc_${fromConnId}`);
+    const mainCtx = mainCanvas.getContext("2d");
+    const drawingCanvas = document.getElementById(`dc_${fromConnId}`);
+    const drawingCtx = drawingCanvas.getContext("2d");
+    drawingCtx.clearRect(0, 0, drawingCanvas.width, mainCanvas.height);
+    mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
   });
 
   socket.on("newSubtitle", (data) => {
