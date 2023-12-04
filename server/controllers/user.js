@@ -122,7 +122,9 @@ export async function signIn(req, res) {
 
 export async function getUserInfo(req, res) {
   if (req.user) {
-    return res.status(200).json({ username: req.user.name });
+    return res
+      .status(200)
+      .json({ username: req.user.name, userId: req.user.user_id });
   } else {
     return res.status(401).json({ errors: "Fail to get user info." });
   }

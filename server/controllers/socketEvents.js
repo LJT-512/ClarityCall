@@ -15,6 +15,7 @@ const setupSocketEvents = (io) => {
       userConnections.push({
         connectionId: socket.id,
         username: data.displayName,
+        userId: data.userId,
         meetingId: data.meetingId,
       });
 
@@ -26,6 +27,7 @@ const setupSocketEvents = (io) => {
       otherUsers.forEach((v) => {
         socket.to(v.connectionId).emit("informOthersAboutMe", {
           otherUserId: data.displayName,
+          userId: data.userId,
           connId: socket.id,
           userNumber: userCount,
         });

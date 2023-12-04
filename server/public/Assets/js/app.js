@@ -20,15 +20,17 @@ async function initApp() {
 
     const data = await response.json();
     const username = data.username;
+    const userId = data.userId;
     console.log("username:", username);
+    console.log("userId:", userId);
     if (!username) throw new Error("Username not found");
 
     const meetingContainer = document.getElementById("meetingContainer");
     if (meetingContainer) meetingContainer.style.display = "block";
     document.querySelector("#me h2").textContent = username + " (me)";
     document.title = username;
-    eventProcessForSignalingServer(socket, username, meetingId);
-    eventHandling(username);
+    eventProcessForSignalingServer(socket, username, meetingId, userId);
+    eventHandling(username, userId);
   } catch (err) {
     console.error(err);
   }

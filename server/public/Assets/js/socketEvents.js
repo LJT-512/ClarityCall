@@ -7,7 +7,12 @@ import {
 } from "./RTCConnection.js";
 import { addUser } from "./uiHandler.js";
 
-export const eventProcessForSignalingServer = (socket, username, meetingId) => {
+export const eventProcessForSignalingServer = (
+  socket,
+  username,
+  meetingId,
+  userId
+) => {
   const SDPFunction = function (data, toConnId) {
     console.log("========== SDPFunction being called ==========");
     socket.emit("SDPProcess", {
@@ -34,6 +39,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
       if (username != "" && meetingId != "") {
         socket.emit("userconnect", {
           displayName: username,
+          userId: userId,
           meetingId,
         });
       }
