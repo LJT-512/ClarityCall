@@ -79,17 +79,19 @@ const setupSocketEvents = (io) => {
       });
     });
 
-    socket.on("clearCanvas", (data) => {
-      const { connId } = data;
+    socket.on("drawerTurnsOffCanvas", (data) => {
+      console.log("the server got drawerTurnsOffCanvas");
+      const { myConnectionId } = data;
       const meetingId = userConnections.find(
-        (u) => u.connId === userConnections.connectionId
+        (u) => u.myConnectionId === userConnections.connectionId
       ).meetingId;
       const list = userConnections.filter((u) => u.meetingId === meetingId);
-      console.log("Inform these users about canvas drawing: ", list);
+      console.log("Inform these users about canvas clearing: ", list);
+      console.log("myConnectionId", myConnectionId);
       list.forEach((v) => {
-        socket
-          .to(v.connectionId)
-          .emit("informCanvasClear", { fromConnId: connId });
+        socket.to(v.connectionId).emit("clearCanvas", {
+          fromConnId: myConnectionId,
+        });
       });
     });
 

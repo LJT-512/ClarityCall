@@ -3,9 +3,10 @@ import {
   setConnection,
   SDPProcess,
   closeConnectionCall,
+  myConnectionId,
 } from "./RTCConnection.js";
-import { myConnectionId } from "./RTCConnection.js";
 import { addUser } from "./uiHandler.js";
+
 export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
     console.log("========== SDPFunction being called ==========");
@@ -123,28 +124,15 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     }
   });
 
-  socket.on("informCanvasClear", (data) => {
-    console.log(
-      "client side got informCanvasClear event to clear canvas: ",
-      data.fromConnId
-    );
-    const mainCanvasId = `mc_${data.fromConnId}`;
-    const drawingCanvasId = `dc_${data.fromConnId}`;
-
-    const mainCanvas = document.getElementById(mainCanvasId);
-    const drawingCanvas = document.getElementById(drawingCanvasId);
-
-    if (mainCanvas && drawingCanvas) {
-      const mainCtx = mainCanvas.getContext("2d");
-      const drawingCtx = drawingCanvas.getContext("2d");
-
-      mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-      drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-    } else {
-      console.error(
-        `One of the canvas elements was not found: mainCanvasId: ${mainCanvasId}, drawingCanvasId: ${drawingCanvasId}`
-      );
-    }
+  socket.on("clearCanvas", (data) => {
+    const { fromConnId } = data;
+    console.log("in clearCanvas, the fromConnId is......", fromConnId);
+    const mainCanvas = document.getElementById(`mc_${fromConnId}`);
+    const mainCtx = mainCanvas.getContext("2d");
+    const drawingCanvas = document.getElementById(`dc_${fromConnId}`);
+    const drawingCtx = drawingCanvas.getContext("2d");
+    drawingCtx.clearRect(0, 0, drawingCanvas.width, mainCanvas.height);
+    mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
   });
 
   socket.on("newSubtitle", (data) => {
@@ -214,13 +202,39 @@ export const eventHandling = (username) => {
         hour12: true,
       });
       const div = document.createElement("div");
+<<<<<<< HEAD
       div.classList.add("chat-message");
       div.classList.add("message-from-me");
       div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">Me</span> ${lTime}</br>${messageContent}</div>`;
+=======
+      div.innerHTML = `<sapn class="font-weight-bold mr-3" style="color: black;">Me</span>${lTime}</br>${messageContent}`;
+>>>>>>> feature_mediapipe
       const messagesDiv = document.getElementById("messages");
       messagesDiv.appendChild(div);
 
       document.getElementById("msgbox").value = "";
     }
   });
+
+  const url = window.location.href;
+  const meetinUrl = document.querySelector(".meeting_url");
+  const copyInfo = document.querySelector(".copy_info");
+  meetinUrl.textContent = url;
+  copyInfo.addEventListener("click", copyJoiningInfo);
 };
+
+function copyJoiningInfo() {
+  console.log("copyJoiningInfo is running");
+  const meetinUrl = document.querySelector(".meeting_url");
+  const linkConf = document.querySelector(".link-conf");
+  const tempInput = document.createElement("input");
+  document.body.appendChild(tempInput);
+  tempInput.value = meetinUrl.textContent;
+  tempInput.select();
+  document.execCommand("copy");
+  document.body.removeChild(tempInput);
+  linkConf.style.display = "inline";
+  setTimeout(() => {
+    linkConf.style.display = "none";
+  }, 3000);
+}
