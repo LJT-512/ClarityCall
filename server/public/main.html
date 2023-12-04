@@ -302,6 +302,22 @@
           </div>
         </div>
       </div>
+      <div id="breakoutRoomModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2 style="color: gray;">Create breakout rooms</h2>
+          <div id="breakoutRoomErrorMessage" style="color: red; display: none;"></div>
+          <form id="breakoutRoomForm">
+            <label for="numOfRooms" style="color: gray;">Number of rooms:</label>
+            <input type="number" id="numOfRooms" name="numOfRooms" min="2" value="2"><br>
+            
+            <label for="timeSetting" style="color: gray;">Time per room (seconds):</label>
+            <input type="number" id="timeSetting" name="timeSetting" min="15" value="30"><br>
+            
+            <input type="submit" value="Create">
+          </form>
+        </div>
+      </div>
     </main>
   </body>
 </html>

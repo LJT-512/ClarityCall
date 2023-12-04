@@ -5,7 +5,7 @@ function endBreakoutSession(meetingId) {
   const io = getIO();
   console.log("===============Breakoutroom session is ending ==========");
   const breakoutInfo = userMeetingRooms[meetingId];
-  console.log("breakoutInfo", breakoutInfo);
+  console.log("breakoutInfo.rooms", breakoutInfo.rooms);
   if (breakoutInfo) {
     breakoutInfo.rooms.forEach((roomUsers) => {
       roomUsers.forEach((user) => {
@@ -59,6 +59,9 @@ export async function breakoutRooms(req, res) {
     });
   }
 
+  console.log(
+    `!!!!!!!!there are ${rooms} for this breakoutroom session!!!!!!!!!`
+  );
   userMeetingRooms[meetingId] = {
     setTime,
     rooms: rooms.map((room) => room.roomUsers),

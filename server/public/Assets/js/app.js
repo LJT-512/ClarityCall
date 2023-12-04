@@ -125,9 +125,27 @@ function setupClickEvent(clickSelector, targetSelector, action, ...classes) {
 }
 
 const breakoutroomBtn = document.getElementById("breakoutRoomOnOff");
-const urlParams = new URLSearchParams(window.location.search);
-const meetingId = urlParams.get("meetingID");
-breakoutroomBtn.addEventListener("click", (e) => {
+const breakoutroomModal = document.getElementById("breakoutRoomModal");
+const errorMessageDiv = document.getElementById("breakoutRoomErrorMessage");
+const span = document.getElementsByClassName("close")[0];
+breakoutroomBtn.addEventListener("click", () => {
+  breakoutroomModal.style.display = "block";
+});
+span.addEventListener("click", () => {
+  breakoutroomModal.style.display = "none";
+});
+window.onclick = function (e) {
+  if (e.target == breakoutroomModal) {
+    breakoutroomModal.style.display = "none";
+  }
+};
+document.getElementById("breakoutRoomForm").onsubmit = function (e) {
+  e.preventDefault();
+  const urlParams = new URLSearchParams(window.location.search);
+  const meetingId = urlParams.get("meetingID");
+  const numOfRoom = document.getElementById("numOfRooms").value;
+  const setTime = document.getElementById("timeSetting").value;
+
   fetch("/api/breakoutroom", {
     method: "POST",
     headers: {
@@ -135,17 +153,31 @@ breakoutroomBtn.addEventListener("click", (e) => {
     },
     body: JSON.stringify({
       meetingId,
-      numOfRoom: 2,
-      setTime: 30,
+      numOfRoom: parseInt(numOfRoom, 10),
+      setTime: parseInt(setTime, 10),
     }),
   })
     .then((response) => {
-      response = response.json();
-      console.log(response);
+      if (!response.ok) {
+        throw response;
+      }
+      return response.json();
     })
-
-    .catch((err) => console.error("Failed to get breakroom info", err));
-});
+    .then((data) => {
+      console.log(data);
+      breakoutroomModal.style.display = "none";
+      errorMessageDiv.style.display = "none";
+    })
+    .catch((err) => {
+      err.json().then((body) => {
+        errorMessageDiv.textContent = body.message;
+        errorMessageDiv.style.display = "block";
+        setTimeout(() => {
+          errorMessageDiv.style.display = "none";
+        }, 2000);
+      });
+    });
+};
 
 const endCallBtn = document.querySelector(".end-call-wrap");
 const leaveCallModal = document.querySelector(".top-box-show");
