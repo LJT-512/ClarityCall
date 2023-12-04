@@ -127,9 +127,17 @@ function setupClickEvent(clickSelector, targetSelector, action, ...classes) {
 const breakoutroomBtn = document.getElementById("breakoutRoomOnOff");
 const breakoutroomModal = document.getElementById("breakoutRoomModal");
 const errorMessageDiv = document.getElementById("breakoutRoomErrorMessage");
+const urlParams = new URLSearchParams(window.location.search);
+const meetingId = urlParams.get("meetingID");
 const span = document.getElementsByClassName("close")[0];
 breakoutroomBtn.addEventListener("click", () => {
-  breakoutroomModal.style.display = "block";
+  if (meetingId.length === 8) {
+    breakoutroomModal.style.display = "block";
+    breakoutroomBtn.innerHTML = `<span class="material-icons" style="width: 100%">grid_on</span>`;
+  } else {
+    alert("You are already in a breakout room.");
+    breakoutroomBtn.innerHTML = `<span class="material-icons" style="width: 100%">grid_off</span>`;
+  }
 });
 span.addEventListener("click", () => {
   breakoutroomModal.style.display = "none";
@@ -141,8 +149,6 @@ window.onclick = function (e) {
 };
 document.getElementById("breakoutRoomForm").onsubmit = function (e) {
   e.preventDefault();
-  const urlParams = new URLSearchParams(window.location.search);
-  const meetingId = urlParams.get("meetingID");
   const numOfRoom = document.getElementById("numOfRooms").value;
   const setTime = document.getElementById("timeSetting").value;
 

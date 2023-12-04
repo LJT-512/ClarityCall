@@ -43,10 +43,11 @@ const setupSocketEvents = (io) => {
     socket.on("userVideoToggle", (data) => {
       console.log("userVideoToggle got the message");
       const { connId, status } = data;
+      console.log(`${connId} in server userVideoToggle`);
       // eslint-disable-next-line prefer-destructuring
-      const meetingId = userConnections.find(
-        (u) => u.connId === userConnections.connectionId
-      ).meetingId;
+      console.log("userConenctions in userVideoToggle", userConnections);
+      const meetingId = userConnections.find((u) => u.connectionId === connId)
+        .meetingId;
 
       console.log("camera status chaned: ", meetingId);
       const list = userConnections.filter((p) => p.meetingId === meetingId);
@@ -63,7 +64,7 @@ const setupSocketEvents = (io) => {
       console.log("the server got drawCanvas");
       const { startX, startY, endX, endY, mode, myConnectionId } = data;
       const meetingId = userConnections.find(
-        (u) => u.myConnectionId === userConnections.connectionId
+        (u) => u.connectionId === myConnectionId
       ).meetingId;
       const list = userConnections.filter((u) => u.meetingId === meetingId);
       console.log("Inform these users about canvas drawing: ", list);
@@ -82,8 +83,12 @@ const setupSocketEvents = (io) => {
     socket.on("drawerTurnsOffCanvas", (data) => {
       console.log("the server got drawerTurnsOffCanvas");
       const { myConnectionId } = data;
+      console.log(
+        "userConnections in drawerTurnsOffCanvas event",
+        userConnections
+      );
       const meetingId = userConnections.find(
-        (u) => u.myConnectionId === userConnections.connectionId
+        (u) => u.connectionId === myConnectionId
       ).meetingId;
       const list = userConnections.filter((u) => u.meetingId === meetingId);
       console.log("Inform these users about canvas clearing: ", list);

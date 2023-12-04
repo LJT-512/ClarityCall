@@ -1,7 +1,6 @@
 import verifyJWT from "../utils/verifyJWT.js";
 
 export async function isAuthenticated(req, res, next) {
-  console.log("isAuthenticated middleware called", req.path);
   try {
     const tokenInHeaders = req.get("Authorization");
     const token = tokenInHeaders
@@ -17,7 +16,6 @@ export async function isAuthenticated(req, res, next) {
   } catch (err) {
     if (err instanceof Error) {
       const redirectUrl = encodeURIComponent(req.originalUrl);
-      console.log("redirectUrl", redirectUrl);
       res.redirect(`/signin?redirect=${redirectUrl}`);
       return;
     }

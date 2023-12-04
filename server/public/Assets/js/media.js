@@ -347,6 +347,7 @@ export async function updateMediaSenders(track, rtpSenders) {
 
 function removeMediaSenders(rtpSenders) {
   for (let conId in peersConnectionIds) {
+    console.log(`!!!!!!!!!!!!!${conId} in ${peersConnectionIds}!!!!!!!!!!!`);
     if (rtpSenders[conId] && connectionStatus(peersConnection[conId])) {
       peersConnection[conId].removeTrack(rtpSenders[conId]);
       rtpSenders[conId] = null;

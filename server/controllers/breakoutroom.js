@@ -5,7 +5,6 @@ function endBreakoutSession(meetingId) {
   const io = getIO();
   console.log("===============Breakoutroom session is ending ==========");
   const breakoutInfo = userMeetingRooms[meetingId];
-  console.log("breakoutInfo.rooms", breakoutInfo.rooms);
   if (breakoutInfo) {
     breakoutInfo.rooms.forEach((roomUsers) => {
       roomUsers.forEach((user) => {

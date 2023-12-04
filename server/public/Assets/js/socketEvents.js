@@ -19,6 +19,9 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
 
   function onCameraToggle(status, connId) {
     console.log("onCameraToggle is being called!");
+    console.log(
+      `${connId} in onCameraToggle, this is who turns on or off the camera`
+    );
     socket.emit("userVideoToggle", { connId, status });
   }
 
@@ -202,13 +205,10 @@ export const eventHandling = (username) => {
         hour12: true,
       });
       const div = document.createElement("div");
-<<<<<<< HEAD
       div.classList.add("chat-message");
       div.classList.add("message-from-me");
       div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">Me</span> ${lTime}</br>${messageContent}</div>`;
-=======
-      div.innerHTML = `<sapn class="font-weight-bold mr-3" style="color: black;">Me</span>${lTime}</br>${messageContent}`;
->>>>>>> feature_mediapipe
+
       const messagesDiv = document.getElementById("messages");
       messagesDiv.appendChild(div);
 
