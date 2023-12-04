@@ -184,4 +184,26 @@ export const eventHandling = () => {
       document.getElementById("msgbox").value = "";
     }
   });
+
+  const url = window.location.href;
+  const meetinUrl = document.querySelector(".meeting_url");
+  const copyInfo = document.querySelector(".copy_info");
+  meetinUrl.textContent = url;
+  copyInfo.addEventListener("click", copyJoiningInfo);
 };
+
+function copyJoiningInfo() {
+  console.log("copyJoiningInfo is running");
+  const meetinUrl = document.querySelector(".meeting_url");
+  const linkConf = document.querySelector(".link-conf");
+  const tempInput = document.createElement("input");
+  document.body.appendChild(tempInput);
+  tempInput.value = meetinUrl.textContent;
+  tempInput.select();
+  document.execCommand("copy");
+  document.body.removeChild(tempInput);
+  linkConf.style.display = "inline";
+  setTimeout(() => {
+    linkConf.style.display = "none";
+  }, 3000);
+}
