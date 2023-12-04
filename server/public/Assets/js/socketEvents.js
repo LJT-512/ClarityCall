@@ -187,7 +187,7 @@ export const eventHandling = () => {
         hour12: true,
       });
       const div = document.createElement("div");
-      div.innerHTML = `<sapn class="font-weight-bold mr-3" style="color: black;">${username}</span>${lTime}</br>${messageContent}`;
+      div.innerHTML = `<sapn class="font-weight-bold mr-3" style="color: black;">Me</span>${lTime}</br>${messageContent}`;
       const messagesDiv = document.getElementById("messages");
       messagesDiv.appendChild(div);
 
