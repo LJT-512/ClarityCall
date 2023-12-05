@@ -48,7 +48,7 @@ export async function signUp(req, res) {
 
     if (await userModel.checkUserExists(email)) {
       return res
-        .status(403)
+        .status(401)
         .json({ error: "This account exists. Please log in." });
     }
 
@@ -106,19 +106,21 @@ export async function signIn(req, res) {
       throw new Error("invalid password");
     }
     const token = await signJWT(user);
-    res
-      .cookie("jwtToken", token, COOKIE_OPTIONS)
-      .status(200)
-      .json({
-        data: {
-          access_token: token,
-          access_expired: EXPIRE_TIME,
-          user: {
-            ...user,
-            provider: userModel.PROVIDER.NATIVE,
+    if (token) {
+      res
+        .cookie("jwtToken", token, COOKIE_OPTIONS)
+        .status(200)
+        .json({
+          data: {
+            access_token: token,
+            access_expired: EXPIRE_TIME,
+            user: {
+              ...user,
+              provider: userModel.PROVIDER.NATIVE,
+            },
           },
-        },
-      });
+        });
+    }
   } catch (err) {
     if (err instanceof Error) {
       res.status(400).json({ error: err.message });

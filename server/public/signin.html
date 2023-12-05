@@ -98,15 +98,15 @@ const redirectUrl = params.get('redirect');
       password: userPassword,
     }),
   })
-    .then(resonse => {
+    .then(response => {
       if (!response.ok) {
         throw response;
       }
       return response.json(); 
     })
     .then((response) => {
-      if (resonse.data.access_token) {
-        alert(`Welcom, Happy meeting! ${response.user.name}`);
+      if (response.data.access_token) {
+        alert(`Welcom, Happy meeting! ${response.data.user.name}`);
         window.location.href = redirectUrl || '/action.html';
       }
     })
@@ -122,9 +122,9 @@ const redirectUrl = params.get('redirect');
       } else {
         console.error(err); 
         errorMessage.textContent = 'An error occurred. Please try again.';
-    errorMessage.style.display = "block";
-    setTimeout(() => {
-      errorMessage.style.display = "none";
+        errorMessage.style.display = "block";
+        setTimeout(() => {
+        errorMessage.style.display = "none";
     }, 2000);
       }
       
