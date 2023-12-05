@@ -39,6 +39,8 @@ export function addUser(otherUserUsername, connId, userNumber) {
   const participantList = document.querySelector(".in-call-wrap-up");
   participantList.appendChild(clonedParticipantDiv);
 
-  const participantCount = document.querySelector(".participant-count");
-  participantCount.textContent = userNumber;
+  const participantCounts = document.querySelectorAll(".participant-count");
+  participantCounts.forEach((countElement) => {
+    countElement.textContent = userNumber;
+  });
 }

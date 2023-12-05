@@ -47,7 +47,7 @@ export const eventProcessForSignalingServer = (
   });
 
   socket.on("informOthersAboutMe", async function (data) {
-    addUser(data.otherUserId, data.connId), data.userNumber;
+    addUser(data.otherUserId, data.connId, data.userNumber);
     console.log("informOthersAboutMe connId: ", data.connId);
     try {
       await setConnection(data.connId);
@@ -74,7 +74,7 @@ export const eventProcessForSignalingServer = (
 
   socket.on("informOtherAboutDisconnectedUser", async function (data) {
     document.getElementById(`${data.connId}`).remove();
-    const participantCount = document.querySelector(".participant-count");
+    const participantCount = document.querySelectorAll(".participant-count");
     participantCount.textContent = data.uNumber;
     document.getElementById(`participant-${data.connId}`).remove();
     try {
