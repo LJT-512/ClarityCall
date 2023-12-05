@@ -8,12 +8,48 @@
     <title>Signup/Signin</title>
   </head>
   <body style="padding-top: 3.5rem">
-    <main></main>
+    <nav class="nav navbar-expand-md fixed-top">
+      <img src="Assets/images/google-meet-icon.png" class="logo" alt="" />
+      <a href="#" class="navbar-brand text-dark">Clarity Call</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a href="#" class="nav-link">At a glance</a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">How it works</a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">Plan and Price</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav mr-0">
+          <li class="nav-item sign-in display-center">
+            <a href="signin.html" class="nav-link">Sign in</a>
+          </li>
+          <li class="nav-item">
+            <button
+              class="btn btn-outline-secondary btn-lg text-info font-weight-bold join-meeting"
+            >
+              Join the meeting
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="btn btn-info btn-lg text-light font-weight-bold new-meeting"
+            >
+              Start a meeting
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
       <div class="bg-image">
           <div id="signin-form" class="signin-modal w-50 d-flex flex-column align-items-center gap-3" style="font-family: 'Noto Sans', sans-serif; color: #4a4a4a;"> <!-- Bootstrap width and flex classes, inline styles for font and color -->
-              <div class="px-5 py-2 d-flex flex-column mt-4">
+              <div class="px-5 py-2 d-flex flex-column mt-4 align-items-center">
                   <h2 class="h2">Hello, who's this?</h2>
                   <div class="w-auto h-px bg-black"></div>
+                  <div id="memberErrorMessage" style="color: red; display: none;"></div>
               </div>
               <div class="d-flex flex-column gap-2">
                   <label>Name</label>
@@ -34,16 +70,21 @@
               </div>
           </div>
     </div>
+    <footer class="footer">
+      <h6>
+        Learn more about <span class="learn-more text-info">Clarity Call.</span>
+      </h6>
+    </footer>
     <script>
 
-
+const errorMessage = document.getElementById('memberErrorMessage');
 
 function handleNativeSignup() {
 const userName = document.getElementById("name-input").value;
 const userEmail = document.getElementById("email-input").value;
 const userPassword = document.getElementById("password-input").value;
 const params = new URLSearchParams(window.location.search);
-  const redirectUrl = params.get('redirect');
+const redirectUrl = params.get('redirect');
 
 
   fetch("/api/user/signup", {
@@ -57,7 +98,12 @@ const params = new URLSearchParams(window.location.search);
       password: userPassword,
     }),
   })
-    .then(resonse => response.json())
+    .then(resonse => {
+      if (!response.ok) {
+        throw response;
+      }
+      return response.json(); 
+    })
     .then((response) => {
       if (resonse.data.access_token) {
         alert(`Welcom, Happy meeting! ${response.user.name}`);
@@ -65,7 +111,23 @@ const params = new URLSearchParams(window.location.search);
       }
     })
     .catch((err) => {
-      console.error(err);
+      if (err instanceof Response) {
+        err.json().then((body) => {
+        errorMessage.textContent = body.error;
+        errorMessage.style.display = "block";
+        setTimeout(() => {
+          errorMessage.style.display = "none";
+        }, 2000);
+      });
+      } else {
+        console.error(err); 
+        errorMessage.textContent = 'An error occurred. Please try again.';
+    errorMessage.style.display = "block";
+    setTimeout(() => {
+      errorMessage.style.display = "none";
+    }, 2000);
+      }
+      
     });
 }
 
@@ -85,7 +147,12 @@ const redirectUrl = params.get('redirect');
       password: userPassword,
     }),
   })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw response;
+      }
+      return response.json(); 
+    })
     .then((response) => {
       if (response.data.access_token) {
         alert(`Happy meeting! ${response.data.user.name}`);
@@ -94,7 +161,23 @@ const redirectUrl = params.get('redirect');
     }
   })
     .catch((err) => {
-      console.error(err);
+      if (err instanceof Response) {
+        err.json().then((body) => {
+        errorMessage.textContent = body.error;
+        errorMessage.style.display = "block";
+        setTimeout(() => {
+          errorMessage.style.display = "none";
+        }, 2000);
+      });
+      } else {
+        console.error(err); 
+        errorMessage.textContent = 'An error occurred. Please try again.';
+    errorMessage.style.display = "block";
+    setTimeout(() => {
+      errorMessage.style.display = "none";
+    }, 2000);
+      }
+      
     });
 }
 

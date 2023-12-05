@@ -1,41 +1,86 @@
-body, html {
-    height: 100%;
-    margin: 0;
-  }
+body,
+html {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.nav {
+  height: 60px;
+}
 
-  .bg-image {
-    /* The image used */
-    background-image: url('../images/users.jpg');
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.logo {
+  height: 43px;
+}
+.navbar-brand {
+  font-size: 27px;
+  padding-left: 10px;
+  font-family: "Lato";
+}
+.nav-item a {
+  color: gray !important;
+  font-size: 16px;
+  padding: 0 10px;
+  font-weight: 600;
+}
+.display-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+li.nav-item {
+  padding: 0 10px;
+}
 
-    /* Full height */
-    height: 100%;
+.bg-image {
+  /* The image used */
+  background-image: url("../images/users.jpg");
 
-    /* Center and scale the image nicely */
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+  /* Full height */
+  flex: 1;
 
-    /* Set up positioning context for centering the form */
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 
-  .signin-modal {
-    /* Modal styles */
-    background-color:rgba(255, 255, 255, 0.95);
-    padding: 20px;
-    border-radius: 5px;
+  /* Set up positioning context for centering the form */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 60px;
+  padding-bottom: 40px;
+  box-sizing: border-box;
+}
 
-    /* Size of the modal */
-    width: 300px;
+.signin-modal {
+  /* Modal styles */
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 5px;
 
-    /* Box shadow for a bit of depth */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Size of the modal */
+  width: 300px;
 
-    /* This will put the modal above the background image */
-    z-index: 2;
+  /* Box shadow for a bit of depth */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-    /* Positioning to ensure it's on top and centered */
-    position: absolute;
+  /* This will put the modal above the background image */
+  z-index: 2;
+
+  /* Positioning to ensure it's on top and centered */
+  position: absolute;
+}
+
+.footer {
+  height: 40;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

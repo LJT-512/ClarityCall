@@ -72,10 +72,10 @@ export async function signUp(req, res) {
       });
   } catch (err) {
     if (err instanceof Error) {
-      res.status(400).json({ errors: err.message });
+      res.status(400).json({ error: err.message });
       return;
     }
-    res.status(500).json({ errors: "sign up failed" });
+    res.status(500).json({ error: "sign up failed" });
   }
 }
 
@@ -88,7 +88,15 @@ export async function signIn(req, res) {
         .json({ error: "Email and password are required." });
     }
 
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ error: "Invalid email format." });
+    }
+
     const user = await userModel.findUserByEmail(email);
+
+    if (!user) {
+      return res.status(400).json({ error: "Not a valid user." });
+    }
 
     const isValidPassword = await userModel.checkPassword(
       user.user_id,
@@ -113,10 +121,10 @@ export async function signIn(req, res) {
       });
   } catch (err) {
     if (err instanceof Error) {
-      res.status(400).json({ errors: err.message });
+      res.status(400).json({ error: err.message });
       return;
     }
-    res.status(500).json({ errors: "sign in failed" });
+    res.status(500).json({ error: "sign in failed" });
   }
 }
 
@@ -126,6 +134,6 @@ export async function getUserInfo(req, res) {
       .status(200)
       .json({ username: req.user.name, userId: req.user.user_id });
   } else {
-    return res.status(401).json({ errors: "Fail to get user info." });
+    return res.status(401).json({ error: "Fail to get user info." });
   }
 }
