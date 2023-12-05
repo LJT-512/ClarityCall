@@ -7,12 +7,7 @@ import {
 } from "./RTCConnection.js";
 import { addUser } from "./uiHandler.js";
 
-export const eventProcessForSignalingServer = (
-  socket,
-  username,
-  meetingId,
-  userId
-) => {
+export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
     console.log("========== SDPFunction being called ==========");
     socket.emit("SDPProcess", {
@@ -30,21 +25,25 @@ export const eventProcessForSignalingServer = (
     socket.emit("userVideoToggle", { connId, status });
   }
 
-  socket.on("connect", () => {
-    if (socket.connected) {
+  if (socket.connected) {
+    initRTCConnection(SDPFunction, socket.id, (status) =>
+      onCameraToggle(status, socket.id)
+    );
+  } else {
+    socket.on("connect", () => {
       initRTCConnection(SDPFunction, socket.id, (status) =>
         onCameraToggle(status, socket.id)
       );
-      console.log("in eventProcessForSignalingServer meetingId", meetingId);
-      if (username != "" && meetingId != "") {
-        socket.emit("userconnect", {
-          displayName: username,
-          userId: userId,
-          meetingId,
-        });
-      }
-    }
-  });
+    });
+  }
+
+  // socket.on("connect", () => {
+  //   console.log("connected!!!!!", socket.id);
+  //   initRTCConnection(SDPFunction, socket.id, (status) =>
+  //     onCameraToggle(status, socket.id)
+  //   );
+  //   console.log("in eventProcessForSignalingServer meetingId", meetingId);
+  // });
 
   socket.on("informOthersAboutMe", async function (data) {
     addUser(data.otherUserId, data.connId, data.userNumber);
@@ -67,9 +66,15 @@ export const eventProcessForSignalingServer = (
           await setConnection(otherUsers[i].connectionId);
         } catch (err) {
           console.error("Error setting connection:", err);
+          si;
         }
       }
     }
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("socket is disconnected.", reason);
+    socket.connect();
   });
 
   socket.on("informOtherAboutDisconnectedUser", async function (data) {

@@ -21,8 +21,8 @@ const setupSocketEvents = (io) => {
 
       console.log("userConnections: ", userConnections);
 
-      const userCount = userConnections.length;
-      console.log(userCount);
+      const userCount = otherUsers.length + 1;
+      console.log("userCount", userCount);
 
       otherUsers.forEach((v) => {
         socket.to(v.connectionId).emit("informOthersAboutMe", {

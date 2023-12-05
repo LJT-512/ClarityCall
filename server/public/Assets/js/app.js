@@ -21,14 +21,28 @@ async function initApp() {
     const data = await response.json();
     const username = data.username;
     const userId = data.userId;
-    console.log("username:", username);
-    console.log("userId:", userId);
+    console.log(
+      "username:",
+      username,
+      "userId:",
+      userId,
+      "socketId",
+      socket.id
+    );
     if (!username) throw new Error("Username not found");
 
     const meetingContainer = document.getElementById("meetingContainer");
     if (meetingContainer) meetingContainer.style.display = "block";
     document.querySelector("#me h2").textContent = username + " (me)";
     document.title = username;
+
+    console.log("Emitting userconnect after validation!");
+    socket.emit("userconnect", {
+      displayName: username,
+      userId: userId,
+      meetingId,
+    });
+
     eventProcessForSignalingServer(socket, username, meetingId, userId);
     eventHandling(username, userId);
   } catch (err) {
@@ -37,12 +51,11 @@ async function initApp() {
 }
 
 let socket;
-let username;
-socket = io.connect();
-window.socket = socket;
 
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM fully loaded and parsed");
+  socket = io.connect();
+  window.socket = socket;
   await initApp();
 
   setupUIInteractions();
