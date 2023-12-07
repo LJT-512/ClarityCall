@@ -57,84 +57,73 @@ document.addEventListener("DOMContentLoaded", async () => {
   socket = io.connect();
   window.socket = socket;
   await initApp();
-
   setupUIInteractions();
 });
 
 function setupUIInteractions() {
   setupHeadingToggle(
     ".people-heading",
-    ".chat-show-wrap",
+    ".chat-show-wrap, .subtitles-show-wrap",
     ".in-call-wrap-up",
-    "active"
+    "active",
+    "Participants"
   );
   setupHeadingToggle(
     ".chat-heading",
-    ".in-call-wrap-up",
+    ".in-call-wrap-up, .subtitles-show-wrap",
     ".chat-show-wrap",
-    "active"
+    "active",
+    "Chat"
   );
-  setupClickEvent(
-    ".meeting-heading-cross",
-    ".g-right-details-wrap",
-    "add",
-    "transition",
-    "d-none"
+  setupHeadingToggle(
+    ".subtitles-heading",
+    ".chat-show-wrap, .in-call-wrap-up",
+    ".subtitles-show-wrap",
+    "active",
+    "Subtitles"
   );
-  setupClickEvent(
-    ".top-left-participant-wrap",
-    ".g-right-details-wrap",
-    "remove",
-    "transition",
-    "d-none"
-  );
-  setupClickEvent(
-    ".top-left-chat-wrap",
-    ".g-right-details-wrap",
-    "remove",
-    "transition",
-    "d-none"
-  );
+  const meetingHeadingCross = document.querySelector(".meeting-heading-cross");
+  const rightWrap = document.querySelector(".g-right-details-wrap");
+  if (meetingHeadingCross && rightWrap) {
+    meetingHeadingCross.addEventListener("click", () => {
+      rightWrap.classList.add("d-none");
+    });
+  }
 }
 
 function setupHeadingToggle(
   clickSelector,
   hideSelector,
   showSelector,
-  activeClass
+  activeClass,
+  headingText
 ) {
   const clickElement = document.querySelector(clickSelector);
-  const hideElement = document.querySelector(hideSelector);
-  const showElement = document.querySelector(showSelector);
+  const hideElements = document.querySelectorAll(hideSelector);
+  const showElements = document.querySelectorAll(showSelector);
+  const rightWrap = document.querySelector(".g-right-details-wrap");
+  const meetingHeadingElement = document.querySelector(".meeting-heading");
 
-  if (clickElement && hideElement && showElement) {
+  if (clickElement && hideElements && showElements) {
     clickElement.addEventListener("click", () => {
-      toggleElements(hideElement, showElement, activeClass);
-    });
-  }
-}
+      rightWrap.classList.remove("d-none");
+      meetingHeadingElement.textContent = headingText;
 
-function toggleElements(hideElement, showElement, activeClass) {
-  hideElement.classList.add("transition");
-  setTimeout(() => {
-    hideElement.style.display = "none";
-    showElement.style.display = "block";
-  }, 300);
-  showElement.classList.remove("transition");
-  showElement.classList.add(activeClass);
-}
+      hideElements.forEach((element) => {
+        element.classList.add("transition");
+        setTimeout(() => {
+          element.style.display = "none";
+        }, 300);
+        element.classList.remove(activeClass);
+      });
 
-function setupClickEvent(clickSelector, targetSelector, action, ...classes) {
-  const clickElement = document.querySelector(clickSelector);
-  const targetElement = document.querySelector(targetSelector);
-
-  if (clickElement && targetElement) {
-    clickElement.addEventListener("click", () => {
-      if (action === "add") {
-        classes.forEach((cls) => targetElement.classList.add(cls));
-      } else if (action === "remove") {
-        classes.forEach((cls) => targetElement.classList.remove(cls));
-      }
+      showElements.forEach((showElement) => {
+        showElement.style.display = "block";
+        setTimeout(() => {
+          showElement.classList.remove("transition");
+          showElement.classList.add(activeClass);
+        }, 0);
+      });
     });
   }
 }

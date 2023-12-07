@@ -4,7 +4,6 @@ import axios from "axios";
 import { fileURLToPath } from "url";
 import FormData from "form-data";
 import chokidar from "chokidar";
-import { userConnections } from "./../controllers/socketEvents.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "../public/uploads");
@@ -25,7 +24,7 @@ function sendFileToWhisper(filePath, io, connId) {
     },
     data: form,
   };
-
+  se;
   axios(config)
     .then((response) => {
       console.log("Full response:", response.data);
