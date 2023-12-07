@@ -307,7 +307,7 @@ async function uploadAudioToServer() {
   formData.append("audio", blob, fileName);
 
   try {
-    let response = await fetch("http://localhost:3000/api/upload", {
+    let response = await fetch("/api/upload", {
       method: "POST",
       body: formData,
     });

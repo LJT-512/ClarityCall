@@ -37,14 +37,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     });
   }
 
-  // socket.on("connect", () => {
-  //   console.log("connected!!!!!", socket.id);
-  //   initRTCConnection(SDPFunction, socket.id, (status) =>
-  //     onCameraToggle(status, socket.id)
-  //   );
-  //   console.log("in eventProcessForSignalingServer meetingId", meetingId);
-  // });
-
   socket.on("informOthersAboutMe", async function (data) {
     addUser(data.otherUserId, data.connId, data.userNumber);
     console.log("informOthersAboutMe connId: ", data.connId);
