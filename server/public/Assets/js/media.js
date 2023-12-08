@@ -29,7 +29,6 @@ export let rtpVidSenders = [];
 let recorder;
 let audioChunks = [];
 let isRecording = false;
-let isCCActive = false;
 let intervalId;
 let mainCanvas;
 let mainCtx;
@@ -267,28 +266,6 @@ async function loadAudio() {
   }
 }
 
-// 4. in startCC function:
-// 1. check if audio & rtpAudSender is true, if true, startRecording()
-// 2. if audio & rtpAudSender is false, await? then i don't want to trigger startRecording()
-// 3. set isCCActive = true
-// 5. in stopCC function:
-// 1. call stopRecording()
-// 2. set isCCActive = false
-
-function startCC() {
-  if (audio || rtpAudSenders) {
-    startRecording();
-    isCCActive = true;
-  }
-}
-
-function stopCC() {
-  if (audio || rtpAudSenders) {
-    stopRecording();
-    isCCActive = false;
-  }
-}
-
 function startRecording() {
   if (!isRecording) {
     audioChunks = [];
@@ -395,7 +372,7 @@ async function videoProcess(newVideoState) {
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
 
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons">present_to_all</span><div>Present Now</div>';
+      '<span class="material-icons">cancel_presentation</span>';
 
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">edit_off</span>';
@@ -431,9 +408,9 @@ async function videoProcess(newVideoState) {
         audio: false,
       });
       vStream.oninactive = (e) => {
-        remoteVidStream(rtpVidSenders);
+        removeVideoStream(rtpVidSenders);
         document.getElementById("screenShareOnOff").innerHTML =
-          '<span class="material-icons">present_to_all</span><div> Present Now</div>';
+          '<span class="material-icons">present_to_all</span>';
       };
     } else if (newVideoState == videoStates.draw) {
       console.log("draw btn clicked!");
@@ -486,12 +463,12 @@ async function videoProcess(newVideoState) {
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_on</span>';
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons">present_to_all</span><div> Present Now</div>';
+      '<span class="material-icons">cancel_presentation</span>';
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">edit_off</span>';
   } else if (newVideoState === videoStates.screenShare) {
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons text-success">present_to_all</span><div class="text-success">Stop Present Now</div>';
+      '<span class="material-icons">present_to_all</span>';
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
     document.getElementById("drawOnOff").innerHTML =
@@ -501,7 +478,7 @@ async function videoProcess(newVideoState) {
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">edit_on</span>';
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons">present_to_all</span><div> Present Now</div>';
+      '<span class="material-icons">cancel_presentation</span>';
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
   }

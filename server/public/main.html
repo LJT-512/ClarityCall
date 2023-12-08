@@ -34,12 +34,12 @@
     <main class="d-flex flex-column home-wrap">
       <div class="g-top text-light">
         <div class="top-remote-vidoe-show-wrap d-flex">
-          <div id="meetingContainer" style="display: none; flex-basis: 75%">
+          <div id="meetingContainer" style="display: none; flex-basis: 100%">
             <div class="call-wrap" style="background-color: black">
               <div
-                class="video-wrap"
+                class="video-wrap pl-3 pr-3 pt-5"
                 id="div-users"
-                style="display: flex; flex-wrap: wrap; height: 100vh"
+                style="display: flex; flex-wrap: wrap; height: 80vh; gap: 10px;"
               >
                 <div
                   id="me"
@@ -52,14 +52,13 @@
                     <canvas
                       class="output-canvas"
                       id="me-output-canvas"
-                      style="position: absolute; top: 0; left: 0; z-index: 1"
+                      style="z-index: 1"
                     ></canvas>
                     <canvas
                       class="output-canvas"
                       id="me-drawing-canvas"
-                      style="position: absolute; top: 0; left: 0; z-index: 2"
+                      style="z-index: 2"
                     ></canvas>
-                    <div id="subtitle" class="subtitle"></div>
                   </div>
                 </div>
                 <div
@@ -71,14 +70,13 @@
                     <video autoplay muted></video>
                     <canvas
                       class="output-canvas"
-                      style="position: absolute; top: 0; left: 0; z-index: 1"
+                      style="z-index: 1"
                     ></canvas>
                     <canvas
                       class="drawing-canvas"
-                      style="position: absolute; top: 0; left: 0; z-index: 2"
+                      style="z-index: 2"
                     ></canvas>
                     <audio autoplay controls style="display: none"></audio>
-                    <div id="subtitle" class="subtitle"></div>
                   </div>
                 </div>
               </div>
@@ -204,30 +202,36 @@
         >
           <div
             class="mic-toggle-wrap action-icon-style display-center mr-2 cursor-pointer"
-            id="micMuteUnmute"
+            id="micMuteUnmute" title="Turn on microphone"
           >
             <span class="material-icons" style="width: 100%">mic_off</span>
           </div>
           <div
-            class="end-call-wrap action-icon-style display-center mr-2 cursor-pointer"
+            class="end-call-wrap action-icon-style display-center mr-2 cursor-pointer" title="Leave call"
           >
             <span class="material-icons text-danger">call</span>
           </div>
           <div
-            class="video-toggle-wrap action-icon-style display-center mr-2 cursor-pointer"
-            id="videoCamOnOff"
+            class="video-toggle-wrap action-icon-style display-center mr-2 cursor-pointer" 
+            id="videoCamOnOff" title="Turn on camera"
           >
             <span class="material-icons" style="width: 100%">videocam_off</span>
           </div>
           <div
+          class="present-now-wrap action-icon-style display-center mr-2 cursor-pointer"
+          id="screenShareOnOff" title="Present now"
+        >
+          <span class="material-icons">cancel_presentation</span>
+        </div>
+          <div
             class="breakout-room-toggle-wrap action-icon-style display-center cursor-pointer mr-2"
-            id="breakoutRoomOnOff"
+            id="breakoutRoomOnOff" title="Breakout rooms"
           >
             <span class="material-icons" style="width: 100%">grid_off</span>
           </div>
           <div
             class="draw-toggle-wrap action-icon-style display-center cursor-pointer mr-2"
-            id="drawOnOff"
+            id="drawOnOff" title="Turn on whiteboard"
           >
             <span class="material-icons" style="width: 100%">edit_off</span>
           </div>
@@ -237,39 +241,28 @@
           style="height: 10vh"
         >
           <div
-            class="present-now-wrap d-flex justify-content-center flex-column align-items-center mr-5 curosr-pointer"
-            id="screenShareOnOff"
-          >
-            <span class="material-icons">present_to_all</span>
-            <div>Present Now</div>
-          </div>
-          <div
           class="people-chat-wrap d-flex justify-content-between align-itmes-center ml-3 mr-3 pr-3 pl-3"
           style="height: 10vh; font-size: 14px"
         >
-          <div class="people-heading display-center cursor-pointer">
+          <div class="people-heading display-center cursor-pointer" title="Participant">
             <div class="peopl-heading-icon display-center mr-1">
               <span class="material-icons">people</span>
-            </div>
-            <div class="peopl-heading-text display-center">
-              Participant (<span class="participant-count">1</span>)
+              <div class="participant-count top-participant-count">1</div>
             </div>
           </div>
           <div
-            class="chat-heading d-flex just-content-round align-items-center cursor-pointer"
+            class="chat-heading d-flex just-content-round align-items-center cursor-pointer" title="Chat"
           >
             <div class="chat-heading-icon display-center mr-1">
               <span class="material-icons">message</span>
             </div>
-            <div class="chat-heading-text">Chat</div>
           </div>
           <div
-          class="subtitles-heading d-flex just-content-round align-items-center cursor-pointer"
+          class="subtitles-heading d-flex just-content-round align-items-center cursor-pointer" title="Caption"
         >
           <div class="subtitle-heading-icon display-center mr-1">
             <span class="material-icons">subtitles</span>
           </div>
-          <div class="subtitle-heading-text">Caption</div>
         </div>
         </div>
           <div

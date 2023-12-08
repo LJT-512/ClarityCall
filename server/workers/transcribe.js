@@ -30,13 +30,19 @@ function sendFileToWhisper(filePath, io, connId) {
       console.log("Full response:", response.data);
       console.log(JSON.stringify(response.data));
       console.log("Emitting subtitle:", response.data.text);
-      const speakerName = userConnections.find((u) => u.connectionId === connId)
-        .username;
-      io.emit("newSubtitle", {
-        subtitleContent: response.data.text,
-        speakerId: connId,
-        speakerName: speakerName,
-      });
+      const userConnection = userConnections.find(
+        (u) => u.connectionId === connId
+      );
+      if (userConnection) {
+        const speakerName = userConnection.username;
+        io.emit("newSubtitle", {
+          subtitleContent: response.data.text,
+          speakerId: connId,
+          speakerName: speakerName,
+        });
+      } else {
+        console.error(`Connection ID ${connId} not found in userConnections.`);
+      }
       fs.unlinkSync(filePath);
     })
     .catch((err) => {

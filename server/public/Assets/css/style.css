@@ -62,7 +62,6 @@ input:focus {
 
 .video-wrap > * {
   flex: 1 1 250px;
-  border: 1px solid white;
 }
 
 .g-top-left {
@@ -71,10 +70,6 @@ input:focus {
   height: 8vh;
   top: 0;
   border-bottom-left-radius: 10px;
-}
-
-.top-left-participant-wrap {
-  position: relative;
 }
 
 .cursor-pointer {
@@ -89,11 +84,25 @@ input:focus {
   border-radius: 5px;
 }
 
-.top-left-participant-count {
+.people-heading {
+  position: relative;
+}
+
+.peopl-heading-icon {
+  position: relative;
+}
+
+.top-participant-count {
   position: absolute;
-  top: -2px;
-  right: -3px;
-  font-size: 15px;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  color: gray;
+  padding: 2px 5px;
+  font-size: 12px;
+  line-height: 1;
+  min-width: 20px;
+  text-align: center;
 }
 
 .g-bottom {
@@ -116,33 +125,51 @@ input:focus {
   border-radius: 50%;
 }
 
-.top-left-participant-wrap {
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
-
 .userbox {
+  border-radius: 10px;
   position: relative;
-  width: 300px; /* Adjust to the size of the video */
+  width: 300px;
+  background-color: rgb(60, 64, 67);
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .userbox video,
 .userbox canvas {
   position: absolute;
+  object-fit: cover;
   top: 0;
   left: 0;
-  width: 100%; /* Make canvas and video fill the container */
-  height: 100%; /* Adjust if necessary */
-  border: 1px solid gray; /* Optional border for video */
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.userbox h2 {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  color: white;
+  margin: 0;
+  font-size: 20px;
+  z-index: 3; /* Make sure it's above the video and canvas layers */
 }
 
 video {
-  border: 1px solid gray;
+  border-radius: 10px;
   width: 300px;
   transform: scaleX(-1), rotateY(180deg);
   -webkit-transform: rotateY(180deg);
   -moz-transform: rotateY(180deg);
+}
+
+.output-canvas,
+.drawing-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* Match the video size */
+  height: 100%; /* Match the video size */
 }
 
 #me-output-canvas {
@@ -255,6 +282,7 @@ video {
   border-radius: 5px;
   padding: 5px;
   display: block;
+  z-index: 5;
 }
 
 .g-details-heading-show {

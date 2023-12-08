@@ -84,9 +84,11 @@ function setupUIInteractions() {
   );
   const meetingHeadingCross = document.querySelector(".meeting-heading-cross");
   const rightWrap = document.querySelector(".g-right-details-wrap");
+  const meetingContainer = document.getElementById("meetingContainer");
   if (meetingHeadingCross && rightWrap) {
     meetingHeadingCross.addEventListener("click", () => {
       rightWrap.classList.add("d-none");
+      meetingContainer.style.setProperty("flex-basis:", "75%");
     });
   }
 }

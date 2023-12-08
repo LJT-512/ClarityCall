@@ -110,7 +110,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     const mainCtx = mainCanvas.getContext("2d");
     const drawingCanvas = document.getElementById(`dc_${fromConnId}`);
     const drawingCtx = drawingCanvas.getContext("2d");
-    // drawPath(startX, startY, endX, endY, mode);
     const eraserThickness = 10;
     if (mode === "drawing") {
       drawingCtx.beginPath();
@@ -249,4 +248,13 @@ function copyJoiningInfo() {
   setTimeout(() => {
     linkConf.style.display = "none";
   }, 3000);
+}
+
+function updateLayout() {
+  videoWrap.classList.remove("three-participants", "four-participants");
+  if (userBoxes.length === 3) {
+    videoWrap.classList.add("three-participants");
+  } else if (userBoxes.length === 4) {
+    videoWrap.classList.add("four-participants");
+  }
 }
