@@ -29,6 +29,7 @@ export let rtpVidSenders = [];
 let recorder;
 let audioChunks = [];
 let isRecording = false;
+let isCCActive = false;
 let intervalId;
 let mainCanvas;
 let mainCtx;
@@ -203,7 +204,6 @@ export async function eventProcess() {
   micBtn.addEventListener("click", async (e) => {
     if (!audio) {
       await loadAudio();
-      startRecording();
     }
     if (!audio) {
       alert("Audio permission has not granted.");
@@ -220,6 +220,7 @@ export async function eventProcess() {
       micBtn.innerHTML =
         '<span class="material-icons" style="width: 100%">mic_off</span>';
       removeMediaSenders(rtpAudSenders);
+      audio.stop();
       stopRecording();
     }
     isAudioMute = !isAudioMute;
@@ -263,6 +264,28 @@ async function loadAudio() {
     });
   } catch (err) {
     console.error("Failed to load audio: ", err);
+  }
+}
+
+// 4. in startCC function:
+// 1. check if audio & rtpAudSender is true, if true, startRecording()
+// 2. if audio & rtpAudSender is false, await? then i don't want to trigger startRecording()
+// 3. set isCCActive = true
+// 5. in stopCC function:
+// 1. call stopRecording()
+// 2. set isCCActive = false
+
+function startCC() {
+  if (audio || rtpAudSenders) {
+    startRecording();
+    isCCActive = true;
+  }
+}
+
+function stopCC() {
+  if (audio || rtpAudSenders) {
+    stopRecording();
+    isCCActive = false;
   }
 }
 

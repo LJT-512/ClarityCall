@@ -4,6 +4,7 @@ import axios from "axios";
 import { fileURLToPath } from "url";
 import FormData from "form-data";
 import chokidar from "chokidar";
+import { userConnections } from "../controllers/socketEvents.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "../public/uploads");
@@ -24,15 +25,17 @@ function sendFileToWhisper(filePath, io, connId) {
     },
     data: form,
   };
-  se;
   axios(config)
     .then((response) => {
       console.log("Full response:", response.data);
       console.log(JSON.stringify(response.data));
       console.log("Emitting subtitle:", response.data.text);
+      const speakerName = userConnections.find((u) => u.connectionId === connId)
+        .username;
       io.emit("newSubtitle", {
-        subtitle: response.data.text,
+        subtitleContent: response.data.text,
         speakerId: connId,
+        speakerName: speakerName,
       });
       fs.unlinkSync(filePath);
     })

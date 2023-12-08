@@ -185,12 +185,24 @@ video {
 .message-from-others {
   justify-content: flex-start;
 }
+.subtitle-from-others {
+  justify-content: flex-start;
+}
 
 .message-from-me {
   justify-content: flex-end;
 }
 
+.subtitle-from-me {
+  justify-content: flex-end;
+}
+
 .chat-message {
+  display: flex;
+  width: 100%;
+}
+
+.subtitle-message {
   display: flex;
   width: 100%;
 }
@@ -200,7 +212,17 @@ video {
   text-align: left;
 }
 
+.subtitle-from-others div {
+  margin-right: auto;
+  text-align: left;
+}
+
 .message-from-me div {
+  margin-left: auto;
+  text-align: right;
+}
+
+.subtitle-from-me div {
   margin-left: auto;
   text-align: right;
 }

@@ -87,7 +87,6 @@ export async function setConnection(connId) {
         .getVideoTracks()
         .forEach((t) => remoteVidStream[connId].removeTrack(t));
       remoteVidStream[connId].addTrack(event.track);
-      // not sure abt the let
       let remoteVideoPlayer = document.getElementById("v_" + connId);
       if (remoteVideoPlayer) {
         remoteVideoPlayer.srcObject = remoteVidStream[connId];
@@ -100,7 +99,6 @@ export async function setConnection(connId) {
         .getAudioTracks()
         .forEach((t) => remoteAudStream[connId].removeTrack(t));
       remoteAudStream[connId].addTrack(event.track);
-      // not sure abt the let
       let remoteAudioPlayer = document.getElementById("a_" + connId);
       remoteAudioPlayer.srcObject = null;
       remoteAudioPlayer.srcObject = remoteAudStream[connId];

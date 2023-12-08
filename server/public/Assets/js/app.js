@@ -110,19 +110,14 @@ function setupHeadingToggle(
       meetingHeadingElement.textContent = headingText;
 
       hideElements.forEach((element) => {
-        element.classList.add("transition");
-        setTimeout(() => {
-          element.style.display = "none";
-        }, 300);
-        element.classList.remove(activeClass);
+        element.style.setProperty("display", "none", "important");
+        element.classList.remove("transition", activeClass);
       });
 
       showElements.forEach((showElement) => {
+        window.getComputedStyle(showElement).opacity;
         showElement.style.display = "block";
-        setTimeout(() => {
-          showElement.classList.remove("transition");
-          showElement.classList.add(activeClass);
-        }, 0);
+        showElement.classList.add(activeClass);
       });
     });
   }

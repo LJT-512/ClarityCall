@@ -142,17 +142,26 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("newSubtitle", (data) => {
-    console.log("Received subtitle:", data.subtitle);
-    const userDivId = data.speakerId === myConnectionId ? "me" : data.speakerId;
-    console.log("which user is speaking: ", userDivId);
-    const userDiv = document.getElementById(userDivId);
-    if (userDiv) {
-      const subtitleDiv = userDiv.querySelector(".subtitle");
-
-      if (data.subtitle) {
-        subtitleDiv.innerHTML = `<p>${data.subtitle}</p>`;
-      }
+    console.log("Received subtitle:", data.subtitleContent);
+    const time = new Date();
+    const lTime = time.toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+    const div = document.createElement("div");
+    if (data.speakerId === myConnectionId) {
+      div.classList.add("subtitle-message");
+      div.classList.add("subtitle-from-me");
+      div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">Me</span> ${lTime}</br>${data.subtitleContent}</div>`;
+    } else {
+      div.classList.add("chat-message");
+      div.classList.add("subtitle-from-others");
+      div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">${data.speakerName}</span> ${lTime}</br>${data.subtitleContent}</div>`;
     }
+
+    const subtitleDiv = document.getElementById("real-time-subtitles");
+    subtitleDiv.appendChild(div);
   });
 
   socket.on("informAboutBreakRooms", (data) => {
