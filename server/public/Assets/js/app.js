@@ -2,6 +2,7 @@ import {
   eventProcessForSignalingServer,
   eventHandling,
 } from "./socketEvents.js";
+import { adjustUserBoxSize } from "./uiHandler.js";
 
 async function initApp() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -35,6 +36,7 @@ async function initApp() {
     if (meetingContainer) meetingContainer.style.display = "block";
     document.querySelector("#me h2").textContent = username + " (me)";
     document.title = username;
+    adjustUserBoxSize(1);
 
     console.log("Emitting userconnect after validation!");
     socket.emit("userconnect", {

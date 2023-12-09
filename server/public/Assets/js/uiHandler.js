@@ -44,3 +44,12 @@ export function addUser(otherUserUsername, connId, userNumber) {
     countElement.textContent = userNumber;
   });
 }
+
+export function adjustUserBoxSize(userNumber) {
+  const userBoxes = document.querySelectorAll(".userbox");
+  const maxHeight = userNumber <= 2 ? "80vh" : "40vh";
+
+  userBoxes.forEach((userBox) => {
+    userBox.style.maxHeight = maxHeight;
+  });
+}

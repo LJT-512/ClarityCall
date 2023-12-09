@@ -5,7 +5,7 @@ import {
   closeConnectionCall,
   myConnectionId,
 } from "./RTCConnection.js";
-import { addUser } from "./uiHandler.js";
+import { addUser, adjustUserBoxSize } from "./uiHandler.js";
 
 export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
@@ -39,6 +39,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
 
   socket.on("informOthersAboutMe", async function (data) {
     addUser(data.otherUserId, data.connId, data.userNumber);
+    adjustUserBoxSize(data.userNumber);
     console.log("informOthersAboutMe connId: ", data.connId);
     try {
       await setConnection(data.connId);
@@ -54,6 +55,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
       for (let i = 0; i < otherUsers.length; i++) {
         console.log("who are the others:", otherUsers[i]);
         addUser(otherUsers[i].username, otherUsers[i].connectionId, userNumber);
+        adjustUserBoxSize(userNumber);
         try {
           await setConnection(otherUsers[i].connectionId);
         } catch (err) {
@@ -71,7 +73,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
 
   socket.on("informOtherAboutDisconnectedUser", async function (data) {
     document.getElementById(`${data.connId}`).remove();
-    const participantCount = document.querySelectorAll(".participant-count");
+    const participantCount = document.querySelector(".participant-count");
     participantCount.textContent = data.uNumber;
     document.getElementById(`participant-${data.connId}`).remove();
     try {
