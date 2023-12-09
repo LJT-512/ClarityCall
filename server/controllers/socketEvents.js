@@ -1,10 +1,19 @@
+import {
+  createMeeting,
+  checkMeeting,
+  createConnection,
+  userLeaveMeeting,
+  addChat,
+  addSubtitle,
+} from "../models/meeting.js";
+
 export let userConnections = [];
 export const userMeetingRooms = {};
 
 const setupSocketEvents = (io) => {
   io.on("connection", (socket) => {
     console.log("socket id is", socket.id);
-    socket.on("userconnect", (data) => {
+    socket.on("userconnect", async (data) => {
       console.log("userconnect", data.displayName, data.meetingId);
 
       const otherUsers = userConnections.filter(
@@ -18,6 +27,13 @@ const setupSocketEvents = (io) => {
         userId: data.userId,
         meetingId: data.meetingId,
       });
+
+      if (await checkMeeting(data.meetingId)) {
+        await createConnection(data.meetingId, data.userId, socket.id);
+      } else {
+        await createMeeting(data.meetingId, data.userId);
+        await createConnection(data.meetingId, data.userId, socket.id);
+      }
 
       console.log("userConnections: ", userConnections);
 
@@ -102,7 +118,7 @@ const setupSocketEvents = (io) => {
       });
     });
 
-    socket.on("sendMessage", (msg) => {
+    socket.on("sendMessage", async (msg) => {
       console.log("this is the msg that the server got: ", msg);
       const mUser = userConnections.find((p) => p.connectionId === socket.id);
 
@@ -116,6 +132,7 @@ const setupSocketEvents = (io) => {
             message: msg,
           });
         });
+        await addChat(mUser.meetingId, mUser.userId, socket.id, msg);
       }
     });
 
@@ -137,6 +154,7 @@ const setupSocketEvents = (io) => {
             uNumber: userNumberAfterUserLeaves,
           });
         });
+        userLeaveMeeting(meetingId, disUser.userId);
       }
     });
   });
