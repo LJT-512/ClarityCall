@@ -4,8 +4,10 @@ import {
   createConnection,
   userLeaveMeeting,
   addChat,
-  addSubtitle,
+  endMeeting,
 } from "../models/meeting.js";
+
+import { generateMeetingSummary } from "../utils/summary.js";
 
 export let userConnections = [];
 export const userMeetingRooms = {};
@@ -27,12 +29,15 @@ const setupSocketEvents = (io) => {
         userId: data.userId,
         meetingId: data.meetingId,
       });
-
-      if (await checkMeeting(data.meetingId)) {
-        await createConnection(data.meetingId, data.userId, socket.id);
-      } else {
-        await createMeeting(data.meetingId, data.userId);
-        await createConnection(data.meetingId, data.userId, socket.id);
+      try {
+        if (await checkMeeting(data.meetingId)) {
+          await createConnection(data.meetingId, data.userId, socket.id);
+        } else {
+          await createMeeting(data.meetingId, data.userId);
+          await createConnection(data.meetingId, data.userId, socket.id);
+        }
+      } catch (err) {
+        console.error("Error creating meeting and connection", err);
       }
 
       console.log("userConnections: ", userConnections);
@@ -132,11 +137,15 @@ const setupSocketEvents = (io) => {
             message: msg,
           });
         });
-        await addChat(mUser.meetingId, mUser.userId, socket.id, msg);
+        try {
+          await addChat(mUser.meetingId, mUser.userId, socket.id, msg);
+        } catch (err) {
+          console.error("Error adding chat:", err);
+        }
       }
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       console.log("Disconnected");
       const disUser = userConnections.find((p) => p.connectionId === socket.id);
       console.log("this is the disUser:", disUser);
@@ -147,14 +156,23 @@ const setupSocketEvents = (io) => {
           (p) => p.connectionId !== socket.id
         );
         const list = userConnections.filter((p) => p.meetingId === meetingId);
+        const userNumberAfterUserLeaves = userConnections.length;
         list.forEach((v) => {
-          const userNumberAfterUserLeaves = userConnections.length;
           socket.to(v.connectionId).emit("informOtherAboutDisconnectedUser", {
             connId: socket.id,
             uNumber: userNumberAfterUserLeaves,
           });
         });
         userLeaveMeeting(meetingId, disUser.userId);
+        console.log("meetingId", meetingId);
+        if (userNumberAfterUserLeaves === 0) {
+          try {
+            await endMeeting(meetingId);
+            await generateMeetingSummary(meetingId);
+          } catch (err) {
+            console.error("Error ending meeting:", err);
+          }
+        }
       }
     });
   });
