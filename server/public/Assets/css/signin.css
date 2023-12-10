@@ -6,7 +6,8 @@ html {
   flex-direction: column;
 }
 .nav {
-  height: 60px;
+  background-color: white;
+  z-index: 2;
 }
 
 ul {
@@ -22,7 +23,8 @@ ul {
   padding-left: 10px;
   font-family: "Lato";
 }
-.nav-item a {
+.nav-item a,
+.user-info {
   color: gray !important;
   font-size: 16px;
   padding: 0 10px;

@@ -14,7 +14,7 @@
   <body style="padding-top: 3.5rem">
     <nav class="nav navbar-expand-md fixed-top">
       <img src="Assets/images/google-meet-icon.png" class="logo" alt="" />
-      <a href="#" class="navbar-brand text-dark">Clarity Call</a>
+      <a href="/action" class="navbar-brand text-dark">Clarity Call</a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
@@ -31,19 +31,29 @@
           <li class="nav-item sign-in display-center">
             <a href="signin.html" class="nav-link">Sign in</a>
           </li>
+          <li class="nav-item meeting-history display-center">
+            <a href="meetinghistory.html" class="nav-link">Meeting History</a>
+          </li>
           <li class="nav-item">
             <button
-              class="btn btn-outline-secondary btn-lg text-info font-weight-bold join-meeting"
+              class="btn btn-outline-secondary btn-md text-info font-weight-bold join-meeting"
             >
               Join the meeting
             </button>
           </li>
           <li class="nav-item">
             <button
-              class="btn btn-info btn-lg text-light font-weight-bold new-meeting"
+              class="btn btn-info btn-md text-light font-weight-bold new-meeting"
             >
               Start a meeting
             </button>
+          </li>
+          <li
+            class="nav-item d-flex flex-row display-center user-block"
+            style="display: none"
+          >
+            <span class="material-icons">face</span>
+            <div class="username user-info"></div>
           </li>
         </ul>
       </div>
@@ -102,6 +112,35 @@
       </h6>
     </footer>
     <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const signInNavItem = document.querySelector(".nav-item.sign-in");
+        const userBlock = document.querySelector(".user-block");
+        const usernameDiv = document.querySelector(".username.user-info");
+
+        fetch("/api/user/info", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.username) {
+              signInNavItem.style.display = "none";
+              userBlock.style.display = "flex";
+              usernameDiv.textContent = data.username;
+            } else {
+              signInNavItem.style.display = "block";
+              userBlock.style.display = "none";
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching user info:", error);
+            signInNavItem.style.display = "block";
+            userBlock.style.display = "none";
+          });
+      });
       document.querySelector(".join-meeting").addEventListener("click", (e) => {
         document.querySelector(".enter-code").focus();
       });

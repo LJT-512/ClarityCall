@@ -2,6 +2,12 @@ body {
   font-family: robot, lato !important;
   font-size: large;
 }
+
+nav {
+  background-color: white;
+  z-index: 2;
+}
+
 ul {
   list-style: none;
   margin: 0;
@@ -15,7 +21,8 @@ ul {
   padding-left: 10px;
   font-family: "Lato";
 }
-.nav-item a {
+.nav-item a,
+.user-info {
   color: gray !important;
   font-size: 16px;
   padding: 0 10px;
@@ -49,32 +56,18 @@ input:focus {
 /* .........index page.........*/
 .home-wrap {
   background-color: rgb(31, 30, 30);
+  display: flex;
+  flex-direction: column;
 }
 
 .g-top {
-  height: 90vh;
+  flex-grow: 1;
   position: relative;
 }
 
-.video-wrap {
-  height: 600px;
-}
-
-.video-wrap > * {
-  flex: 1 1 250px;
-  border: 1px solid white;
-}
-
-.g-top-left {
-  position: absolute;
-  right: 0;
-  height: 8vh;
-  top: 0;
-  border-bottom-left-radius: 10px;
-}
-
-.top-left-participant-wrap {
-  position: relative;
+.g-top,
+.g-bottom {
+  background-color: transparent;
 }
 
 .cursor-pointer {
@@ -89,18 +82,36 @@ input:focus {
   border-radius: 5px;
 }
 
-.top-left-participant-count {
+.people-heading {
+  position: relative;
+}
+
+.peopl-heading-icon {
+  position: relative;
+}
+
+.top-participant-count {
   position: absolute;
-  top: -2px;
-  right: -3px;
-  font-size: 15px;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  color: gray;
+  padding: 2px 5px;
+  font-size: 12px;
+  line-height: 1;
+  min-width: 20px;
+  text-align: center;
 }
 
 .g-bottom {
-  /* margin: 0 -10px !important; */
-  padding: 0 20px;
+  height: 10vh;
   box-shadow: 0 0 5px black;
   z-index: 2;
+}
+
+.top-remote-video-show-wrap,
+.g-bottom {
+  margin: 0;
 }
 
 .button-left {
@@ -116,53 +127,67 @@ input:focus {
   border-radius: 50%;
 }
 
-.top-left-participant-wrap {
+.video-wrap {
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
-  height: 100%;
+  align-items: flex-start;
+  align-content: center;
+  margin: 0 auto;
+  gap: 20px;
+  padding: 20px;
+  height: 90vh;
 }
 
 .userbox {
+  border-radius: 10px;
   position: relative;
-  width: 300px; /* Adjust to the size of the video */
+  background-color: rgb(60, 64, 67);
+  flex: 1;
+  flex-basis: calc(50% - 10px);
+  padding: 20px;
+  max-height: 40vh;
+}
+
+.userbox::before {
+  content: "";
+  display: block;
+  padding-top: 56.25%;
 }
 
 .userbox video,
 .userbox canvas {
   position: absolute;
+  object-fit: cover;
   top: 0;
   left: 0;
-  width: 100%; /* Make canvas and video fill the container */
-  height: 100%; /* Adjust if necessary */
-  border: 1px solid gray; /* Optional border for video */
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.userbox h2 {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  color: white;
+  margin: 0;
+  font-size: 20px;
+  z-index: 3; /* Make sure it's above the video and canvas layers */
 }
 
 video {
-  border: 1px solid gray;
+  border-radius: 10px;
   width: 300px;
   transform: scaleX(-1), rotateY(180deg);
   -webkit-transform: rotateY(180deg);
   -moz-transform: rotateY(180deg);
 }
 
-#me-output-canvas {
-  transform: rotateY(180deg);
-  -webkit-transform: rotateY(180deg);
-  -moz-transform: rotateY(180deg);
-}
-
-#me-drawing-canvas {
-  transform: rotateY(180deg);
-  -webkit-transform: rotateY(180deg);
-  -moz-transform: rotateY(180deg);
-}
-
-.output-canvas {
-  transform: rotateY(180deg);
-  -webkit-transform: rotateY(180deg);
-  -moz-transform: rotateY(180deg);
-}
-
+#me-output-canvas,
+#me-drawing-canvas,
+.output-canvas,
 .drawing-canvas {
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
@@ -179,11 +204,13 @@ video {
 }
 
 .active {
-  background-color: #00808047;
   border-radius: 5px;
 }
 
 .message-from-others {
+  justify-content: flex-start;
+}
+.subtitle-from-others {
   justify-content: flex-start;
 }
 
@@ -191,7 +218,16 @@ video {
   justify-content: flex-end;
 }
 
+.subtitle-from-me {
+  justify-content: flex-end;
+}
+
 .chat-message {
+  display: flex;
+  width: 100%;
+}
+
+.subtitle-message {
   display: flex;
   width: 100%;
 }
@@ -201,7 +237,17 @@ video {
   text-align: left;
 }
 
+.subtitle-from-others div {
+  margin-right: auto;
+  text-align: left;
+}
+
 .message-from-me div {
+  margin-left: auto;
+  text-align: right;
+}
+
+.subtitle-from-me div {
   margin-left: auto;
   text-align: right;
 }
@@ -234,6 +280,7 @@ video {
   border-radius: 5px;
   padding: 5px;
   display: block;
+  z-index: 5;
 }
 
 .g-details-heading-show {

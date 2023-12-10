@@ -2,6 +2,7 @@ import {
   eventProcessForSignalingServer,
   eventHandling,
 } from "./socketEvents.js";
+import { adjustUserBoxSize } from "./uiHandler.js";
 
 async function initApp() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -35,6 +36,7 @@ async function initApp() {
     if (meetingContainer) meetingContainer.style.display = "block";
     document.querySelector("#me h2").textContent = username + " (me)";
     document.title = username;
+    adjustUserBoxSize(1);
 
     console.log("Emitting userconnect after validation!");
     socket.emit("userconnect", {
@@ -57,84 +59,70 @@ document.addEventListener("DOMContentLoaded", async () => {
   socket = io.connect();
   window.socket = socket;
   await initApp();
-
   setupUIInteractions();
 });
 
 function setupUIInteractions() {
   setupHeadingToggle(
     ".people-heading",
-    ".chat-show-wrap",
+    ".chat-show-wrap, .subtitles-show-wrap",
     ".in-call-wrap-up",
-    "active"
+    "active",
+    "Participants"
   );
   setupHeadingToggle(
     ".chat-heading",
-    ".in-call-wrap-up",
+    ".in-call-wrap-up, .subtitles-show-wrap",
     ".chat-show-wrap",
-    "active"
+    "active",
+    "Chat"
   );
-  setupClickEvent(
-    ".meeting-heading-cross",
-    ".g-right-details-wrap",
-    "add",
-    "transition",
-    "d-none"
+  setupHeadingToggle(
+    ".subtitles-heading",
+    ".chat-show-wrap, .in-call-wrap-up",
+    ".subtitles-show-wrap",
+    "active",
+    "Subtitles"
   );
-  setupClickEvent(
-    ".top-left-participant-wrap",
-    ".g-right-details-wrap",
-    "remove",
-    "transition",
-    "d-none"
-  );
-  setupClickEvent(
-    ".top-left-chat-wrap",
-    ".g-right-details-wrap",
-    "remove",
-    "transition",
-    "d-none"
-  );
+  const meetingHeadingCross = document.querySelector(".meeting-heading-cross");
+  const rightWrap = document.querySelector(".g-right-details-wrap");
+  const meetingContainer = document.getElementById("meetingContainer");
+  if (meetingHeadingCross && rightWrap) {
+    meetingHeadingCross.addEventListener("click", () => {
+      rightWrap.classList.add("d-none");
+      meetingContainer.style.setProperty("flex-basis:", "75%");
+    });
+  }
 }
 
 function setupHeadingToggle(
   clickSelector,
   hideSelector,
   showSelector,
-  activeClass
+  activeClass,
+  headingText
 ) {
   const clickElement = document.querySelector(clickSelector);
-  const hideElement = document.querySelector(hideSelector);
-  const showElement = document.querySelector(showSelector);
+  const hideElements = document.querySelectorAll(hideSelector);
+  const showElements = document.querySelectorAll(showSelector);
+  const rightWrap = document.querySelector(".g-right-details-wrap");
+  const meetingHeadingElement = document.querySelector(".meeting-heading");
 
-  if (clickElement && hideElement && showElement) {
+  if (clickElement && hideElements && showElements) {
     clickElement.addEventListener("click", () => {
-      toggleElements(hideElement, showElement, activeClass);
-    });
-  }
-}
+      rightWrap.classList.remove("d-none");
+      meetingHeadingElement.textContent = headingText;
 
-function toggleElements(hideElement, showElement, activeClass) {
-  hideElement.classList.add("transition");
-  setTimeout(() => {
-    hideElement.style.display = "none";
-    showElement.style.display = "block";
-  }, 300);
-  showElement.classList.remove("transition");
-  showElement.classList.add(activeClass);
-}
+      hideElements.forEach((element) => {
+        element.style.setProperty("display", "none", "important");
+        element.classList.remove("transition", activeClass);
+      });
 
-function setupClickEvent(clickSelector, targetSelector, action, ...classes) {
-  const clickElement = document.querySelector(clickSelector);
-  const targetElement = document.querySelector(targetSelector);
-
-  if (clickElement && targetElement) {
-    clickElement.addEventListener("click", () => {
-      if (action === "add") {
-        classes.forEach((cls) => targetElement.classList.add(cls));
-      } else if (action === "remove") {
-        classes.forEach((cls) => targetElement.classList.remove(cls));
-      }
+      showElements.forEach((showElement) => {
+        window.getComputedStyle(showElement).opacity;
+        showElement.style.display = "block";
+        showElement.classList.add(activeClass);
+      });
     });
   }
 }
@@ -222,4 +210,10 @@ meetingDetailsBtn.addEventListener("click", () => {
     meetingDetailsBtn.innerHTML = `<div class="display-center curosr-pointer meeting-details-button">
     Meeting Details<span class="material-icons">keyboard_arrow_up</span></div>`;
   }
+});
+
+const summarizeBtn = document.getElementById("btnsummarize");
+const subtitleApi = `/api/meetings/generateSummary/?meetingId=${meetingId}`;
+summarizeBtn.addEventListener("click", async () => {
+  await fetch(subtitleApi);
 });

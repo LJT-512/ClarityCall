@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting History</title>
+    <link rel="stylesheet" href="Assets/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <link rel="stylesheet" href="Assets/css/meetinghistory.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <nav class="nav navbar-expand-md fixed-top">
+      <img src="Assets/images/google-meet-icon.png" class="logo" alt="" />
+      <a href="/action" class="navbar-brand text-dark">Clarity Call</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a href="#" class="nav-link">At a glance</a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">How it works</a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">Plan and Price</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav mr-0">
+          <li class="nav-item sign-in display-center">
+            <a href="signin.html" class="nav-link">Sign in</a>
+          </li>
+          <li class="nav-item meeting-history display-center">
+            <a href="meetinghistory.html" class="nav-link">Meeting History</a>
+          </li>
+          <li class="nav-item">
+            <button
+              class="btn btn-outline-secondary btn-md text-info font-weight-bold join-meeting"
+            >
+              Join the meeting
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="btn btn-info btn-md text-light font-weight-bold new-meeting"
+            >
+              Start a meeting
+            </button>
+          </li>
+          <li
+            class="nav-item d-flex flex-row display-center user-block"
+            style="display: none"
+          >
+            <span class="material-icons">face</span>
+            <div class="username user-info"></div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container d-flex flex-column justify-content-center gap-5">
+      <h4 class="mb-4">Average Meeting Length By Weekday</h4>
+      <div class="mb-3">
+        <div class="display-center">
+          <canvas
+            id="meetingChart"
+            style="max-width: 600px; height: auto"
+          ></canvas>
+        </div>
+      </div>
+
+      <div class="mt-5 mb-3">
+        <div class="d-flex flex-row justify-content-between align-items-start">
+          <div class="meeting-number-and-length">
+            <h4>Average Meeting Stats Per Month</h4>
+            <table id="avg-meeting-stats-table" class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Month</th>
+                  <th scope="col">Avg Length (min)</th>
+                  <th scope="col">Avg Number</th>
+                  <th scope="col">Avg Length/Meeting</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Data rows will be inserted here -->
+              </tbody>
+            </table>
+          </div>
+          <div class="most-frequent-contacts">
+            <h4>Who you have most meetings with?</h4>
+            <div>
+              <canvas id="most-meetings-contacts-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="d-flex flex-column gap-3 justify-content-center">
+          <h2>Meeting Details</h2>
+          <table class="table" id="meetingDetailsTable">
+            <thead>
+              <tr>
+                <th>MeetingId</th>
+                <th>Start_at</th>
+                <th>End_at</th>
+                <th>Duration</th>
+                <th>Participants</th>
+                <th>Transcription</th>
+                <th>Summary</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Meeting logs will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-background">
+        <div class="modal-container">
+          <div
+            class="modal-background-cross display-center cursor-pointer"
+            onclick="closeModal()"
+          >
+            <span class="material-icons">clear</span>
+          </div>
+          <div
+            class="d-flex flex-column justify-content-center align-items-center"
+          >
+            <h5 id="modal-title"></h5>
+            <div class="modal-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="Assets/js/meetinghistory.js"></script>
+  </body>
+</html>

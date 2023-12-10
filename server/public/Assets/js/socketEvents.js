@@ -5,7 +5,7 @@ import {
   closeConnectionCall,
   myConnectionId,
 } from "./RTCConnection.js";
-import { addUser } from "./uiHandler.js";
+import { addUser, adjustUserBoxSize } from "./uiHandler.js";
 
 export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
@@ -37,16 +37,9 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     });
   }
 
-  // socket.on("connect", () => {
-  //   console.log("connected!!!!!", socket.id);
-  //   initRTCConnection(SDPFunction, socket.id, (status) =>
-  //     onCameraToggle(status, socket.id)
-  //   );
-  //   console.log("in eventProcessForSignalingServer meetingId", meetingId);
-  // });
-
   socket.on("informOthersAboutMe", async function (data) {
     addUser(data.otherUserId, data.connId, data.userNumber);
+    adjustUserBoxSize(data.userNumber);
     console.log("informOthersAboutMe connId: ", data.connId);
     try {
       await setConnection(data.connId);
@@ -62,6 +55,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
       for (let i = 0; i < otherUsers.length; i++) {
         console.log("who are the others:", otherUsers[i]);
         addUser(otherUsers[i].username, otherUsers[i].connectionId, userNumber);
+        adjustUserBoxSize(userNumber);
         try {
           await setConnection(otherUsers[i].connectionId);
         } catch (err) {
@@ -79,7 +73,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
 
   socket.on("informOtherAboutDisconnectedUser", async function (data) {
     document.getElementById(`${data.connId}`).remove();
-    const participantCount = document.querySelectorAll(".participant-count");
+    const participantCount = document.querySelector(".participant-count");
     participantCount.textContent = data.uNumber;
     document.getElementById(`participant-${data.connId}`).remove();
     try {
@@ -118,7 +112,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     const mainCtx = mainCanvas.getContext("2d");
     const drawingCanvas = document.getElementById(`dc_${fromConnId}`);
     const drawingCtx = drawingCanvas.getContext("2d");
-    // drawPath(startX, startY, endX, endY, mode);
     const eraserThickness = 10;
     if (mode === "drawing") {
       drawingCtx.beginPath();
@@ -150,17 +143,26 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("newSubtitle", (data) => {
-    console.log("Received subtitle:", data.subtitle);
-    const userDivId = data.speakerId === myConnectionId ? "me" : data.speakerId;
-    console.log("which user is speaking: ", userDivId);
-    const userDiv = document.getElementById(userDivId);
-    if (userDiv) {
-      const subtitleDiv = userDiv.querySelector(".subtitle");
-
-      if (data.subtitle) {
-        subtitleDiv.innerHTML = `<p>${data.subtitle}</p>`;
-      }
+    console.log("Received subtitle:", data.subtitleContent);
+    const time = new Date();
+    const lTime = time.toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+    const div = document.createElement("div");
+    if (data.speakerId === myConnectionId) {
+      div.classList.add("subtitle-message");
+      div.classList.add("subtitle-from-me");
+      div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">Me</span> ${lTime}</br>${data.subtitleContent}</div>`;
+    } else {
+      div.classList.add("chat-message");
+      div.classList.add("subtitle-from-others");
+      div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">${data.speakerName}</span> ${lTime}</br>${data.subtitleContent}</div>`;
     }
+
+    const subtitleDiv = document.getElementById("real-time-subtitles");
+    subtitleDiv.appendChild(div);
   });
 
   socket.on("informAboutBreakRooms", (data) => {

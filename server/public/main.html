@@ -34,12 +34,11 @@
     <main class="d-flex flex-column home-wrap">
       <div class="g-top text-light">
         <div class="top-remote-vidoe-show-wrap d-flex">
-          <div id="meetingContainer" style="display: none; flex-basis: 75%">
+          <div id="meetingContainer" style="display: none; flex-basis: 100%">
             <div class="call-wrap" style="background-color: black">
               <div
                 class="video-wrap"
                 id="div-users"
-                style="display: flex; flex-wrap: wrap; height: 100vh"
               >
                 <div
                   id="me"
@@ -52,14 +51,13 @@
                     <canvas
                       class="output-canvas"
                       id="me-output-canvas"
-                      style="position: absolute; top: 0; left: 0; z-index: 1"
+                      style="z-index: 1"
                     ></canvas>
                     <canvas
                       class="output-canvas"
                       id="me-drawing-canvas"
-                      style="position: absolute; top: 0; left: 0; z-index: 2"
+                      style="z-index: 2"
                     ></canvas>
-                    <div id="subtitle" class="subtitle"></div>
                   </div>
                 </div>
                 <div
@@ -71,53 +69,30 @@
                     <video autoplay muted></video>
                     <canvas
                       class="output-canvas"
-                      style="position: absolute; top: 0; left: 0; z-index: 1"
+                      style="z-index: 1"
                     ></canvas>
                     <canvas
                       class="drawing-canvas"
-                      style="position: absolute; top: 0; left: 0; z-index: 2"
+                      style="z-index: 2"
                     ></canvas>
                     <audio autoplay controls style="display: none"></audio>
-                    <div id="subtitle" class="subtitle"></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <div
-            class="g-right-details-wrap bg-light text-secondary h-100 d-none"
+            class="g-right-details-wrap bg-light text-secondary d-none"
             style="flex-basis: 25%; z-index: 1"
           >
             <div
               class="meeting-heading-wrap d-flex justify-content-between align-items-center pr-3 pl-3"
               style="height: 10vh"
             >
-              <div class="meeting-heading font-weight-bold">
-                Meeting Details
-              </div>
+            <div class="meeting-heading font-weight-bold">
+            </div>
               <div class="meeting-heading-cross display-center cursor-pointer">
                 <span class="material-icons">clear</span>
-              </div>
-            </div>
-            <div
-              class="people-chat-wrap d-flex justify-content-between align-itmes-center ml-3 mr-3 pr-3 pl-3"
-              style="height: 10vh; font-size: 14px"
-            >
-              <div class="people-heading display-center cursor-pointer">
-                <div class="peopl-heading-icon display-center mr-1">
-                  <span class="material-icons">people</span>
-                </div>
-                <div class="peopl-heading-text display-center">
-                  Participant (<span class="participant-count"></span>)
-                </div>
-              </div>
-              <div
-                class="chat-heading d-flex just-content-round align-items-center cursor-pointer"
-              >
-                <div class="chat-heading-icon display-center mr-1">
-                  <span class="material-icons">message</span>
-                </div>
-                <div class="chat-heading-text">Chat</div>
               </div>
             </div>
             <div
@@ -184,28 +159,21 @@
                   </div>
                 </div>
               </div>
+              <div
+                class="subtitles-show-wrap text-secondary d-flex flex-column justify-content-between h-100"
+                style="font-size: 14px"
+              >
+                <div class="subtitles-show" id="real-time-subtitles"></div>
+                <button id="btnsummarize">Summarize</button> 
+              </div>             
             </div>
           </div>
-        </div>
-        <div
-          class="g-top-left bg-light text-secondary w-25 d-flex align-items-center justify-content-between pl-2 pr-2"
-        >
-          <div class="top-left-participant-wrap pt-2 cursor-pointer">
-            <div class="top-left-participant-icon">
-              <span class="material-icons">people</span>
-            </div>
-            <div class="participant-count top-left-participant-count">1</div>
-          </div>
-          <div class="top-left-chat-wrap pt-2 cursor-pointer">
-            <span class="material-icons">message</span>
-          </div>
-          <div class="top-left-time-wrap"></div>
         </div>
       </div>
       <div
         class="g-bottom bg-light m-0 d-flex justify-content-between align-items-center"
       >
-        <div class="button-left d-flex" style="height: 10vh">
+        <div class="button-left d-flex pl-4" style="height: 10vh">
           <div class="g-details border border-success mb-2" style="display: block;">
             <div
               class="g-details-heading d-flex justify-content-between align-items-center border-bottom"
@@ -234,30 +202,36 @@
         >
           <div
             class="mic-toggle-wrap action-icon-style display-center mr-2 cursor-pointer"
-            id="micMuteUnmute"
+            id="micMuteUnmute" title="Turn on microphone"
           >
             <span class="material-icons" style="width: 100%">mic_off</span>
           </div>
           <div
-            class="end-call-wrap action-icon-style display-center mr-2 cursor-pointer"
+            class="end-call-wrap action-icon-style display-center mr-2 cursor-pointer" title="Leave call"
           >
             <span class="material-icons text-danger">call</span>
           </div>
           <div
-            class="video-toggle-wrap action-icon-style display-center mr-2 cursor-pointer"
-            id="videoCamOnOff"
+            class="video-toggle-wrap action-icon-style display-center mr-2 cursor-pointer" 
+            id="videoCamOnOff" title="Turn on camera"
           >
             <span class="material-icons" style="width: 100%">videocam_off</span>
           </div>
           <div
+          class="present-now-wrap action-icon-style display-center mr-2 cursor-pointer"
+          id="screenShareOnOff" title="Present now"
+        >
+          <span class="material-icons">cancel_presentation</span>
+        </div>
+          <div
             class="breakout-room-toggle-wrap action-icon-style display-center cursor-pointer mr-2"
-            id="breakoutRoomOnOff"
+            id="breakoutRoomOnOff" title="Breakout rooms"
           >
             <span class="material-icons" style="width: 100%">grid_off</span>
           </div>
           <div
             class="draw-toggle-wrap action-icon-style display-center cursor-pointer mr-2"
-            id="drawOnOff"
+            id="drawOnOff" title="Turn on whiteboard"
           >
             <span class="material-icons" style="width: 100%">edit_off</span>
           </div>
@@ -267,13 +241,30 @@
           style="height: 10vh"
         >
           <div
-            class="present-now-wrap d-flex justify-content-center flex-column align-items-center mr-5 curosr-pointer"
-            id="screenShareOnOff"
-          >
-            <span class="material-icons">present_to_all</span>
-            <div>Present Now</div>
+          class="people-chat-wrap d-flex justify-content-between align-itmes-center ml-3 mr-3 pr-3 pl-3"
+          style="height: 10vh; font-size: 14px"
+        >
+          <div class="people-heading display-center cursor-pointer" title="Participant">
+            <div class="peopl-heading-icon display-center mr-1">
+              <span class="material-icons">people</span>
+              <div class="participant-count top-participant-count">1</div>
+            </div>
           </div>
-
+          <div
+            class="chat-heading d-flex just-content-round align-items-center cursor-pointer" title="Chat"
+          >
+            <div class="chat-heading-icon display-center mr-1">
+              <span class="material-icons">message</span>
+            </div>
+          </div>
+          <div
+          class="subtitles-heading d-flex just-content-round align-items-center cursor-pointer" title="Caption"
+        >
+          <div class="subtitle-heading-icon display-center mr-1">
+            <span class="material-icons">subtitles</span>
+          </div>
+        </div>
+        </div>
           <div
             class="option-wrap curosr-pointer display-center"
             style="height: 10vh; position: relative"
@@ -293,7 +284,7 @@
           <div
             class="call-leave-cancel-action d-flex justify-content-center align-itmes-center w-100"
           >
-            <a href="/action.html"
+            <a href="/meetinghistory"
               ><button class="call-leave-action btn btn-danger mr-5">
                 Leave
               </button></a

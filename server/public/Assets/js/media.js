@@ -203,7 +203,6 @@ export async function eventProcess() {
   micBtn.addEventListener("click", async (e) => {
     if (!audio) {
       await loadAudio();
-      startRecording();
     }
     if (!audio) {
       alert("Audio permission has not granted.");
@@ -220,6 +219,7 @@ export async function eventProcess() {
       micBtn.innerHTML =
         '<span class="material-icons" style="width: 100%">mic_off</span>';
       removeMediaSenders(rtpAudSenders);
+      audio.stop();
       stopRecording();
     }
     isAudioMute = !isAudioMute;
@@ -307,7 +307,7 @@ async function uploadAudioToServer() {
   formData.append("audio", blob, fileName);
 
   try {
-    let response = await fetch("http://localhost:3000/api/upload", {
+    let response = await fetch("/api/upload", {
       method: "POST",
       body: formData,
     });
@@ -372,7 +372,7 @@ async function videoProcess(newVideoState) {
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
 
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons">present_to_all</span><div>Present Now</div>';
+      '<span class="material-icons">cancel_presentation</span>';
 
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">edit_off</span>';
@@ -408,9 +408,9 @@ async function videoProcess(newVideoState) {
         audio: false,
       });
       vStream.oninactive = (e) => {
-        remoteVidStream(rtpVidSenders);
+        removeVideoStream(rtpVidSenders);
         document.getElementById("screenShareOnOff").innerHTML =
-          '<span class="material-icons">present_to_all</span><div> Present Now</div>';
+          '<span class="material-icons">present_to_all</span>';
       };
     } else if (newVideoState == videoStates.draw) {
       console.log("draw btn clicked!");
@@ -463,12 +463,12 @@ async function videoProcess(newVideoState) {
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_on</span>';
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons">present_to_all</span><div> Present Now</div>';
+      '<span class="material-icons">cancel_presentation</span>';
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">edit_off</span>';
   } else if (newVideoState === videoStates.screenShare) {
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons text-success">present_to_all</span><div class="text-success">Stop Present Now</div>';
+      '<span class="material-icons">present_to_all</span>';
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
     document.getElementById("drawOnOff").innerHTML =
@@ -478,7 +478,7 @@ async function videoProcess(newVideoState) {
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">edit_on</span>';
     document.getElementById("screenShareOnOff").innerHTML =
-      '<span class="material-icons">present_to_all</span><div> Present Now</div>';
+      '<span class="material-icons">cancel_presentation</span>';
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
   }

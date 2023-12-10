@@ -4,7 +4,8 @@ import axios from "axios";
 import { fileURLToPath } from "url";
 import FormData from "form-data";
 import chokidar from "chokidar";
-import { userConnections } from "./../controllers/socketEvents.js";
+import { userConnections } from "../controllers/socketEvents.js";
+import { addSubtitle } from "../models/meeting.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "../public/uploads");
@@ -13,28 +14,52 @@ const apiKey = process.env.OPENAI_API_KEY;
 function sendFileToWhisper(filePath, io, connId) {
   const form = new FormData();
   form.append("file", fs.createReadStream(filePath));
-  form.append("language", "zh");
+  // form.append("language", "zh");
   form.append("model", "whisper-1");
 
   const config = {
     method: "POST",
-    url: "https://api.openai.com/v1/audio/transcriptions",
+    url: "https://api.openai.com/v1/audio/translations",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       ...form.getHeaders(),
     },
     data: form,
   };
-
   axios(config)
     .then((response) => {
       console.log("Full response:", response.data);
       console.log(JSON.stringify(response.data));
       console.log("Emitting subtitle:", response.data.text);
-      io.emit("newSubtitle", {
-        subtitle: response.data.text,
-        speakerId: connId,
-      });
+      console.log("All user connections:", userConnections);
+      console.log("Looking for connId:", connId);
+
+      const userConnection = userConnections.find(
+        (u) => u.connectionId === connId
+      );
+      const list = userConnections.filter(
+        (u) => u.meetingId === userConnection.meetingId
+      );
+      console.log("list", list);
+      if (!userConnection) {
+        console.error(`Connection ID ${connId} not found in userConnections.`);
+      } else {
+        list.forEach((v) => {
+          const speakerName = userConnection.username;
+          io.to(v.connectionId).emit("newSubtitle", {
+            subtitleContent: response.data.text,
+            speakerId: connId,
+            speakerName: speakerName,
+          });
+        });
+
+        addSubtitle(
+          userConnection.meetingId,
+          userConnection.userId,
+          connId,
+          response.data.text
+        );
+      }
       fs.unlinkSync(filePath);
     })
     .catch((err) => {
