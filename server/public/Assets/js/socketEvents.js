@@ -251,12 +251,3 @@ function copyJoiningInfo() {
     linkConf.style.display = "none";
   }, 3000);
 }
-
-function updateLayout() {
-  videoWrap.classList.remove("three-participants", "four-participants");
-  if (userBoxes.length === 3) {
-    videoWrap.classList.add("three-participants");
-  } else if (userBoxes.length === 4) {
-    videoWrap.classList.add("four-participants");
-  }
-}

@@ -1,7 +1,38 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  await checkUserAuthentication();
   fetchAggregatedInfo();
   fetchMeetingLogs();
 });
+
+function checkUserAuthentication() {
+  const signInNavItem = document.querySelector(".nav-item.sign-in");
+  const userBlock = document.querySelector(".user-block");
+  const usernameDiv = document.querySelector(".username.user-info");
+
+  fetch("/api/user/info", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.username) {
+        signInNavItem.style.display = "none";
+        userBlock.style.display = "flex";
+        usernameDiv.textContent = data.username;
+      } else {
+        signInNavItem.style.display = "block";
+        userBlock.style.display = "none";
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching user info:", error);
+      signInNavItem.style.display = "block";
+      userBlock.style.display = "none";
+    });
+}
 
 function fetchAggregatedInfo() {
   fetch("/api/meetings/aggregated", { credentials: "include" })

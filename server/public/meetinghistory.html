@@ -15,7 +15,7 @@
   <body>
     <nav class="nav navbar-expand-md fixed-top">
       <img src="Assets/images/google-meet-icon.png" class="logo" alt="" />
-      <a href="#" class="navbar-brand text-dark">Clarity Call</a>
+      <a href="/action" class="navbar-brand text-dark">Clarity Call</a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
@@ -37,17 +37,24 @@
           </li>
           <li class="nav-item">
             <button
-              class="btn btn-outline-secondary btn-lg text-info font-weight-bold join-meeting"
+              class="btn btn-outline-secondary btn-md text-info font-weight-bold join-meeting"
             >
               Join the meeting
             </button>
           </li>
           <li class="nav-item">
             <button
-              class="btn btn-info btn-lg text-light font-weight-bold new-meeting"
+              class="btn btn-info btn-md text-light font-weight-bold new-meeting"
             >
               Start a meeting
             </button>
+          </li>
+          <li
+            class="nav-item d-flex flex-row display-center user-block"
+            style="display: none"
+          >
+            <span class="material-icons">face</span>
+            <div class="username user-info"></div>
           </li>
         </ul>
       </div>

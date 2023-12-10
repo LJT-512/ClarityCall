@@ -17,6 +17,10 @@ router.get("/action", isAuthenticated, (req, res) => {
   res.sendFile(join(__dirname, "./public/action.html"));
 });
 
+router.get("/meetinghistory", isAuthenticated, (req, res) => {
+  res.sendFile(join(__dirname, "./public/meetinghistory.html"));
+});
+
 router.get("/", isAuthenticated, (req, res) => {
   res.sendFile(join(__dirname, "./public/main.html"));
 });
