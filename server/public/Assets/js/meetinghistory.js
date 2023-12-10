@@ -217,6 +217,7 @@ function createButton(text, className, link) {
   button.className = className;
   button.textContent = text;
   button.dataset.link = link;
+  button.classList.add = "btn-outline-secondary";
   button.addEventListener("click", buttonClickHandler);
   return button;
 }
@@ -240,19 +241,48 @@ function buttonClickHandler(event) {
 function openModal(data, dataType) {
   const modalBackgroud = document.querySelector(".modal-background");
   const modalContent = document.querySelector(".modal-content");
-  const modalCross = document.querySelector(".model-background-cross");
-  let contentHtml = "";
+  const modalTitle = document.getElementById("modal-title");
+  modalContent.innerHTML = "";
+
   if (dataType === "transcript") {
-    contentHtml = data.meetingSubtitles
-      .map((subtitle) => `${subtitle.username}: ${subtitle.subtitle}`)
-      .join("<br>");
-    console.log(contentHtml);
+    modalTitle.textContent = "Transcription";
+    data.meetingSubtitles.forEach((sub) => {
+      let subtitleDiv = document.createElement("div");
+      subtitleDiv.classList.add("subtitle");
+
+      let time = new Date(sub.time)
+        .toLocaleString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+        .replace(",", "");
+
+      let usernameSpan = document.createElement("span");
+      usernameSpan.classList.add("username");
+      usernameSpan.textContent = sub.username;
+      subtitleDiv.appendChild(usernameSpan);
+
+      let timeSpan = document.createElement("span");
+      timeSpan.classList.add("time");
+      timeSpan.textContent = ` ${time}: `;
+
+      subtitleDiv.appendChild(timeSpan);
+      subtitleDiv.append(sub.subtitle);
+      modalContent.appendChild(subtitleDiv);
+      modalContent.appendChild(subtitleDiv);
+    });
   } else if (dataType === "summary") {
-    contentHtml = data.meetingSummary;
-    console.log(contentHtml);
+    modalTitle.textContent = "Summary";
+    let summaryDiv = document.createElement("div");
+    summaryDiv.classList.add("summary");
+    summaryDiv.textContent = data.meetingSummary;
+    modalContent.appendChild(summaryDiv);
   }
 
-  modalContent.innerHTML = contentHtml;
   modalBackgroud.style.display = "flex";
 }
 

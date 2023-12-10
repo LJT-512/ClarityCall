@@ -54,8 +54,9 @@ h4 {
 .transcript-button,
 .summary-button {
   display: inline-block;
-  background-color: #007bff;
-  color: white;
+  color: #17a2b8;
+  border: solid 1px #17a2b8;
+  background-color: white;
   padding: 8px 15px;
   border-radius: 4px;
   text-align: center;
@@ -65,7 +66,8 @@ h4 {
 
 .transcript-button:hover,
 .summary-button:hover {
-  background-color: #0056b3;
+  background-color: #17a2b8;
+  color: white;
 }
 
 #meetingDetailsTable {
@@ -94,7 +96,7 @@ h4 {
   background-color: #fff;
   padding: 20px;
   border-radius: 4px;
-  width: 80%;
+  width: 100%;
   max-width: 600px;
 }
 
@@ -106,4 +108,33 @@ h4 {
   border-radius: 50%;
   z-index: 3;
   cursor: pointer;
+}
+
+.subtitle,
+summary {
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.modal-background {
+  transition: all 0.3s ease-in-out;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.time {
+  color: gray;
 }
