@@ -31,6 +31,9 @@ function sendFileToWhisper(filePath, io, connId) {
       console.log("Full response:", response.data);
       console.log(JSON.stringify(response.data));
       console.log("Emitting subtitle:", response.data.text);
+      console.log("All user connections:", userConnections);
+      console.log("Looking for connId:", connId);
+
       const userConnection = userConnections.find(
         (u) => u.connectionId === connId
       );
@@ -38,7 +41,9 @@ function sendFileToWhisper(filePath, io, connId) {
         (u) => u.meetingId === userConnection.meetingId
       );
       console.log("list", list);
-      if (userConnection) {
+      if (!userConnection) {
+        console.error(`Connection ID ${connId} not found in userConnections.`);
+      } else {
         list.forEach((v) => {
           const speakerName = userConnection.username;
           io.to(v.connectionId).emit("newSubtitle", {
@@ -54,8 +59,6 @@ function sendFileToWhisper(filePath, io, connId) {
           connId,
           response.data.text
         );
-      } else {
-        console.error(`Connection ID ${connId} not found in userConnections.`);
       }
       fs.unlinkSync(filePath);
     })

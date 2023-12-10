@@ -7,7 +7,10 @@ import {
   endMeeting,
 } from "../models/meeting.js";
 
-import { generateMeetingSummary } from "../utils/summary.js";
+import {
+  generateMeetingSummary,
+  storeMeetingSummary,
+} from "../utils/summary.js";
 
 export let userConnections = [];
 export const userMeetingRooms = {};
@@ -168,7 +171,8 @@ const setupSocketEvents = (io) => {
         if (userNumberAfterUserLeaves === 0) {
           try {
             await endMeeting(meetingId);
-            await generateMeetingSummary(meetingId);
+            const summary = await generateMeetingSummary(meetingId);
+            await storeMeetingSummary(meetingId, summary);
           } catch (err) {
             console.error("Error ending meeting:", err);
           }

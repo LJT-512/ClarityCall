@@ -211,3 +211,9 @@ meetingDetailsBtn.addEventListener("click", () => {
     Meeting Details<span class="material-icons">keyboard_arrow_up</span></div>`;
   }
 });
+
+const summarizeBtn = document.getElementById("btnsummarize");
+const subtitleApi = `/api/meetings/generateSummary/?meetingId=${meetingId}`;
+summarizeBtn.addEventListener("click", async () => {
+  await fetch(subtitleApi);
+});

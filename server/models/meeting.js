@@ -89,6 +89,8 @@ export async function addSubtitle(meetingId, userId, connectionId, text) {
 }
 
 export async function addSummary(meetingId, summary) {
+  console.log("addSummary in models is being called.");
+
   const result = await pool.query(
     `
     UPDATE meetings

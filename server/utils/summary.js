@@ -15,7 +15,7 @@ export async function generateMeetingSummary(meetingId) {
       {
         role: "system",
         content:
-          "You are a participant in a meeting, please make a summary below 300 words.",
+          "You are a participant in a meeting, please make a summary below 100 words.",
       },
       {
         role: "user",
@@ -38,13 +38,13 @@ export async function generateMeetingSummary(meetingId) {
 
     const summary = response.data.choices[0].message.content;
     console.log("summary from openai", summary);
-    await storeMeetingSummary(meetingId, summary);
+    return summary;
   } catch (err) {
     console.error("Error generating summary:", err);
   }
 }
 
-async function storeMeetingSummary(meetingId, summary) {
+export async function storeMeetingSummary(meetingId, summary) {
   try {
     await addSummary(meetingId, summary);
   } catch (err) {

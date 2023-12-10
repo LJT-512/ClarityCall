@@ -49,4 +49,10 @@ router.get(
   meetingAnalyticsController.getMeetingSubtitles
 );
 
+router.get(
+  "/api/meetings/generateSummary",
+  isAuthenticated,
+  meetingAnalyticsController.getSummary
+);
+
 export default router;

@@ -7,6 +7,9 @@ import {
 } from "../models/meeting.js";
 
 import { BASE_URL } from "../config/constants.js";
+import { generateMeetingSummary } from "../utils/summary.js";
+import { getIO } from "../io.js";
+import { userConnections } from "./socketEvents.js";
 
 export async function getAggregatedInfo(req, res) {
   const userId = req.user.user_id;
@@ -54,6 +57,28 @@ export async function getMeetingSubtitles(req, res) {
   try {
     const meetingSubtitles = await getSubtitlesByMeeting(meetingId);
     res.status(200).json({ meetingSubtitles });
+  } catch (err) {
+    console.error("Error getting meeting subtitles:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+export async function getSummary(req, res) {
+  const io = getIO();
+  try {
+    const meetingId = req.query.meetingId;
+    const summary = await generateMeetingSummary(meetingId);
+    const list = userConnections.filter((u) => u.meetingId === meetingId);
+    console.log("list", list);
+    list.forEach((v) => {
+      const speakerName = "ai";
+      io.to(v.connectionId).emit("newSubtitle", {
+        subtitleContent: summary,
+        speakerId: null,
+        speakerName: speakerName,
+      });
+    });
+    res.status(200).json({ summary });
   } catch (err) {
     console.error("Error getting meeting subtitles:", err);
     res.status(500).json({ error: "Internal server error" });
