@@ -4,6 +4,7 @@ import {
   getMostFrequentContacts,
   getMeetingLogsDetails,
   getSubtitlesByMeeting,
+  getSummaryByMeeting,
 } from "../models/meeting.js";
 
 import { BASE_URL } from "../config/constants.js";
@@ -59,6 +60,18 @@ export async function getMeetingSubtitles(req, res) {
     res.status(200).json({ meetingSubtitles });
   } catch (err) {
     console.error("Error getting meeting subtitles:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+export async function getMeetingSummary(req, res) {
+  const meetingId = req.query.meetingId;
+
+  try {
+    const meetingSummary = await getSummaryByMeeting(meetingId);
+    res.status(200).json({ meetingSummary });
+  } catch (err) {
+    console.error("Error getting meeting susummarybtitles:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 }

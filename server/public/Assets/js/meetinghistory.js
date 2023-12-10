@@ -179,15 +179,83 @@ function renderMeetingLogs(meetingLogs) {
     .querySelector("tbody");
   meetingLogs.forEach((log) => {
     const row = tableBody.insertRow();
+    console.log(row.cells);
+
     const participantsText = Array.isArray(log.participants)
       ? log.participants.join(", ")
       : "No participants";
+
     row.insertCell(0).textContent = log.meetingId;
     row.insertCell(1).textContent = log.startAt;
     row.insertCell(2).textContent = log.endAt;
     row.insertCell(3).textContent = log.duration;
     row.insertCell(4).textContent = participantsText;
-    row.insertCell(5).textContent = log.subtitleLink;
-    row.insertCell(6).textContent = log.summaryLink;
+    row.insertCell(5);
+    row.insertCell(6);
+
+    if (row.cells[5] && row.cells[6]) {
+      const transcriptButton = createButton(
+        "Transcript",
+        "transcript-button",
+        log.subtitleLink
+      );
+      row.cells[5].appendChild(transcriptButton);
+      const summaryButton = createButton(
+        "Summary",
+        "summary-button",
+        log.summaryLink
+      );
+      row.cells[6].appendChild(summaryButton);
+    } else {
+      console.error("Cells are not created properly");
+    }
   });
+}
+
+function createButton(text, className, link) {
+  const button = document.createElement("button");
+  button.className = className;
+  button.textContent = text;
+  button.dataset.link = link;
+  button.addEventListener("click", buttonClickHandler);
+  return button;
+}
+
+function buttonClickHandler(event) {
+  const apiUrl = event.target.dataset.link;
+  const dataType = event.target.classList.contains("transcript-button")
+    ? "transcript"
+    : "summary";
+  console.log("apiUrl", apiUrl);
+
+  fetch(apiUrl, { credentials: "include" })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("data after triggering button", data);
+      openModal(data, dataType);
+    })
+    .catch((err) => console.error("Error fetching data:", err));
+}
+
+function openModal(data, dataType) {
+  const modalBackgroud = document.querySelector(".modal-background");
+  const modalContent = document.querySelector(".modal-content");
+  const modalCross = document.querySelector(".model-background-cross");
+  let contentHtml = "";
+  if (dataType === "transcript") {
+    contentHtml = data.meetingSubtitles
+      .map((subtitle) => `${subtitle.username}: ${subtitle.subtitle}`)
+      .join("<br>");
+    console.log(contentHtml);
+  } else if (dataType === "summary") {
+    contentHtml = data.meetingSummary;
+    console.log(contentHtml);
+  }
+
+  modalContent.innerHTML = contentHtml;
+  modalBackgroud.style.display = "flex";
+}
+
+function closeModal() {
+  document.querySelector(".modal-background").style.display = "none";
 }

@@ -200,3 +200,16 @@ export async function getSubtitlesByMeeting(meetingId) {
     };
   });
 }
+
+export async function getSummaryByMeeting(meetingId) {
+  const result = await pool.query(
+    `
+    SELECT summary
+    FROM meetings
+    WHERE meeting_id = $1
+    `,
+    [meetingId]
+  );
+
+  return result.rows[0].summary;
+}

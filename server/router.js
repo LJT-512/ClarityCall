@@ -50,6 +50,12 @@ router.get(
 );
 
 router.get(
+  "/api/meetings/summary",
+  isAuthenticated,
+  meetingAnalyticsController.getMeetingSummary
+);
+
+router.get(
   "/api/meetings/generateSummary",
   isAuthenticated,
   meetingAnalyticsController.getSummary

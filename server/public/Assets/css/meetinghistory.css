@@ -1,7 +1,12 @@
 body {
   font-family: robot, lato !important;
-  font-size: large;
+  font-size: medium;
   background-color: #f8f9fa;
+}
+
+nav {
+  background-color: white;
+  z-index: 2;
 }
 ul {
   list-style: none;
@@ -31,11 +36,74 @@ li.nav-item {
   padding: 0 10px;
 }
 
+.container {
+  margin-top: 100px;
+}
+
 h1,
-h2 {
+h2,
+h4 {
   color: #333;
+}
+
+.meeting-number-and-length,
+.most-frequent-contacts {
+  overflow-x: auto;
+}
+
+.transcript-button,
+.summary-button {
+  display: inline-block;
+  background-color: #007bff;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 4px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.transcript-button:hover,
+.summary-button:hover {
+  background-color: #0056b3;
 }
 
 #meetingDetailsTable {
   background-color: #fff;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.modal-container {
+  position: relative;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  width: 80%;
+  max-width: 600px;
+}
+
+.modal-background-cross {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #fff;
+  border-radius: 50%;
+  z-index: 3;
+  cursor: pointer;
 }
