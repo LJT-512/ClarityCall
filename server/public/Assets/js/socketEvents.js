@@ -104,6 +104,17 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     }
   });
 
+  socket.on("flipVideo", (data) => {
+    const userVideoToFlipped = document.getElementById(`v_${data.from}`);
+    userVideoToFlipped.style.setProperty("transform", "none", "important");
+    userVideoToFlipped.style.setProperty(
+      "-webkit-transform",
+      "none",
+      "important"
+    );
+    userVideoToFlipped.style.setProperty("-moz-transform", "none", "important");
+  });
+
   socket.on("updateCanvasDrawing", (data) => {
     console.log("client side got updateCanvasDrawing event!!!!!");
     const { startX, startY, endX, endY, mode, fromConnId } = data;

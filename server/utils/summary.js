@@ -3,11 +3,14 @@ import { getSubtitlesByMeeting, addSummary } from "../models/meeting.js";
 
 export async function generateMeetingSummary(meetingId) {
   const subtitles = await getSubtitlesByMeeting(meetingId);
+  if (!subtitles) {
+    return;
+  }
 
   const prompt = subtitles
     .map((s) => `${s.username}: ${s.subtitle}`)
     .join("\n");
-  const fullPrompt = `Summarize the following meeting conversation in less than 300 words:\n\n${prompt}`;
+  const fullPrompt = `Summarize the following meeting conversation in less than 100 words:\n\n${prompt}`;
 
   const data = {
     model: "gpt-3.5-turbo",

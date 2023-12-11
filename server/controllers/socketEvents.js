@@ -86,6 +86,17 @@ const setupSocketEvents = (io) => {
       });
     });
 
+    socket.on("shareScreen", (connId) => {
+      const meetingId = userConnections.find((u) => u.connectionId === connId)
+        .meetingId;
+      const list = userConnections.filter((p) => p.meetingId === meetingId);
+      list.forEach((v) => {
+        socket.to(v.connectionId).emit("flipVideo", {
+          from: connId,
+        });
+      });
+    });
+
     socket.on("drawCanvas", (data) => {
       console.log("the server got drawCanvas");
       const { startX, startY, endX, endY, mode, myConnectionId } = data;

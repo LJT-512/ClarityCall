@@ -81,6 +81,11 @@ export async function getSummary(req, res) {
   try {
     const meetingId = req.query.meetingId;
     const summary = await generateMeetingSummary(meetingId);
+    if (!summary) {
+      res
+        .status(400)
+        .json({ message: "NO subtutles available for this meeting." });
+    }
     const list = userConnections.filter((u) => u.meetingId === meetingId);
     console.log("list", list);
     list.forEach((v) => {

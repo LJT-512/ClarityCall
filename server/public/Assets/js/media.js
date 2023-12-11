@@ -7,6 +7,7 @@ import {
 export let remoteVidStream = [];
 export let remoteAudStream = [];
 let localDiv;
+let aStream;
 let audio;
 let isAudioMute = true;
 let rtpAudSenders = [];
@@ -209,12 +210,17 @@ export async function eventProcess() {
       return;
     }
     if (isAudioMute) {
+      console.log("Audio is muted so we are turning on");
+      await loadAudio();
       audio.enabled = true;
       micBtn.innerHTML =
         '<span class="material-icons" style="width: 100%">mic</span>';
       updateMediaSenders(audio, rtpAudSenders);
       startRecording();
     } else {
+      console.log(
+        "Audio is not muted. and the mic icon should change to muted."
+      );
       audio.enabled = false;
       micBtn.innerHTML =
         '<span class="material-icons" style="width: 100%">mic_off</span>';
@@ -252,15 +258,12 @@ export async function eventProcess() {
 
 async function loadAudio() {
   try {
-    let aStream = await navigator.mediaDevices.getUserMedia({
+    aStream = await navigator.mediaDevices.getUserMedia({
       video: false,
       audio: true,
     });
     audio = aStream.getAudioTracks()[0];
     audio.enabled = false;
-    recorder = new MediaRecorder(aStream, {
-      mimeType: "audio/webm;codecs=opus",
-    });
   } catch (err) {
     console.error("Failed to load audio: ", err);
   }
@@ -268,6 +271,10 @@ async function loadAudio() {
 
 function startRecording() {
   if (!isRecording) {
+    recorder = new MediaRecorder(aStream, {
+      mimeType: "audio/webm;codecs=opus",
+    });
+
     audioChunks = [];
     recorder.start();
     console.log("Audio recording start!");
@@ -297,6 +304,7 @@ function stopRecording() {
     clearInterval(intervalId);
     recorder.stop();
     isRecording = false;
+    recorder = null;
   }
 }
 
@@ -410,7 +418,7 @@ async function videoProcess(newVideoState) {
       vStream.oninactive = (e) => {
         removeVideoStream(rtpVidSenders);
         document.getElementById("screenShareOnOff").innerHTML =
-          '<span class="material-icons">present_to_all</span>';
+          '<span class="material-icons">cancel_presentation</span>';
       };
     } else if (newVideoState == videoStates.draw) {
       console.log("draw btn clicked!");
@@ -473,6 +481,10 @@ async function videoProcess(newVideoState) {
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">edit_off</span>';
+    localDiv.style.setProperty("transform", "none", "important");
+    localDiv.style.setProperty("-webkit-transform", "none", "important");
+    localDiv.style.setProperty("-moz-transform", "none", "important");
+    socket.emit("shareScreen", myConnectionId);
   } else if (newVideoState === videoStates.draw) {
     console.log("should change ");
     document.getElementById("drawOnOff").innerHTML =
@@ -481,5 +493,8 @@ async function videoProcess(newVideoState) {
       '<span class="material-icons">cancel_presentation</span>';
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_off</span>';
+    localDiv.style.removeProperty("transform");
+    localDiv.style.removeProperty("-webkit-transform");
+    localDiv.style.removeProperty("-moz-transform");
   }
 }

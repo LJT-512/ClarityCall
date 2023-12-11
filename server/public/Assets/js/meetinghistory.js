@@ -23,13 +23,13 @@ function checkUserAuthentication() {
         userBlock.style.display = "flex";
         usernameDiv.textContent = data.username;
       } else {
-        signInNavItem.style.display = "block";
+        signInNavItem.style.display = "flex";
         userBlock.style.display = "none";
       }
     })
     .catch((error) => {
       console.error("Error fetching user info:", error);
-      signInNavItem.style.display = "block";
+      signInNavItem.style.display = "flex";
       userBlock.style.display = "none";
     });
 }
