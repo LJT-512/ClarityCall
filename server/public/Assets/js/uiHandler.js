@@ -53,3 +53,20 @@ export function adjustUserBoxSize(userNumber) {
     userBox.style.maxHeight = maxHeight;
   });
 }
+
+export function showMeetingToast(username, message) {
+  const toast = document.getElementById("toast-notification");
+  const toastName = document.getElementById("toast-username");
+  const toastMsg = document.getElementById("toast-msg");
+
+  toastName.textContent = username;
+  toastMsg.textContent = message;
+
+  toast.style.opacity = "1";
+  toast.style.transform = "translateY(0)";
+  toast.style.transition = "opacity 0.5s ease-in-out";
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+  }, 5000);
+}

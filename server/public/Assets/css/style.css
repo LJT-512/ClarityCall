@@ -322,3 +322,26 @@ video {
   text-decoration: none;
   cursor: pointer;
 }
+
+#toast-notification {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  min-width: 250px;
+  background-color: rgba(255, 255, 255);
+  color: black;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  display: block;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+}
+
+.toast-content .material-icons {
+  margin-right: 0.5rem;
+}

@@ -174,6 +174,7 @@ const setupSocketEvents = (io) => {
         list.forEach((v) => {
           socket.to(v.connectionId).emit("informOtherAboutDisconnectedUser", {
             connId: socket.id,
+            userWhoLeft: disUser.username,
             uNumber: userNumberAfterUserLeaves,
           });
         });
