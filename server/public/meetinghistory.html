@@ -60,8 +60,8 @@
         </ul>
       </div>
     </nav>
-    <div class="container d-flex flex-column justify-content-center gap-5">
-      <h4 class="mb-4">Average Meeting Length By Weekday</h4>
+    <div class="container">
+      <h4 class="row mt-5 mb-3">Average Meeting Length By Weekday</h4>
       <div class="mb-3">
         <div class="display-center">
           <canvas
@@ -71,35 +71,33 @@
         </div>
       </div>
 
-      <div class="mt-5 mb-3">
-        <div class="d-flex flex-row justify-content-between align-items-start">
-          <div class="meeting-number-and-length">
-            <h4>Average Meeting Stats Per Month</h4>
-            <table id="avg-meeting-stats-table" class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Month</th>
-                  <th scope="col">Avg Length (min)</th>
-                  <th scope="col">Avg Number</th>
-                  <th scope="col">Avg Length/Meeting</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Data rows will be inserted here -->
-              </tbody>
-            </table>
-          </div>
-          <div class="most-frequent-contacts">
-            <h4>Who you have most meetings with?</h4>
-            <div>
-              <div id="most-meetings-contacts-chart"></div>
-            </div>
+      <div class="row mt-5 mb-3">
+        <div class="meeting-number-and-length col-lg-6">
+          <h4>Average Meeting Stats Per Month</h4>
+          <table id="avg-meeting-stats-table" class="table">
+            <thead>
+              <tr>
+                <th scope="col">Month</th>
+                <th scope="col">Avg Length (min)</th>
+                <th scope="col">Avg Number</th>
+                <th scope="col">Avg Length/Meeting</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Data rows will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="most-frequent-contacts col-lg-6">
+          <h4>Who you have most meetings with?</h4>
+          <div>
+            <div id="most-meetings-contacts-chart"></div>
           </div>
         </div>
       </div>
 
       <div>
-        <div class="d-flex flex-column gap-3 justify-content-center">
+        <div class="row mt-5 mb-3">
           <h2>Meeting Details</h2>
           <table class="table" id="meetingDetailsTable">
             <thead>

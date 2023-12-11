@@ -114,6 +114,9 @@ const colors = ["#e8ddb5", "#b2c9ab", "#92b6b1", "#788aa3", "#666a86"];
 let counter = 0;
 
 function getRandomColorFromList() {
+  if (counter > 4) {
+    counter = 0;
+  }
   const color = colors[counter];
   counter++;
   return color;
@@ -144,8 +147,9 @@ function renderAvgMeetingStats(apiData) {
 }
 
 function renderMostFrequentContacts(apiData) {
-  const width = 600;
-  const height = 600;
+  const container = d3.select("#most-meetings-contacts-chart");
+  const width = container.node().getBoundingClientRect().width;
+  const height = width;
 
   d3.select("#most-meetings-contacts-chart").select("svg").remove();
 
