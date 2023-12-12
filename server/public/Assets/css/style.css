@@ -106,7 +106,7 @@ input:focus {
 .g-bottom {
   height: 10vh;
   box-shadow: 0 0 5px black;
-  z-index: 2;
+  z-index: 4;
 }
 
 .top-remote-video-show-wrap,
@@ -174,7 +174,7 @@ input:focus {
   color: white;
   margin: 0;
   font-size: 20px;
-  z-index: 3; /* Make sure it's above the video and canvas layers */
+  z-index: 3;
 }
 
 video {
@@ -256,7 +256,7 @@ video {
   background-color: white;
   position: fixed;
   width: 30%;
-  height: 30%;
+  height: 15%;
   top: 20.5%;
   left: 35.5%;
   display: block;

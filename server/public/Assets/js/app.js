@@ -10,7 +10,7 @@ async function initApp() {
 
   if (!meetingId) {
     alert("Meeting id missing");
-    window.location.href = "/action.html";
+    window.location.href = "/action";
     return;
   }
 

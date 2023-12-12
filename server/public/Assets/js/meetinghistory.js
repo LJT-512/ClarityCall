@@ -35,9 +35,21 @@ function checkUserAuthentication() {
 }
 
 function fetchAggregatedInfo() {
+  const container = document.querySelector(".container");
+  const noDataDiv = document.querySelector(".no-data");
+
   fetch("/api/meetings/aggregated", { credentials: "include" })
     .then((response) => response.json())
     .then((data) => {
+      if (
+        data.avgMeetingLengthPerWeekDay.length == 0 &&
+        data.avgMeetingStatsPerMonth.length == 0 &&
+        data.mostFrequentContacts.length == 0
+      ) {
+        noDataDiv.style.display = "block";
+        container.style.display = "none";
+        return;
+      }
       renderAvgMeetingLength(data.avgMeetingLengthPerWeekDay);
       renderAvgMeetingStats(data.avgMeetingStatsPerMonth);
       renderMostFrequentContacts(data.mostFrequentContacts);
@@ -209,13 +221,35 @@ function renderMeetingLogs(meetingLogs) {
     const row = tableBody.insertRow();
     console.log(row.cells);
 
+    let startTime = new Date(log.startAt)
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+      .replace(",", "");
+
+    let endTime = new Date(log.endAt)
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+      .replace(",", "");
+
     const participantsText = Array.isArray(log.participants)
       ? log.participants.join(", ")
       : "No participants";
 
     row.insertCell(0).textContent = log.meetingId;
-    row.insertCell(1).textContent = log.startAt;
-    row.insertCell(2).textContent = log.endAt;
+    row.insertCell(1).textContent = startTime;
+    row.insertCell(2).textContent = endTime;
     row.insertCell(3).textContent = log.duration;
     row.insertCell(4).textContent = participantsText;
     row.insertCell(5);

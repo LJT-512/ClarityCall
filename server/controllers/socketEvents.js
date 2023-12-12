@@ -5,6 +5,9 @@ import {
   userLeaveMeeting,
   addChat,
   endMeeting,
+  updateParentMeeting,
+  updateMeetingStartAt,
+  isMeetingFinished,
 } from "../models/meeting.js";
 
 import {
@@ -12,8 +15,9 @@ import {
   storeMeetingSummary,
 } from "../utils/summary.js";
 
+import { userMeetingRooms } from "./breakoutroom.js";
+
 export let userConnections = [];
-export const userMeetingRooms = {};
 
 const setupSocketEvents = (io) => {
   io.on("connection", (socket) => {
@@ -32,16 +36,77 @@ const setupSocketEvents = (io) => {
         userId: data.userId,
         meetingId: data.meetingId,
       });
+
+      let parentMeetingId = null;
+
       try {
-        if (await checkMeeting(data.meetingId)) {
-          await createConnection(data.meetingId, data.userId, socket.id);
+        const isBreakoutRoom = data.meetingId.length !== 8;
+
+        if (!isBreakoutRoom) {
+          const meetingExists = await checkMeeting(data.meetingId);
+
+          if (!meetingExists) {
+            await createMeeting(data.meetingId, data.userId);
+          } else if (await isMeetingFinished(data.meetingId)) {
+            await updateMeetingStartAt(data.meetingId);
+          }
         } else {
           await createMeeting(data.meetingId, data.userId);
-          await createConnection(data.meetingId, data.userId, socket.id);
+          for (const [meetingId, details] of Object.entries(userMeetingRooms)) {
+            const roomFound = details.rooms.some((room) =>
+              room.some((user) => user.roomId === data.meetingId)
+            );
+            if (roomFound) {
+              parentMeetingId = meetingId;
+              break;
+            }
+          }
+          if (parentMeetingId) {
+            await updateParentMeeting(data.meetingId, parentMeetingId);
+          } else {
+            throw new Error("Parent meeting ID not found for breakout room");
+          }
         }
+        await createConnection(data.meetingId, data.userId, socket.id);
       } catch (err) {
-        console.error("Error creating meeting and connection", err);
+        console.error("Error handling user connection:", err);
       }
+
+      // try {
+      //   if (data.meetingId.length !== 8) {
+      //     await createMeeting(data.meetingId, data.userId);
+      //     await createConnection(data.meetingId, data.userId, socket.id);
+      //     let parentMeetingId = null;
+      //     for (const [meetingId, details] of Object.entries(userMeetingRooms)) {
+      //       const roomFound = details.rooms.some((room) =>
+      //         room.some((user) => user.roomId === data.meetingId)
+      //       );
+      //       console.log("!!!!!!!!!!!!!!!roomFound!!!!!!!!!!!!!", roomFound);
+      //       if (roomFound) {
+      //         parentMeetingId = meetingId;
+      //         break;
+      //       }
+      //     }
+      //     console.log(
+      //       "got userconnect event:",
+      //       data.meetingId,
+      //       parentMeetingId
+      //     );
+      //     await updateParentMeeting(data.meetingId, parentMeetingId);
+      //   } else {
+      //     if (await checkMeeting(data.meetingId)) {
+      //       if (await isMeetingFinished(data.meetingId)) {
+      //         await updateMeetingStartAt(data.meetingId);
+      //       }
+      //       await createConnection(data.meetingId, data.userId, socket.id);
+      //     } else {
+      //       await createMeeting(data.meetingId, data.userId);
+      //       await createConnection(data.meetingId, data.userId, socket.id);
+      //     }
+      //   }
+      // } catch (err) {
+      //   console.error("Error creating meeting and connection", err);
+      // }
 
       console.log("userConnections: ", userConnections);
 
@@ -184,7 +249,9 @@ const setupSocketEvents = (io) => {
           try {
             await endMeeting(meetingId);
             const summary = await generateMeetingSummary(meetingId);
-            await storeMeetingSummary(meetingId, summary);
+            if (summary) {
+              await storeMeetingSummary(meetingId, summary);
+            }
           } catch (err) {
             console.error("Error ending meeting:", err);
           }

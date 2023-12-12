@@ -29,10 +29,10 @@
         </ul>
         <ul class="navbar-nav mr-0">
           <li class="nav-item sign-in display-center">
-            <a href="signin.html" class="nav-link">Sign in</a>
+            <a href="/signin" class="nav-link">Sign in</a>
           </li>
           <li class="nav-item meeting-history display-center">
-            <a href="meetinghistory.html" class="nav-link">Meeting History</a>
+            <a href="/meetinghistory" class="nav-link">Meeting History</a>
           </li>
           <li class="nav-item">
             <button
@@ -115,7 +115,7 @@
           })
           .catch((error) => {
             console.error("Error fetching user info:", error);
-            signInNavItem.style.display = "block";
+            signInNavItem.style.display = "flex";
             userBlock.style.display = "none";
           });
       });
@@ -150,7 +150,7 @@ const redirectUrl = params.get('redirect');
     .then((response) => {
       if (response.data.access_token) {
         alert(`Welcom, Happy meeting! ${response.data.user.name}`);
-        window.location.href = redirectUrl || '/action.html';
+        window.location.href = redirectUrl || '/action';
       }
     })
     .catch((err) => {
@@ -198,9 +198,9 @@ const redirectUrl = params.get('redirect');
     })
     .then((response) => {
       if (response.data.access_token) {
-        alert(`Happy meeting! ${response.data.user.name}`);
+        alert(`Hi Welcome back ${response.data.user.name} !`);
         console.log('redirectURL:', redirectUrl);
-        window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : '/action.html';
+        window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : '/action';
     }
   })
     .catch((err) => {
