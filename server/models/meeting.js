@@ -102,9 +102,6 @@ export async function hasOngoingRoomMeeting(meetingId) {
   return parseInt(result.rows[0].count, 10) > 0;
 }
 
-const result = await hasOngoingRoomMeeting("88888888");
-console.log(result);
-
 export async function userLeaveMeeting(meetingId, userId) {
   const leaveAt = new Date();
   const result = await pool.query(

@@ -223,7 +223,6 @@ function renderMeetingLogs(meetingLogs) {
     .querySelector("tbody");
   meetingLogs.forEach((log) => {
     const row = tableBody.insertRow();
-    console.log(row.cells);
 
     let startTime = new Date(log.startAt)
       .toLocaleString("en-US", {
@@ -235,17 +234,22 @@ function renderMeetingLogs(meetingLogs) {
         hour12: false,
       })
       .replace(",", "");
+    let endTime;
 
-    let endTime = new Date(log.endAt)
-      .toLocaleString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
-      .replace(",", "");
+    if (log.endAt) {
+      endTime = new Date(log.endAt)
+        .toLocaleString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+        .replace(",", "");
+    } else {
+      endTime = "N/A";
+    }
 
     const participantsText = Array.isArray(log.participants)
       ? log.participants.join(", ")
