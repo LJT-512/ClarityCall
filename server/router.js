@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 
 const router = express.Router();
 
-router.get("/action", isAuthenticated, (req, res) => {
+router.get("/action", (req, res) => {
   res.sendFile(join(__dirname, "./public/action.html"));
 });
 
