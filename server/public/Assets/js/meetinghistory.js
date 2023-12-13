@@ -174,7 +174,7 @@ function renderMostFrequentContacts(apiData) {
   const radiusScale = d3
     .scaleSqrt()
     .domain([0, d3.max(apiData, (d) => d.meeting_count)])
-    .range([0, 80]);
+    .range([0, 40]);
 
   const simulation = d3
     .forceSimulation(apiData)
@@ -188,28 +188,32 @@ function renderMostFrequentContacts(apiData) {
 
   simulation.tick(300);
 
-  const bubbles = svg
-    .selectAll(".bubble")
+  const bubbleGroups = svg
+    .selectAll(".bubble-group")
     .data(apiData)
     .enter()
+    .append("g")
+    .attr("class", "bubble-group")
+    .attr("transform", (d) => `translate(${d.x}, ${d.y})`);
+
+  bubbleGroups
     .append("circle")
     .attr("class", "bubble")
-    .attr("cx", (d) => d.x)
-    .attr("cy", (d) => d.y)
     .attr("r", (d) => radiusScale(d.meeting_count))
     .style("fill", getRandomColorFromList);
 
-  bubbles.append("title").text((d) => `Meetings: ${d.meeting_count}`);
-
-  svg
-    .selectAll(".label")
-    .data(apiData)
-    .enter()
+  bubbleGroups
     .append("text")
     .attr("class", "label")
-    .attr("x", (d) => d.x)
-    .attr("y", (d) => d.y)
+    .attr("dy", "0em")
     .text((d) => d.name)
+    .style("text-anchor", "middle");
+
+  bubbleGroups
+    .append("text")
+    .attr("class", "label")
+    .attr("dy", "1.5em")
+    .text((d) => `${d.meeting_count}`)
     .style("text-anchor", "middle");
 }
 
@@ -308,35 +312,42 @@ function openModal(data, dataType) {
 
   if (dataType === "transcript") {
     modalTitle.textContent = "Transcription";
-    data.meetingSubtitles.forEach((sub) => {
-      let subtitleDiv = document.createElement("div");
-      subtitleDiv.classList.add("subtitle");
+    if (data.meetingSubtitles.length == 0) {
+      let noSubtitleDiv = document.createElement("div");
+      noSubtitleDiv.textContent =
+        "There's no transcription available for this meeting.";
+      modalContent.appendChild(noSubtitleDiv);
+    } else {
+      data.meetingSubtitles.forEach((sub) => {
+        let subtitleDiv = document.createElement("div");
+        subtitleDiv.classList.add("subtitle");
 
-      let time = new Date(sub.time)
-        .toLocaleString("en-US", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        })
-        .replace(",", "");
+        let time = new Date(sub.time)
+          .toLocaleString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })
+          .replace(",", "");
 
-      let usernameSpan = document.createElement("span");
-      usernameSpan.classList.add("username");
-      usernameSpan.textContent = sub.username;
-      subtitleDiv.appendChild(usernameSpan);
+        let usernameSpan = document.createElement("span");
+        usernameSpan.classList.add("username");
+        usernameSpan.textContent = sub.username;
+        subtitleDiv.appendChild(usernameSpan);
 
-      let timeSpan = document.createElement("span");
-      timeSpan.classList.add("time");
-      timeSpan.textContent = ` ${time}: `;
+        let timeSpan = document.createElement("span");
+        timeSpan.classList.add("time");
+        timeSpan.textContent = ` ${time}: `;
 
-      subtitleDiv.appendChild(timeSpan);
-      subtitleDiv.append(sub.subtitle);
-      modalContent.appendChild(subtitleDiv);
-      modalContent.appendChild(subtitleDiv);
-    });
+        subtitleDiv.appendChild(timeSpan);
+        subtitleDiv.append(sub.subtitle);
+        modalContent.appendChild(subtitleDiv);
+        modalContent.appendChild(subtitleDiv);
+      });
+    }
   } else if (dataType === "summary") {
     modalTitle.textContent = "Summary";
     let summaryDiv = document.createElement("div");
