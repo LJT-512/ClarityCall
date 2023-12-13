@@ -5,7 +5,7 @@ import {
   closeConnectionCall,
   myConnectionId,
 } from "./RTCConnection.js";
-import { addUser, adjustUserBoxSize } from "./uiHandler.js";
+import { addUser, adjustUserBoxSize, showMeetingToast } from "./uiHandler.js";
 
 export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
@@ -40,6 +40,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   socket.on("informOthersAboutMe", async function (data) {
     addUser(data.otherUserId, data.connId, data.userNumber);
     adjustUserBoxSize(data.userNumber);
+    showMeetingToast(data.otherUserId, "joined");
     console.log("informOthersAboutMe connId: ", data.connId);
     try {
       await setConnection(data.connId);
@@ -56,6 +57,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
         console.log("who are the others:", otherUsers[i]);
         addUser(otherUsers[i].username, otherUsers[i].connectionId, userNumber);
         adjustUserBoxSize(userNumber);
+        showMeetingToast(otherUsers[i].username, "joined");
         try {
           await setConnection(otherUsers[i].connectionId);
         } catch (err) {
@@ -76,6 +78,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     const participantCount = document.querySelector(".participant-count");
     participantCount.textContent = data.uNumber;
     document.getElementById(`participant-${data.connId}`).remove();
+    showMeetingToast(data.userWhoLeft, "left");
     try {
       await closeConnectionCall(data.connId);
     } catch (err) {
@@ -102,6 +105,17 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     if (userVideoToRemoved && status === "off") {
       userVideoToRemoved.srcObject = null;
     }
+  });
+
+  socket.on("flipVideo", (data) => {
+    const userVideoToFlipped = document.getElementById(`v_${data.from}`);
+    userVideoToFlipped.style.setProperty("transform", "none", "important");
+    userVideoToFlipped.style.setProperty(
+      "-webkit-transform",
+      "none",
+      "important"
+    );
+    userVideoToFlipped.style.setProperty("-moz-transform", "none", "important");
   });
 
   socket.on("updateCanvasDrawing", (data) => {

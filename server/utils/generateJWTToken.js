@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import { util } from "zod";
 
 const JWT_KEY = process.env.JWT_KEY || "";
 export const EXPIRE_TIME = 60 * 60;

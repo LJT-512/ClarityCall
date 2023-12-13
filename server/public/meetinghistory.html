@@ -11,10 +11,11 @@
     />
     <link rel="stylesheet" href="Assets/css/meetinghistory.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   </head>
-  <body>
+  <body class="bg-white">
     <nav class="nav navbar-expand-md fixed-top">
-      <img src="Assets/images/google-meet-icon.png" class="logo" alt="" />
+      <img src="Assets/images/cclogo.png" class="logo" alt="" />
       <a href="/action" class="navbar-brand text-dark">Clarity Call</a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
@@ -59,8 +60,21 @@
         </ul>
       </div>
     </nav>
-    <div class="container d-flex flex-column justify-content-center gap-5">
-      <h4 class="mb-4">Average Meeting Length By Weekday</h4>
+    <div
+      class="no-data bg-white mx-auto"
+      style="display: none; padding-top: 200px"
+    >
+      <h4 class="no-data-title">
+        You don't have any data available now. Join a meeting now!
+      </h4>
+      <img
+        class="centered-image img-fluid rounded mx-auto d-block"
+        src="Assets/images/nodata.jpg"
+        alt="No data available"
+      />
+    </div>
+    <div class="container">
+      <h4 class="row mt-5 mb-3">Average Meeting Length By Weekday</h4>
       <div class="mb-3">
         <div class="display-center">
           <canvas
@@ -70,42 +84,40 @@
         </div>
       </div>
 
-      <div class="mt-5 mb-3">
-        <div class="d-flex flex-row justify-content-between align-items-start">
-          <div class="meeting-number-and-length">
-            <h4>Average Meeting Stats Per Month</h4>
-            <table id="avg-meeting-stats-table" class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Month</th>
-                  <th scope="col">Avg Length (min)</th>
-                  <th scope="col">Avg Number</th>
-                  <th scope="col">Avg Length/Meeting</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Data rows will be inserted here -->
-              </tbody>
-            </table>
-          </div>
-          <div class="most-frequent-contacts">
-            <h4>Who you have most meetings with?</h4>
-            <div>
-              <canvas id="most-meetings-contacts-chart"></canvas>
-            </div>
+      <div class="row mt-5 mb-3">
+        <div class="meeting-number-and-length col-lg-6">
+          <h4>Average Meeting Stats Per Month</h4>
+          <table id="avg-meeting-stats-table" class="table">
+            <thead>
+              <tr>
+                <th scope="col">Month</th>
+                <th scope="col">Avg Length (min)</th>
+                <th scope="col">Avg Number</th>
+                <th scope="col">Avg Length/Meeting</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Data rows will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="most-frequent-contacts col-lg-6">
+          <h4>Who you have most meetings with?</h4>
+          <div>
+            <div id="most-meetings-contacts-chart"></div>
           </div>
         </div>
       </div>
 
       <div>
-        <div class="d-flex flex-column gap-3 justify-content-center">
+        <div class="row mt-5 mb-3">
           <h2>Meeting Details</h2>
           <table class="table" id="meetingDetailsTable">
             <thead>
               <tr>
-                <th>MeetingId</th>
-                <th>Start_at</th>
-                <th>End_at</th>
+                <th>Meeting ID</th>
+                <th>Start Time</th>
+                <th>End Time</th>
                 <th>Duration</th>
                 <th>Participants</th>
                 <th>Transcription</th>

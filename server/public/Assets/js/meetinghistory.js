@@ -23,21 +23,33 @@ function checkUserAuthentication() {
         userBlock.style.display = "flex";
         usernameDiv.textContent = data.username;
       } else {
-        signInNavItem.style.display = "block";
+        signInNavItem.style.display = "flex";
         userBlock.style.display = "none";
       }
     })
     .catch((error) => {
       console.error("Error fetching user info:", error);
-      signInNavItem.style.display = "block";
+      signInNavItem.style.display = "flex";
       userBlock.style.display = "none";
     });
 }
 
 function fetchAggregatedInfo() {
+  const container = document.querySelector(".container");
+  const noDataDiv = document.querySelector(".no-data");
+
   fetch("/api/meetings/aggregated", { credentials: "include" })
     .then((response) => response.json())
     .then((data) => {
+      if (
+        data.avgMeetingLengthPerWeekDay.length == 0 &&
+        data.avgMeetingStatsPerMonth.length == 0 &&
+        data.mostFrequentContacts.length == 0
+      ) {
+        noDataDiv.style.display = "block";
+        container.style.display = "none";
+        return;
+      }
       renderAvgMeetingLength(data.avgMeetingLengthPerWeekDay);
       renderAvgMeetingStats(data.avgMeetingStatsPerMonth);
       renderMostFrequentContacts(data.mostFrequentContacts);
@@ -110,6 +122,18 @@ function renderAvgMeetingLength(apiData) {
   });
 }
 
+const colors = ["#e8ddb5", "#b2c9ab", "#92b6b1", "#788aa3", "#666a86"];
+let counter = 0;
+
+function getRandomColorFromList() {
+  if (counter > 4) {
+    counter = 0;
+  }
+  const color = colors[counter];
+  counter++;
+  return color;
+}
+
 function renderAvgMeetingStats(apiData) {
   const tableBody = document
     .getElementById("avg-meeting-stats-table")
@@ -135,73 +159,58 @@ function renderAvgMeetingStats(apiData) {
 }
 
 function renderMostFrequentContacts(apiData) {
-  const ctx = document
-    .getElementById("most-meetings-contacts-chart")
-    .getContext("2d");
+  const container = d3.select("#most-meetings-contacts-chart");
+  const width = container.node().getBoundingClientRect().width;
+  const height = width;
 
-  const baseDistance = 20;
-  const angleStep = (2 * Math.PI) / apiData.length;
+  d3.select("#most-meetings-contacts-chart").select("svg").remove();
 
-  const getRandomColor = () => {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
+  const svg = d3
+    .select("#most-meetings-contacts-chart")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-  const data = {
-    datasets: [
-      {
-        label: "Most Frequent Contacts",
-        data: apiData.map((contact, index) => {
-          const angle = index * angleStep;
-          const x = baseDistance * Math.cos(angle) + 50;
-          const y = baseDistance * Math.sin(angle) + 50;
+  const radiusScale = d3
+    .scaleSqrt()
+    .domain([0, d3.max(apiData, (d) => d.meeting_count)])
+    .range([0, 80]);
 
-          return {
-            x: x,
-            y: y,
-            r: Math.sqrt(contact.meeting_count) * 20,
-            name: contact.name,
-          };
-        }),
-        backgroundColor: apiData.map(() => getRandomColor()),
-      },
-    ],
-  };
+  const simulation = d3
+    .forceSimulation(apiData)
+    .force("x", d3.forceX(width / 2).strength(0.05))
+    .force("y", d3.forceY(height / 2).strength(0.05))
+    .force(
+      "collide",
+      d3.forceCollide((d) => radiusScale(d.meeting_count))
+    )
+    .stop();
 
-  new Chart(ctx, {
-    type: "bubble",
-    data: data,
-    options: {
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: function (context) {
-              return Math.round(context.raw.r / 20);
-            },
-            title: function (context) {
-              return context[0].raw.name;
-            },
-          },
-        },
-      },
-      scales: {
-        x: {
-          display: false,
-          min: 0,
-          max: 100,
-        },
-        y: {
-          display: false,
-          min: 0,
-          max: 100,
-        },
-      },
-    },
-  });
+  simulation.tick(300);
+
+  const bubbles = svg
+    .selectAll(".bubble")
+    .data(apiData)
+    .enter()
+    .append("circle")
+    .attr("class", "bubble")
+    .attr("cx", (d) => d.x)
+    .attr("cy", (d) => d.y)
+    .attr("r", (d) => radiusScale(d.meeting_count))
+    .style("fill", getRandomColorFromList);
+
+  bubbles.append("title").text((d) => `Meetings: ${d.meeting_count}`);
+
+  svg
+    .selectAll(".label")
+    .data(apiData)
+    .enter()
+    .append("text")
+    .attr("class", "label")
+    .attr("x", (d) => d.x)
+    .attr("y", (d) => d.y)
+    .text((d) => d.name)
+    .style("text-anchor", "middle");
 }
 
 function renderMeetingLogs(meetingLogs) {
@@ -212,13 +221,35 @@ function renderMeetingLogs(meetingLogs) {
     const row = tableBody.insertRow();
     console.log(row.cells);
 
+    let startTime = new Date(log.startAt)
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+      .replace(",", "");
+
+    let endTime = new Date(log.endAt)
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+      .replace(",", "");
+
     const participantsText = Array.isArray(log.participants)
       ? log.participants.join(", ")
       : "No participants";
 
     row.insertCell(0).textContent = log.meetingId;
-    row.insertCell(1).textContent = log.startAt;
-    row.insertCell(2).textContent = log.endAt;
+    row.insertCell(1).textContent = startTime;
+    row.insertCell(2).textContent = endTime;
     row.insertCell(3).textContent = log.duration;
     row.insertCell(4).textContent = participantsText;
     row.insertCell(5);

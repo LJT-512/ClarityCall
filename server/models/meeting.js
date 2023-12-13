@@ -24,6 +24,37 @@ export async function checkMeeting(meetingId) {
   return result.rowCount > 0 ? true : false;
 }
 
+export async function updateMeetingStartAt(meetingId) {
+  const startAt = new Date();
+  const result = await pool.query(
+    `
+      UPDATE meetings
+      SET start_at = $2
+      WHERE meeting_id = $1
+    `,
+    [meetingId, startAt]
+  );
+
+  return result.rowCount;
+}
+
+export async function isMeetingFinished(meetingId) {
+  const result = await pool.query(
+    `
+    SELECT end_at
+    FROM meetings
+    WHERE meeting_id = $1
+    `,
+    [meetingId]
+  );
+
+  if (result.rows[0] == null) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 export async function createConnection(meetingId, userId, connectionId) {
   const joinAt = new Date();
   const result = await pool.query(
@@ -35,6 +66,24 @@ export async function createConnection(meetingId, userId, connectionId) {
     [meetingId, userId, connectionId, joinAt]
   );
   return result.rows[0];
+}
+
+export async function updateParentMeeting(roomId, parentMeetingId) {
+  console.log("updateParentMeeting is called in models");
+  try {
+    const result = await pool.query(
+      `
+        UPDATE meetings
+        SET parent_meeting_id = $2
+        WHERE meeting_id = $1
+      `,
+      [roomId, parentMeetingId]
+    );
+    return result.rowCount;
+  } catch (err) {
+    console.error("Query Error: ", err);
+    throw err;
+  }
 }
 
 export async function userLeaveMeeting(meetingId, userId) {
@@ -55,7 +104,7 @@ export async function endMeeting(meetingId) {
     `
         UPDATE meetings
         SET end_at = NOW()
-        WHERE meeting_id = $1 AND end_at IS NULL
+        WHERE meeting_id = $1
         RETURNING *
         `,
     [meetingId]

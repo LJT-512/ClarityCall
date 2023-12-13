@@ -52,6 +52,10 @@ h4 {
   overflow-x: auto;
 }
 
+#most-meetings-contacts-chart {
+  max-height: 400px;
+}
+
 .transcript-button,
 .summary-button {
   display: inline-block;
@@ -138,4 +142,24 @@ summary {
 
 .time {
   color: gray;
+}
+
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+
+.no-data-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.centered-image {
+  width: 50%;
+  height: auto;
 }

@@ -1,5 +1,7 @@
-import { userConnections, userMeetingRooms } from "./socketEvents.js";
+import { userConnections } from "./socketEvents.js";
 import { getIO } from "../io.js";
+
+export let userMeetingRooms = {};
 
 function endBreakoutSession(meetingId) {
   const io = getIO();

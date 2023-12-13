@@ -13,7 +13,7 @@
   </head>
   <body style="padding-top: 3.5rem">
     <nav class="nav navbar-expand-md fixed-top">
-      <img src="Assets/images/google-meet-icon.png" class="logo" alt="" />
+      <img src="Assets/images/cclogo.png" class="logo" alt="" />
       <a href="/action" class="navbar-brand text-dark">Clarity Call</a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
@@ -32,7 +32,7 @@
             <a href="signin.html" class="nav-link">Sign in</a>
           </li>
           <li class="nav-item meeting-history display-center">
-            <a href="meetinghistory.html" class="nav-link">Meeting History</a>
+            <a href="/meetinghistory" class="nav-link">Meeting History</a>
           </li>
           <li class="nav-item">
             <button
@@ -131,13 +131,13 @@
               userBlock.style.display = "flex";
               usernameDiv.textContent = data.username;
             } else {
-              signInNavItem.style.display = "block";
+              signInNavItem.style.display = "flex";
               userBlock.style.display = "none";
             }
           })
           .catch((error) => {
             console.error("Error fetching user info:", error);
-            signInNavItem.style.display = "block";
+            signInNavItem.style.display = "flex";
             userBlock.style.display = "none";
           });
       });

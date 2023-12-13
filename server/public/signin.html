@@ -13,7 +13,7 @@
   </head>
   <body style="padding-top: 3.5rem">
     <nav class="nav navbar-expand-md fixed-top">
-      <img src="Assets/images/google-meet-icon.png" class="logo" alt="" />
+      <img src="Assets/images/cclogo.png" class="logo" alt="" />
       <a href="/action" class="navbar-brand text-dark">Clarity Call</a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
@@ -29,10 +29,10 @@
         </ul>
         <ul class="navbar-nav mr-0">
           <li class="nav-item sign-in display-center">
-            <a href="signin.html" class="nav-link">Sign in</a>
+            <a href="/signin" class="nav-link">Sign in</a>
           </li>
           <li class="nav-item meeting-history display-center">
-            <a href="meetinghistory.html" class="nav-link">Meeting History</a>
+            <a href="/meetinghistory" class="nav-link">Meeting History</a>
           </li>
           <li class="nav-item">
             <button
@@ -78,9 +78,9 @@
                   <label>Password*</label>
                   <input id="password-input" type="password" class="border border-gray-100"></input>
               </div>
-              <div class="d-flex gap-2 text-sm mb-4">
-                  <button id="signup-btn" class="border border-dark text-dark py-1 px-2 bg-light hover:bg-gray-200" style="transition: ease-in-out .2s;" onclick="handleNativeSignup()">Sign up</button>
-                  <button id="signin-btn" class="bg-black text-white py-1 px-2 hover:bg-gray-800" style="transition: ease-in-out .2s;" onclick="handleNativeSignin()">Sign in</button>
+              <div class="d-flex gap-2 text-sm mt-4 mb-4">
+                  <button id="signup-btn" class="btn btn-secondary border text-dark py-1 px-2 mr-2 bg-light hover:bg-gray-200" style="transition: ease-in-out .2s" onclick="handleNativeSignup()">Sign up</button>
+                  <button id="signin-btn" class="btn btn-primary py-1 px-2" style="transition: ease-in-out .2s; background-color:#17a2b8; border-color: #17a2b8;" onclick="handleNativeSignin()">Sign in</button>
               </div>
           </div>
     </div>
@@ -109,13 +109,13 @@
               userBlock.style.display = "flex";
               usernameDiv.textContent = data.username;
             } else {
-              signInNavItem.style.display = "block";
+              signInNavItem.style.display = "flex";
               userBlock.style.display = "none";
             }
           })
           .catch((error) => {
             console.error("Error fetching user info:", error);
-            signInNavItem.style.display = "block";
+            signInNavItem.style.display = "flex";
             userBlock.style.display = "none";
           });
       });
@@ -148,11 +148,13 @@ const redirectUrl = params.get('redirect');
       return response.json(); 
     })
     .then((response) => {
+      console.log(response);
       if (response.data.access_token) {
-        alert(`Welcom, Happy meeting! ${response.data.user.name}`);
-        window.location.href = redirectUrl || '/action.html';
-      }
-    })
+        alert(`Hi Welcome ${response.data.user.name} !`);
+        console.log('redirectURL:', redirectUrl);
+        window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : '/action';
+    }
+  })
     .catch((err) => {
       if (err instanceof Response) {
         err.json().then((body) => {
@@ -168,7 +170,7 @@ const redirectUrl = params.get('redirect');
         errorMessage.style.display = "block";
         setTimeout(() => {
         errorMessage.style.display = "none";
-    }, 2000);
+    }, 5000);
       }
       
     });
@@ -198,9 +200,9 @@ const redirectUrl = params.get('redirect');
     })
     .then((response) => {
       if (response.data.access_token) {
-        alert(`Happy meeting! ${response.data.user.name}`);
+        alert(`Hi Welcome back ${response.data.user.name} !`);
         console.log('redirectURL:', redirectUrl);
-        window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : '/action.html';
+        window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : '/action';
     }
   })
     .catch((err) => {
@@ -218,7 +220,7 @@ const redirectUrl = params.get('redirect');
     errorMessage.style.display = "block";
     setTimeout(() => {
       errorMessage.style.display = "none";
-    }, 2000);
+    }, 5000);
       }
       
     });
