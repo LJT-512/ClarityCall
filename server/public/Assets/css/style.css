@@ -51,6 +51,21 @@ input:focus {
 }
 .jumbotron {
   background-color: white;
+  min-height: calc(100vh - 70px - 60px);
+  align-items: center;
+  justify-content: center;
+}
+
+footer {
+  position: fixed;
+  background-color: white;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+  z-index: 10;
 }
 
 /* .........index page.........*/
@@ -348,7 +363,7 @@ input[type="number"] {
 }
 
 .create-btn {
-  width: 100%;
+  width: calc(100% - 20px);
   padding: 10px;
   background-color: teal;
   color: #fff;
