@@ -8,6 +8,7 @@ import {
   updateParentMeeting,
   updateMeetingStartAt,
   isMeetingFinished,
+  hasOngoingRoomMeeting,
 } from "../models/meeting.js";
 
 import {
@@ -40,73 +41,41 @@ const setupSocketEvents = (io) => {
       let parentMeetingId = null;
 
       try {
-        const isBreakoutRoom = data.meetingId.length !== 8;
+        // const isBreakoutRoom = data.meetingId.length !== 8;
 
-        if (!isBreakoutRoom) {
-          const meetingExists = await checkMeeting(data.meetingId);
+        // if (!isBreakoutRoom) {
+        const meetingExists = await checkMeeting(data.meetingId);
 
-          if (!meetingExists) {
-            await createMeeting(data.meetingId, data.userId);
-          } else if (await isMeetingFinished(data.meetingId)) {
-            await updateMeetingStartAt(data.meetingId);
-          }
-        } else {
+        if (!meetingExists) {
           await createMeeting(data.meetingId, data.userId);
-          for (const [meetingId, details] of Object.entries(userMeetingRooms)) {
-            const roomFound = details.rooms.some((room) =>
-              room.some((user) => user.roomId === data.meetingId)
-            );
-            if (roomFound) {
-              parentMeetingId = meetingId;
-              break;
-            }
-          }
-          if (parentMeetingId) {
-            await updateParentMeeting(data.meetingId, parentMeetingId);
-          } else {
-            throw new Error("Parent meeting ID not found for breakout room");
-          }
+        } else if (
+          (await isMeetingFinished(data.meetingId)) &&
+          !hasOngoingRoomMeeting(data.meetingExists)
+        ) {
+          console.log(`About to update ${data.meetingId} start time `);
+          await updateMeetingStartAt(data.meetingId);
         }
+        // } else {
+        // await createMeeting(data.meetingId, data.userId);
+        // for (const [meetingId, details] of Object.entries(userMeetingRooms)) {
+        //   const roomFound = details.rooms.some((room) =>
+        //     room.some((user) => user.roomId === data.meetingId)
+        //   );
+        //   if (roomFound) {
+        //     parentMeetingId = meetingId;
+        //     break;
+        //   }
+        // }
+        // if (parentMeetingId) {
+        //   await updateParentMeeting(data.meetingId, parentMeetingId);
+        // } else {
+        //   throw new Error("Parent meeting ID not found for breakout room");
+        // }
+        // }
         await createConnection(data.meetingId, data.userId, socket.id);
       } catch (err) {
         console.error("Error handling user connection:", err);
       }
-
-      // try {
-      //   if (data.meetingId.length !== 8) {
-      //     await createMeeting(data.meetingId, data.userId);
-      //     await createConnection(data.meetingId, data.userId, socket.id);
-      //     let parentMeetingId = null;
-      //     for (const [meetingId, details] of Object.entries(userMeetingRooms)) {
-      //       const roomFound = details.rooms.some((room) =>
-      //         room.some((user) => user.roomId === data.meetingId)
-      //       );
-      //       console.log("!!!!!!!!!!!!!!!roomFound!!!!!!!!!!!!!", roomFound);
-      //       if (roomFound) {
-      //         parentMeetingId = meetingId;
-      //         break;
-      //       }
-      //     }
-      //     console.log(
-      //       "got userconnect event:",
-      //       data.meetingId,
-      //       parentMeetingId
-      //     );
-      //     await updateParentMeeting(data.meetingId, parentMeetingId);
-      //   } else {
-      //     if (await checkMeeting(data.meetingId)) {
-      //       if (await isMeetingFinished(data.meetingId)) {
-      //         await updateMeetingStartAt(data.meetingId);
-      //       }
-      //       await createConnection(data.meetingId, data.userId, socket.id);
-      //     } else {
-      //       await createMeeting(data.meetingId, data.userId);
-      //       await createConnection(data.meetingId, data.userId, socket.id);
-      //     }
-      //   }
-      // } catch (err) {
-      //   console.error("Error creating meeting and connection", err);
-      // }
 
       console.log("userConnections: ", userConnections);
 
@@ -234,19 +203,18 @@ const setupSocketEvents = (io) => {
         userConnections = userConnections.filter(
           (p) => p.connectionId !== socket.id
         );
-        const list = userConnections.filter((p) => p.meetingId === meetingId);
-        const userNumberAfterUserLeaves = userConnections.length;
-        list.forEach((v) => {
-          socket.to(v.connectionId).emit("informOtherAboutDisconnectedUser", {
-            connId: socket.id,
-            userWhoLeft: disUser.username,
-            uNumber: userNumberAfterUserLeaves,
-          });
-        });
-        userLeaveMeeting(meetingId, disUser.userId);
-        console.log("meetingId", meetingId);
-        if (userNumberAfterUserLeaves === 0) {
+
+        const usersInMeeting = userConnections.filter(
+          (p) => p.meetingId === meetingId
+        );
+        const userCount = usersInMeeting.length;
+        console.log("User count after disconnect", userCount);
+
+        if (userCount === 0 && !(await hasOngoingRoomMeeting(meetingId))) {
           try {
+            console.log(
+              `Ending meeting ${meetingId} as there are no more participants.`
+            );
             await endMeeting(meetingId);
             const summary = await generateMeetingSummary(meetingId);
             if (summary) {
@@ -256,6 +224,17 @@ const setupSocketEvents = (io) => {
             console.error("Error ending meeting:", err);
           }
         }
+
+        if (userCount > 0) {
+          usersInMeeting.forEach((v) => {
+            socket.to(v.connectionId).emit("informOtherAboutDisconnectedUser", {
+              connId: socket.id,
+              userWhoLeft: disUser.username,
+              uNumber: userCount,
+            });
+          });
+        }
+        userLeaveMeeting(meetingId, disUser.userId);
       }
     });
   });
