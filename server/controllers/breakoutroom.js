@@ -1,5 +1,10 @@
 import { userConnections } from "./socketEvents.js";
 import { getIO } from "../io.js";
+import {
+  createMeeting,
+  checkMeeting,
+  updateParentMeeting,
+} from "../models/meeting.js";
 
 export let userMeetingRooms = {};
 
@@ -60,6 +65,16 @@ export async function breakoutRooms(req, res) {
         connId: u.connectionId,
       })),
     });
+
+    console.log(
+      "in breakoutRoom controllers",
+      roomId,
+      usersInThisMeeting[0].userId
+    );
+    if (!(await checkMeeting(roomId, usersInThisMeeting[0].userId))) {
+      await createMeeting(roomId, usersInThisMeeting[0].userId);
+      await updateParentMeeting(roomId, meetingId);
+    }
   }
 
   console.log(

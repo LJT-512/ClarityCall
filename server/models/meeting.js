@@ -1,6 +1,7 @@
 import pool from "./databasePool.js";
 
 export async function createMeeting(meetingId, userId) {
+  console.log("createMeeting in models is called");
   const startAt = new Date();
   const result = await pool.query(
     `
@@ -39,6 +40,7 @@ export async function updateMeetingStartAt(meetingId) {
 }
 
 export async function isMeetingFinished(meetingId) {
+  console.log("isMeetingFinished logged in models/meeting", meetingId);
   const result = await pool.query(
     `
     SELECT end_at
@@ -86,6 +88,23 @@ export async function updateParentMeeting(roomId, parentMeetingId) {
   }
 }
 
+export async function hasOngoingRoomMeeting(meetingId) {
+  console.log("hasOngoingRoomMeeting is run", meetingId);
+  const result = await pool.query(
+    `
+    SELECT COUNT(*)
+    FROM meetings
+    WHERE parent_meeting_id = $1 AND end_at IS NULL
+    `,
+    [meetingId]
+  );
+
+  return parseInt(result.rows[0].count, 10) > 0;
+}
+
+const result = await hasOngoingRoomMeeting("88888888");
+console.log(result);
+
 export async function userLeaveMeeting(meetingId, userId) {
   const leaveAt = new Date();
   const result = await pool.query(
@@ -100,6 +119,7 @@ export async function userLeaveMeeting(meetingId, userId) {
 }
 
 export async function endMeeting(meetingId) {
+  console.log("endMeeting is run in the model", meetingId);
   const result = await pool.query(
     `
         UPDATE meetings
@@ -200,29 +220,35 @@ export async function getMostFrequentContacts(userId) {
 export async function getMeetingLogsDetails(userId) {
   const result = await pool.query(
     `
-        SELECT 
-        m.meeting_id,
-        m.start_at AS "startAt",
-        COALESCE(m.end_at, NOW()) AS "endAt",
-        ROUND(EXTRACT(EPOCH FROM (COALESCE(m.end_at, NOW()) - m.start_at)) / 60) AS "duration",
-        ARRAY_AGG(DISTINCT u.name) FILTER (WHERE mp.user_id != $1) AS participants
-     FROM meetings m
-     JOIN meeting_participants mp ON m.meeting_id = mp.meeting_id
-     JOIN users u ON mp.user_id = u.user_id
-     WHERE m.meeting_id IN (
-       SELECT DISTINCT meeting_id FROM meeting_participants WHERE user_id = $1
-     )
-     GROUP BY m.meeting_id, m.start_at, m.end_at
-     ORDER BY m.start_at DESC;
-        `,
+    SELECT 
+    m.meeting_id,
+    m.start_at AS "startAt",
+    m.end_at AS "endAt",
+    CASE 
+        WHEN m.end_at IS NOT NULL THEN 
+            ROUND(EXTRACT(EPOCH FROM (m.end_at - m.start_at)) / 60)
+        ELSE 
+            NULL 
+    END AS "duration",
+    ARRAY_AGG(DISTINCT u.name) FILTER (WHERE mp.user_id != $1) AS participants
+    FROM meetings m
+    JOIN meeting_participants mp ON m.meeting_id = mp.meeting_id
+    JOIN users u ON mp.user_id = u.user_id
+    WHERE m.meeting_id IN (
+        SELECT DISTINCT meeting_id FROM meeting_participants WHERE user_id = $1
+    )
+    AND m.parent_meeting_id IS NULL
+    GROUP BY m.meeting_id, m.start_at, m.end_at
+    ORDER BY m.start_at DESC;
+`,
     [userId]
   );
 
   const meetingLogs = result.rows.map((row) => ({
     meetingId: row.meeting_id,
     startAt: row.startAt.toISOString(),
-    endAt: row.endAt.toISOString(),
-    duration: `${row.duration} minutes`,
+    endAt: row.endAt ? row.endAt.toISOString() : null,
+    duration: row.duration ? `${row.duration} minutes` : "In Progress",
     participants: row.participants,
   }));
 
