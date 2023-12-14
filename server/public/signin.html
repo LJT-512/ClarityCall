@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="Assets/css/bootstrap.min.css" />
+    <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  />
+    <link rel="stylesheet" href="Assets/css/signin.css" />
+    <title>Signup/Signin</title>
+  </head>
+  <body style="padding-top: 3.5rem">
+    <nav class="nav navbar-expand-md fixed-top">
+      <img src="Assets/images/cclogo.png" class="logo" alt="" />
+      <a href="/action" class="navbar-brand text-dark">Clarity Call</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+        </ul>
+        <ul class="navbar-nav mr-0">
+          <li class="nav-item sign-in display-center">
+            <a href="/signin" class="nav-link">Sign in</a>
+          </li>
+          <li class="nav-item meeting-history display-center">
+            <a href="/meetinghistory" class="nav-link">Meeting History</a>
+          </li>
+          <li class="nav-item">
+            <button
+              class="btn btn-outline-secondary btn-md text-info font-weight-bold join-meeting"
+            >
+              Join the meeting
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="btn btn-info btn-md text-light font-weight-bold new-meeting"
+            >
+              Start a meeting
+            </button>
+          </li>
+          <li
+            class="nav-item d-flex flex-row display-center user-block"
+            style="display: none"
+          >
+            <span class="material-icons">face</span>
+            <div class="username user-info"></div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+      <div class="bg-image">
+          <div id="signin-form" class="signin-modal w-50 d-flex flex-column align-items-center gap-3" style="font-family: 'Noto Sans', sans-serif; color: #4a4a4a;"> <!-- Bootstrap width and flex classes, inline styles for font and color -->
+              <div class="px-5 py-2 d-flex flex-column mt-4 align-items-center">
+                  <h2 class="h2">Hello, who's this?</h2>
+                  <div class="w-auto h-px bg-black"></div>
+                  <div id="memberErrorMessage" style="color: red; display: none;"></div>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                  <label>Name</label>
+                  <input id="name-input" type="text" class="border border-gray-100"> 
+              </input>
+              </div>
+              <div class="d-flex flex-column gap-2 pt-2">
+                  <label>Email*</label>
+                  <input id="email-input" type="text" class="border border-gray-100"></input>
+              </div>
+              <div class="d-flex flex-column gap-2 pt-2">
+                  <label>Password*</label>
+                  <input id="password-input" type="password" class="border border-gray-100"></input>
+              </div>
+              <div class="d-flex gap-2 text-sm mt-4 mb-4">
+                  <button id="signup-btn" class="btn btn-secondary border text-dark py-1 px-2 mr-2 bg-light hover:bg-gray-200" style="transition: ease-in-out .2s" onclick="handleNativeSignup()">Sign up</button>
+                  <button id="signin-btn" class="btn btn-primary py-1 px-2" style="transition: ease-in-out .2s; background-color:#17a2b8; border-color: #17a2b8;" onclick="handleNativeSignin()">Sign in</button>
+              </div>
+          </div>
+    </div>
+    <footer class="footer">
+      <h6>
+        Learn more about <span class="learn-more text-info">Clarity Call.</span>
+      </h6>
+    </footer>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const signInNavItem = document.querySelector(".nav-item.sign-in");
+        const userBlock = document.querySelector(".user-block");
+        const usernameDiv = document.querySelector(".username.user-info");
+
+        fetch("/api/user/info", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.username) {
+              signInNavItem.style.display = "none";
+              userBlock.style.display = "flex";
+              usernameDiv.textContent = data.username;
+            } else {
+              signInNavItem.style.display = "flex";
+              userBlock.style.display = "none";
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching user info:", error);
+            signInNavItem.style.display = "flex";
+            userBlock.style.display = "none";
+          });
+      });
+
+const errorMessage = document.getElementById('memberErrorMessage');
+
+function handleNativeSignup() {
+const userName = document.getElementById("name-input").value;
+const userEmail = document.getElementById("email-input").value;
+const userPassword = document.getElementById("password-input").value;
+const params = new URLSearchParams(window.location.search);
+const redirectUrl = params.get('redirect');
+
+
+  fetch("/api/user/signup", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      name: userName,
+      email: userEmail,
+      password: userPassword,
+    }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw response;
+      }
+      return response.json(); 
+    })
+    .then((response) => {
+      console.log(response);
+      if (response.data.access_token) {
+        alert(`Hi Welcome ${response.data.user.name} !`);
+        console.log('redirectURL:', redirectUrl);
+        window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : '/action';
+    }
+  })
+    .catch((err) => {
+      if (err instanceof Response) {
+        err.json().then((body) => {
+        errorMessage.textContent = body.error;
+        errorMessage.style.display = "block";
+        setTimeout(() => {
+          errorMessage.style.display = "none";
+        }, 2000);
+      });
+      } else {
+        console.error(err); 
+        errorMessage.textContent = 'An error occurred. Please try again.';
+        errorMessage.style.display = "block";
+        setTimeout(() => {
+        errorMessage.style.display = "none";
+    }, 5000);
+      }
+      
+    });
+}
+
+function handleNativeSignin() {
+const userEmail = document.getElementById("email-input").value;
+const userPassword = document.getElementById("password-input").value;
+const params = new URLSearchParams(window.location.search);
+const redirectUrl = params.get('redirect');
+
+  fetch("/api/user/signin", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      email: userEmail,
+      password: userPassword,
+    }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw response;
+      }
+      return response.json(); 
+    })
+    .then((response) => {
+      if (response.data.access_token) {
+        alert(`Hi Welcome back ${response.data.user.name} !`);
+        console.log('redirectURL:', redirectUrl);
+        window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : '/action';
+    }
+  })
+    .catch((err) => {
+      if (err instanceof Response) {
+        err.json().then((body) => {
+        errorMessage.textContent = body.error;
+        errorMessage.style.display = "block";
+        setTimeout(() => {
+          errorMessage.style.display = "none";
+        }, 2000);
+      });
+      } else {
+        console.error(err); 
+        errorMessage.textContent = 'An error occurred. Please try again.';
+    errorMessage.style.display = "block";
+    setTimeout(() => {
+      errorMessage.style.display = "none";
+    }, 5000);
+      }
+      
+    });
+}
+
+    </script>
+  </body>
+</html>

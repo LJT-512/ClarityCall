@@ -1,0 +1,84 @@
+body,
+html {
+  font-family: robot, lato !important;
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.nav {
+  background-color: white;
+  z-index: 2;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.logo {
+  height: 43px;
+}
+.navbar-brand {
+  font-size: 27px;
+  padding-left: 10px;
+  font-family: "Lato";
+}
+.nav-item a,
+.user-info {
+  color: gray !important;
+  font-size: 16px;
+  padding: 0 10px;
+  font-weight: 600;
+}
+.display-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+li.nav-item {
+  padding: 0 10px;
+}
+
+.bg-image {
+  background-image: url("../images/users.jpg");
+
+  flex: 1;
+
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 60px;
+  padding-bottom: 40px;
+  box-sizing: border-box;
+}
+
+.signin-modal {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 5px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  position: absolute;
+}
+
+.footer {
+  height: 40;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button {
+  border-radius: 5px;
+}
+
+#signin-btn:hover {
+  background-color: teal !important;
+}

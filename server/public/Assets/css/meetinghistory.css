@@ -1,0 +1,165 @@
+body {
+  font-family: robot, lato !important;
+  font-size: medium;
+  background-color: #f8f9fa;
+}
+
+nav {
+  background-color: white;
+  z-index: 2;
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.logo {
+  height: 43px;
+}
+.navbar-brand {
+  font-size: 27px;
+  padding-left: 10px;
+  font-family: "Lato";
+}
+.nav-item a,
+.user-info {
+  color: gray !important;
+  font-size: 16px;
+  padding: 0 10px;
+  font-weight: 600;
+}
+.display-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+li.nav-item {
+  padding: 0 10px;
+}
+
+.container {
+  margin-top: 100px;
+}
+
+h1,
+h2,
+h4 {
+  color: #333;
+}
+
+.meeting-number-and-length,
+.most-frequent-contacts {
+  overflow-x: auto;
+}
+
+#most-meetings-contacts-chart {
+  max-height: 400px;
+}
+
+.transcript-button,
+.summary-button {
+  display: inline-block;
+  color: #17a2b8;
+  border: solid 1px #17a2b8;
+  background-color: white;
+  padding: 8px 15px;
+  border-radius: 4px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.transcript-button:hover,
+.summary-button:hover {
+  background-color: #17a2b8;
+  color: white;
+}
+
+#meetingDetailsTable {
+  background-color: #fff;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.modal-container {
+  position: relative;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.modal-background-cross {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #fff;
+  border-radius: 50%;
+  z-index: 3;
+  cursor: pointer;
+}
+
+.subtitle,
+summary {
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.modal-background {
+  transition: all 0.3s ease-in-out;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.time {
+  color: gray;
+}
+
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+
+.no-data-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.centered-image {
+  width: 50%;
+  height: auto;
+}

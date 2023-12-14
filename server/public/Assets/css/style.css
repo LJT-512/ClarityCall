@@ -1,0 +1,401 @@
+body {
+  font-family: robot, lato !important;
+  font-size: large;
+}
+
+nav {
+  background-color: white;
+  z-index: 2;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.logo {
+  height: 43px;
+}
+.navbar-brand {
+  font-size: 27px;
+  padding-left: 10px;
+  font-family: "Lato";
+}
+.nav-item a,
+.user-info {
+  color: gray !important;
+  font-size: 16px;
+  padding: 0 10px;
+  font-weight: 600;
+}
+.display-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+li.nav-item {
+  padding: 0 10px;
+}
+.signin-image {
+  height: 390px;
+  border: 25px solid white;
+  border-radius: 5px;
+  box-shadow: 1px 1px 5px grey;
+}
+textarea:focus,
+input:focus {
+  outline: none !important;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+.jumbotron {
+  background-color: white;
+  min-height: calc(100vh - 70px - 60px);
+  align-items: center;
+  justify-content: center;
+}
+
+footer {
+  position: fixed;
+  background-color: white;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+  z-index: 10;
+}
+
+/* .........index page.........*/
+.home-wrap {
+  background-color: rgb(31, 30, 30);
+  display: flex;
+  flex-direction: column;
+}
+
+.g-top {
+  flex-grow: 1;
+  position: relative;
+}
+
+.g-top,
+.g-bottom {
+  background-color: transparent;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.cursor-pointer:hover {
+  cursor: pointer;
+  padding: 5px;
+  background-color: rgb(226, 225, 225);
+  border-radius: 5px;
+}
+
+.people-heading {
+  position: relative;
+}
+
+.peopl-heading-icon {
+  position: relative;
+}
+
+.top-participant-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  color: gray;
+  padding: 2px 5px;
+  font-size: 12px;
+  line-height: 1;
+  min-width: 20px;
+  text-align: center;
+}
+
+.g-bottom {
+  height: 10vh;
+  box-shadow: 0 0 5px black;
+  z-index: 4;
+}
+
+.top-remote-video-show-wrap,
+.g-bottom {
+  margin: 0;
+}
+
+.button-left {
+  position: relative;
+  padding: 5px;
+}
+
+.action-icon-style {
+  font-size: 8px !important;
+  height: 40px;
+  width: 40px;
+  border: 1px solid lightgray;
+  border-radius: 50%;
+}
+
+.video-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  align-content: center;
+  margin: 0 auto;
+  gap: 20px;
+  padding: 20px;
+  height: 90vh;
+}
+
+.userbox {
+  border-radius: 10px;
+  position: relative;
+  background-color: rgb(60, 64, 67);
+  flex: 1;
+  flex-basis: calc(50% - 10px);
+  padding: 20px;
+  max-height: 40vh;
+}
+
+.userbox::before {
+  content: "";
+  display: block;
+  padding-top: 56.25%;
+}
+
+.userbox video,
+.userbox canvas {
+  position: absolute;
+  object-fit: cover;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.userbox h2 {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  color: white;
+  margin: 0;
+  font-size: 20px;
+  z-index: 3;
+}
+
+video {
+  border-radius: 10px;
+  width: 300px;
+  transform: scaleX(-1), rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+}
+
+#me-output-canvas,
+#me-drawing-canvas,
+.output-canvas,
+.drawing-canvas {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+}
+
+.transition {
+  transition: opacity 300ms ease-in-out;
+  opacity: 0; /* Start with the element transparent */
+}
+
+.transition.show {
+  opacity: 1; /* Transition to fully opaque */
+}
+
+.active {
+  border-radius: 5px;
+}
+
+.message-from-others {
+  justify-content: flex-start;
+}
+.subtitle-from-others {
+  justify-content: flex-start;
+}
+
+.message-from-me {
+  justify-content: flex-end;
+}
+
+.subtitle-from-me {
+  justify-content: flex-end;
+}
+
+.chat-message {
+  display: flex;
+  width: 100%;
+}
+
+.subtitle-message {
+  display: flex;
+  width: 100%;
+}
+
+.message-from-others div {
+  margin-right: auto;
+  text-align: left;
+}
+
+.subtitle-from-others div {
+  margin-right: auto;
+  text-align: left;
+}
+
+.message-from-me div {
+  margin-left: auto;
+  text-align: right;
+}
+
+.subtitle-from-me div {
+  margin-left: auto;
+  text-align: right;
+}
+
+.top-box {
+  background-color: white;
+  position: fixed;
+  width: 30%;
+  height: 30%;
+  top: 20.5%;
+  left: 35.5%;
+  display: block;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  z-index: 999;
+  columns: white;
+}
+
+.bottom-left {
+  position: relative;
+  padding: 5px;
+}
+.g-details {
+  position: absolute;
+  width: 30vw;
+  background-color: white;
+  margin-top: -135px;
+  counter-reset: black;
+  border-radius: 5px;
+  padding: 5px;
+  display: block;
+  z-index: 5;
+}
+
+.g-details-heading-show {
+  font-size: 14px;
+  padding-left: 10px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: white;
+  margin: 10% auto;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 450px;
+}
+
+.close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: #333;
+}
+
+.error-message {
+  color: #d9534f;
+  display: none;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+input[type="number"] {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.create-btn {
+  width: calc(100% - 20px);
+  padding: 10px;
+  background-color: teal;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.create-btn:hover {
+  background-color: #0056b3;
+}
+
+#toast-notification {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  min-width: 250px;
+  background-color: rgba(255, 255, 255);
+  color: black;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  display: block;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+}
+
+.toast-content .material-icons {
+  margin-right: 0.5rem;
+}
