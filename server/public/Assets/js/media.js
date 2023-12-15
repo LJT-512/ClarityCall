@@ -154,48 +154,53 @@ export function drawPath(startX, startY, endX, endY, mode) {
 
 async function updateCanvas() {
   console.log("updateCanvas is running!");
-
-  if (runningMode === "IMAGE") {
-    runningMode = "VIDEO";
-    await handLandmarker.setOptions({ runningMode: "VIDEO" });
-  }
-
-  if (
-    localDiv.readyState >= 2 &&
-    localDiv.videoWidth > 0 &&
-    localDiv.videoHeight > 0 &&
-    lastVideoTime != localDiv.currentTime
-  ) {
-    lastVideoTime = localDiv.currentTime;
-    const detectionResults = await handLandmarker.detectForVideo(
-      localDiv,
-      performance.now()
-    );
-
-    mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-
-    if (detectionResults.landmarks) {
-      detectionResults.landmarks.forEach((landmarks) => {
-        console.log("landmarks of detectionResults", landmarks);
-        processHandLandmarks(landmarks);
-        drawConnectors(mainCtx, landmarks, HAND_CONNECTIONS, {
-          color: "#00FF00",
-          lineWidth: 3,
-        });
-        drawLandmarks(mainCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
-      });
+  if (videoSt === videoStates.draw) {
+    if (runningMode === "IMAGE") {
+      runningMode = "VIDEO";
+      await handLandmarker.setOptions({ runningMode: "VIDEO" });
     }
-  }
 
-  mainCtx.drawImage(drawingCanvas, 0, 0);
+    if (
+      localDiv.readyState >= 2 &&
+      localDiv.videoWidth > 0 &&
+      localDiv.videoHeight > 0 &&
+      lastVideoTime != localDiv.currentTime
+    ) {
+      lastVideoTime = localDiv.currentTime;
+      const detectionResults = await handLandmarker.detectForVideo(
+        localDiv,
+        performance.now()
+      );
 
-  if (videoCamTrack) {
-    window.requestAnimationFrame(updateCanvas);
+      mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+      if (detectionResults.landmarks) {
+        detectionResults.landmarks.forEach((landmarks) => {
+          console.log("landmarks of detectionResults", landmarks);
+          processHandLandmarks(landmarks);
+          drawConnectors(mainCtx, landmarks, HAND_CONNECTIONS, {
+            color: "#00FF00",
+            lineWidth: 3,
+          });
+          drawLandmarks(mainCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
+        });
+      }
+    }
+
+    mainCtx.drawImage(drawingCanvas, 0, 0);
+
+    if (videoCamTrack) {
+      window.requestAnimationFrame(updateCanvas);
+    } else {
+      console.log("videoCamTrack", videoCamTrack);
+
+      drawingCtx.clearRect(0, 0, drawingCanvas.width, mainCanvas.height);
+      mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+    }
   } else {
-    console.log("videoCamTrack", videoCamTrack);
-
     drawingCtx.clearRect(0, 0, drawingCanvas.width, mainCanvas.height);
     mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+    return;
   }
 }
 
@@ -452,6 +457,8 @@ async function videoProcess(newVideoState) {
     if (vStream && vStream.getVideoTracks().length > 0) {
       videoCamTrack = vStream.getVideoTracks()[0];
       if (videoCamTrack) {
+        videoSt = newVideoState;
+        console.log(`now my vidoe state is.......${videoSt}`);
         localDiv.srcObject = new MediaStream([videoCamTrack]);
         console.log("localDiv.srcObject", localDiv.srcObject);
         updateMediaSenders(videoCamTrack, rtpVidSenders);
@@ -466,7 +473,6 @@ async function videoProcess(newVideoState) {
     return;
   }
 
-  videoSt = newVideoState;
   if (newVideoState === videoStates.camera) {
     document.getElementById("videoCamOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">videocam_on</span>';
