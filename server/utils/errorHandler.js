@@ -16,7 +16,7 @@ export function errorHandler(err, req, res, next) {
     return;
   }
   if (err instanceof Error) {
-    res.status(500).json({ errors: err.message });
+    res.status(400).json({ errors: err.message });
     return;
   }
   res.status(500).send("Oop, unknow server error");

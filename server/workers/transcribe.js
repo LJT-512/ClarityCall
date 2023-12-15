@@ -28,8 +28,6 @@ function sendFileToWhisper(filePath, io, connId) {
   };
   axios(config)
     .then((response) => {
-      console.log("Full response:", response.data);
-      console.log(JSON.stringify(response.data));
       console.log("Emitting subtitle:", response.data.text);
       console.log("All user connections:", userConnections);
       console.log("Looking for connId:", connId);
@@ -107,7 +105,8 @@ export function startTranscriptionWorker(io) {
       return;
     }
     const fileName = path.basename(filePath);
-    const connId = fileName.split("_")[2];
+    const matches = fileName.match(/\[(.*?)\]/);
+    const connId = matches ? matches[1] : null;
     console.log("checking speaker connId", connId);
     console.log(`File ${filePath} has been added`);
     sendFileToWhisper(filePath, io, connId);

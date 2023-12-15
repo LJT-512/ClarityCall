@@ -7,6 +7,7 @@ import {
 } from "../models/meeting.js";
 
 export let userMeetingRooms = {};
+export let roomIds = [];
 
 function endBreakoutSession(meetingId) {
   const io = getIO();
@@ -48,7 +49,6 @@ export async function breakoutRooms(req, res) {
   }
 
   const sliceIndex = Math.ceil(usersInThisMeeting.length / numOfRoom);
-  const roomIds = [];
 
   for (let i = 0; i < numOfRoom; i += 1) {
     const roomUsers = usersInThisMeeting.slice(

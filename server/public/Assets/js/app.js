@@ -6,7 +6,7 @@ import { adjustUserBoxSize } from "./uiHandler.js";
 
 async function initApp() {
   const urlParams = new URLSearchParams(window.location.search);
-  const meetingId = urlParams.get("meetingID");
+  const meetingId = urlParams.get("meetingId");
 
   if (!meetingId) {
     alert("Meeting id missing");
@@ -131,7 +131,7 @@ const breakoutroomBtn = document.getElementById("breakoutRoomOnOff");
 const breakoutroomModal = document.getElementById("breakoutRoomModal");
 const errorMessageDiv = document.getElementById("breakoutRoomErrorMessage");
 const urlParams = new URLSearchParams(window.location.search);
-const meetingId = urlParams.get("meetingID");
+const meetingId = urlParams.get("meetingId");
 const span = document.getElementsByClassName("close")[0];
 breakoutroomBtn.addEventListener("click", () => {
   if (meetingId.length === 8) {
@@ -204,11 +204,11 @@ meetingDetailsBtn.addEventListener("click", () => {
   if (detailsElement.style.display === "block") {
     detailsElement.style.display = "none";
     meetingDetailsBtn.innerHTML = `<div class="display-center curosr-pointer meeting-details-button">
-    Meeting Details<span class="material-icons">keyboard_arrow_down</span></div>`;
+    Meeting Details<span class="material-icons cursor-pointer">keyboard_arrow_down</span></div>`;
   } else {
     detailsElement.style.display = "block";
     meetingDetailsBtn.innerHTML = `<div class="display-center curosr-pointer meeting-details-button">
-    Meeting Details<span class="material-icons">keyboard_arrow_up</span></div>`;
+    Meeting Details<span class="material-icons cursor-pointer">keyboard_arrow_up</span></div>`;
   }
 });
 

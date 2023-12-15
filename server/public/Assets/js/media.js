@@ -311,7 +311,7 @@ function stopRecording() {
 async function uploadAudioToServer() {
   let blob = new Blob(audioChunks, { type: "audio/webm" });
   let formData = new FormData();
-  let fileName = `recorded_segment_${myConnectionId}_${Date.now()}.webm`;
+  let fileName = `recorded[${myConnectionId}]-${Date.now()}.webm`;
   formData.append("audio", blob, fileName);
 
   try {
