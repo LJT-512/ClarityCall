@@ -2,6 +2,7 @@ import express from "express";
 import upload from "./middlewares/multer.js";
 import { breakoutRooms } from "./controllers/breakoutroom.js";
 import { isAuthenticated } from "./middlewares/isAuthenticated.js";
+import { isMeetingValid } from "./middlewares/meetingValidation.js";
 import * as userController from "./controllers/user.js";
 import * as meetingAnalyticsController from "./controllers/meetingAnalytics.js";
 
@@ -21,7 +22,7 @@ router.get("/meetinghistory", isAuthenticated, (req, res) => {
   res.sendFile(join(__dirname, "./public/meetinghistory.html"));
 });
 
-router.get("/", isAuthenticated, (req, res) => {
+router.get("/", isAuthenticated, isMeetingValid, (req, res) => {
   res.sendFile(join(__dirname, "./public/main.html"));
 });
 

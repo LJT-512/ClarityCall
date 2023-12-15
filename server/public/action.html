@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="Assets/css/style.css" />
     <script>
       const preloadImage = new Image();
-      reloadImage.src = "Assets/images/google-meet-people.jpg";
+      preloadImage.src = "Assets/images/google-meet-people.jpg";
     </script>
   </head>
   <body style="padding-top: 3.5rem">
@@ -136,13 +136,18 @@
           });
       });
       document.querySelector(".join-meeting").addEventListener("click", (e) => {
+        alert("Please first enter the meeting code");
         document.querySelector(".enter-code").focus();
       });
 
       document.querySelector(".join-action").addEventListener("click", () => {
         const joinValue = document.querySelector(".enter-code").value;
-        const meetingUrl = window.location.origin + "?meetingID=" + joinValue;
-        window.location.replace(meetingUrl);
+        if (joinValue.toString().length == 8 && !isNaN(joinValue)) {
+          const meetingUrl = window.location.origin + "?meetingId=" + joinValue;
+          window.location.replace(meetingUrl);
+        } else {
+          alert("Please enter an 8 digit number.");
+        }
       });
 
       document.querySelectorAll(".new-meeting").forEach((button) => {
@@ -150,7 +155,7 @@
           const eight_d_value =
             Math.floor(Math.random() * (99999999 - 10000000 + 1)) + 10000000;
           const meetingUrl =
-            window.location.origin + "?meetingID=" + eight_d_value;
+            window.location.origin + "?meetingId=" + eight_d_value;
           window.location.replace(meetingUrl);
         });
       });

@@ -174,7 +174,7 @@ function renderMostFrequentContacts(apiData) {
   const radiusScale = d3
     .scaleSqrt()
     .domain([0, d3.max(apiData, (d) => d.meeting_count)])
-    .range([0, 40]);
+    .range([0, 50]);
 
   const simulation = d3
     .forceSimulation(apiData)
@@ -212,7 +212,7 @@ function renderMostFrequentContacts(apiData) {
   bubbleGroups
     .append("text")
     .attr("class", "label")
-    .attr("dy", "1.5em")
+    .attr("dy", "1.2em")
     .text((d) => `${d.meeting_count}`)
     .style("text-anchor", "middle");
 }
