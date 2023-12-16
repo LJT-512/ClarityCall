@@ -221,6 +221,14 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
 
 export const eventHandling = (username) => {
   const sendBtn = document.getElementById("btnsend");
+  const msgBox = document.getElementById("msgbox");
+  msgBox.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendBtn.click();
+    }
+  });
+
   sendBtn.addEventListener("click", () => {
     const messageContent = document.getElementById("msgbox").value;
     if (messageContent.trim()) {
