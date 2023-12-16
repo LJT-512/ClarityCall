@@ -70,3 +70,37 @@ export function showMeetingToast(username, message) {
     toast.style.opacity = "0";
   }, 5000);
 }
+
+export function showReturnToast(message) {
+  const toast = document.getElementById("toast-notification");
+  const toastMsg = document.getElementById("toast-msg");
+  toastMsg.textContent = message;
+
+  toast.style.opacity = "1";
+  toast.style.transform = "translateY(0)";
+  toast.style.transition = "opacity 0.5s ease-in-out";
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+  }, 5000);
+}
+
+export function showLoadingAnimation() {
+  const loadingOverlay = document.getElementById("loading-overlay");
+  loadingOverlay.style.setProperty("display", "flex", "important");
+}
+
+export function hideLoadingAnimation() {
+  const loadingOverlay = document.getElementById("loading-overlay");
+  loadingOverlay.style.setProperty("display", "none", "important");
+}
+
+export function showChatLoadingAnimation() {
+  const loadingOverlay = document.getElementById("chat-loading-overlay");
+  loadingOverlay.classList.remove("d-none");
+}
+
+export function hideChatLoadingAnimation() {
+  const loadingOverlay = document.getElementById("chat-loading-overlay");
+  loadingOverlay.classList.add("d-none");
+}

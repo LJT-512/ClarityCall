@@ -2,7 +2,11 @@ import {
   eventProcessForSignalingServer,
   eventHandling,
 } from "./socketEvents.js";
-import { adjustUserBoxSize } from "./uiHandler.js";
+import {
+  adjustUserBoxSize,
+  showChatLoadingAnimation,
+  hideChatLoadingAnimation,
+} from "./uiHandler.js";
 
 async function initApp() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -215,5 +219,7 @@ meetingDetailsBtn.addEventListener("click", () => {
 const summarizeBtn = document.getElementById("btnsummarize");
 const subtitleApi = `/api/meetings/generateSummary/?meetingId=${meetingId}`;
 summarizeBtn.addEventListener("click", async () => {
+  showChatLoadingAnimation();
   await fetch(subtitleApi);
+  hideChatLoadingAnimation();
 });

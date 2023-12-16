@@ -4,6 +4,7 @@ import {
   peersConnection,
   onCameraToggle,
 } from "./RTCConnection.js";
+import { showLoadingAnimation, hideLoadingAnimation } from "./uiHandler.js";
 export let remoteVidStream = [];
 export let remoteAudStream = [];
 let localDiv;
@@ -255,8 +256,11 @@ export async function eventProcess() {
   drawBtn.addEventListener("click", async (e) => {
     if (videoSt === videoStates.draw) {
       await videoProcess(videoStates.none);
+      hideLoadingAnimation();
     } else {
+      showLoadingAnimation();
       await videoProcess(videoStates.draw);
+      hideLoadingAnimation();
     }
   });
 }
@@ -438,6 +442,7 @@ async function videoProcess(newVideoState) {
         console.log(
           "====================== Initializing hand tracking ====================== "
         );
+        // await hideLoadingAnimation();
         await initializeHandTracking();
         console.log(
           "!!!!!!!!!!!!!!!!!!!!! Hand tracking initialized !!!!!!!!!!!!!!!!!!!!!!!!"
