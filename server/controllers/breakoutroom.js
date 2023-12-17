@@ -9,11 +9,10 @@ import {
 export let userMeetingRooms = {};
 export let roomIds = [];
 
-function endBreakoutSession(meetingId) {
+function handleBreakoutSession(meetingId, callback) {
   const io = getIO();
-  console.log("===============Breakoutroom session is ending ==========");
+  console.log("Handling breakout session for meetingId:", meetingId);
   const breakoutInfo = userMeetingRooms[meetingId];
-  console.log("userMeetingId", userMeetingRooms[meetingId]);
   if (breakoutInfo) {
     breakoutInfo.rooms.forEach((roomUsers) => {
       roomUsers.forEach((user) => {
@@ -21,15 +20,27 @@ function endBreakoutSession(meetingId) {
           (u) => u.userId === user.userId
         );
         if (currentConnections) {
-          console.log("user.connId", user.connId);
-          console.log("meetingId", meetingId);
-          io.to(
-            currentConnections.connectionId
-          ).emit("informBackToOriginalMeeting", { meetingId });
+          callback(io, currentConnections, meetingId);
         }
       });
     });
   }
+}
+
+function notifyToast(meetingId) {
+  handleBreakoutSession(meetingId, (io, currentConnections, meetingId) => {
+    io.to(currentConnections.connectionId).emit("5sBeforeEndNotice", {
+      meetingId,
+    });
+  });
+}
+
+function endBreakoutSession(meetingId) {
+  handleBreakoutSession(meetingId, (io, currentConnections, meetingId) => {
+    io.to(currentConnections.connectionId).emit("informBackToOriginalMeeting", {
+      meetingId,
+    });
+  });
   delete userMeetingRooms[meetingId];
 }
 
@@ -56,7 +67,7 @@ export async function breakoutRooms(req, res) {
       (i + 1) * sliceIndex
     );
     const roomId = Math.random().toString(36).substring(2, 12);
-    roomIds.push({ roomId });
+    roomIds.push(roomId);
     rooms.push({
       roomUsers: roomUsers.map((u) => ({
         roomId,
@@ -86,9 +97,13 @@ export async function breakoutRooms(req, res) {
   };
 
   console.log("userMeetingRooms: ", userMeetingRooms);
+
+  setTimeout(() => {
+    notifyToast(meetingId);
+  }, (setTime - 5) * 1000);
   setTimeout(() => {
     endBreakoutSession(meetingId);
-  }, setTime * 1000); // setTime in seconds
+  }, setTime * 1000);
 
   res.status(200).json({ success: true, message: rooms });
   console.log("rooms: ", rooms);

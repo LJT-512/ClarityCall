@@ -5,7 +5,9 @@ export async function isMeetingValid(req, res, next) {
   console.log(meetingId);
   if (meetingId) {
     const meetingIdLength = meetingId.toString().length;
+    console.log("roomIds", roomIds);
     const isMeetingRoom = roomIds.includes(meetingId);
+    console.log("isMeetingRoom", isMeetingRoom);
 
     if (isNaN(meetingId) && meetingIdLength !== 8) {
       if (!isMeetingRoom) {

@@ -1,4 +1,13 @@
 document.addEventListener("DOMContentLoaded", async function () {
+  document.querySelectorAll(".new-meeting").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eight_d_value =
+        Math.floor(Math.random() * (99999999 - 10000000 + 1)) + 10000000;
+      const meetingUrl = window.location.origin + "?meetingId=" + eight_d_value;
+      window.location.replace(meetingUrl);
+    });
+  });
+
   await checkUserAuthentication();
   fetchAggregatedInfo();
   fetchMeetingLogs();

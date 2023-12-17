@@ -68,6 +68,46 @@ li.nav-item {
   position: absolute;
 }
 
+.info-icon {
+  font-size: 16px;
+  top: 30%;
+  right: 70px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.name-info-icon {
+  font-size: 16px;
+  top: 20%;
+  right: 100px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.password-tooltip {
+  display: none;
+  position: absolute;
+  top: -40px;
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1;
+}
+
+.name-tooltip {
+  display: none;
+  position: absolute;
+  top: -40px;
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1;
+}
+
 .footer {
   height: 40;
   display: flex;
