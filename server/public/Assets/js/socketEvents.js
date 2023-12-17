@@ -5,7 +5,12 @@ import {
   closeConnectionCall,
   myConnectionId,
 } from "./RTCConnection.js";
-import { addUser, adjustUserBoxSize, showMeetingToast } from "./uiHandler.js";
+import {
+  addUser,
+  adjustUserBoxSize,
+  showMeetingToast,
+  showReturnToast,
+} from "./uiHandler.js";
 
 export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
@@ -182,12 +187,16 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   socket.on("informAboutBreakRooms", (data) => {
     console.log("informAboutBreakRooms is running!!!!!");
     console.error(`Breakout room is about to start ${data.roomId}`);
-    window.location.href = `/?meetingID=${data.roomId}`;
+    window.location.href = `/?meetingId=${data.roomId}`;
   });
 
   socket.on("informBackToOriginalMeeting", (data) => {
     console.log("got informBackToOriginalMeeting");
-    window.location.href = `/?meetingID=${data.meetingId}`;
+    window.location.href = `/?meetingId=${data.meetingId}`;
+  });
+
+  socket.on("5sBeforeEndNotice", () => {
+    showReturnToast("About to return to original meeting");
   });
 
   socket.on("showChatMessage", (data) => {
@@ -221,6 +230,14 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
 
 export const eventHandling = (username) => {
   const sendBtn = document.getElementById("btnsend");
+  const msgBox = document.getElementById("msgbox");
+  msgBox.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendBtn.click();
+    }
+  });
+
   sendBtn.addEventListener("click", () => {
     const messageContent = document.getElementById("msgbox").value;
     if (messageContent.trim()) {
