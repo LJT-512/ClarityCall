@@ -38,7 +38,7 @@
             <button
               class="btn btn-info btn-md text-light font-weight-bold new-meeting"
             >
-            <a href="/action" class="nav-link">Start a meeting</a>
+           Start a meeting
             </button>
           </li>
           <li
@@ -91,6 +91,16 @@
         const signInNavItem = document.querySelector(".nav-item.sign-in");
         const userBlock = document.querySelector(".user-block");
         const usernameDiv = document.querySelector(".username.user-info");
+
+        document.querySelectorAll(".new-meeting").forEach((button) => {
+        button.addEventListener("click", () => {
+          const eight_d_value =
+            Math.floor(Math.random() * (99999999 - 10000000 + 1)) + 10000000;
+          const meetingUrl =
+            window.location.origin + "?meetingId=" + eight_d_value;
+          window.location.replace(meetingUrl);
+        });
+      });
 
         document.getElementById('info-icon').addEventListener('mouseover', function() {
         document.getElementById('password-tooltip').style.display = 'block';
