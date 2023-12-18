@@ -41,6 +41,12 @@ li.nav-item {
   margin-top: 100px;
 }
 
+.row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 h1,
 h2,
 h4 {
@@ -77,8 +83,7 @@ h4 {
 
 #meetingDetailsTable {
   background-color: #fff;
-  display: block;
-  max-width: 100%;
+  width: auto;
   overflow-x: auto;
   white-space: nowrap;
 }
