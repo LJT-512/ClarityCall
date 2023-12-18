@@ -34,6 +34,16 @@ let iceConfiguration = {
     {
       urls: "stun:stun1.l.google.com:19302",
     },
+    {
+      urls: "turn:turn1.l.google.com:19305?transport=udp",
+      username: "webrtc",
+      credential: "secret",
+    },
+    {
+      urls: "turn:turn1.l.google.com:19305?transport=tcp",
+      username: "webrtc",
+      credential: "secret",
+    },
   ],
 };
 
