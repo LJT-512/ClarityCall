@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export async function getTurnCredentials(req, res) {
-  const o = { format: "urls" };
+  const o = { format: "urls", expire: "120" };
   const bodyString = JSON.stringify(o);
   const options = {
     host: "global.xirsys.net",
