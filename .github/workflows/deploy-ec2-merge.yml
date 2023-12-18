@@ -18,6 +18,7 @@ jobs:
             echo "Hello from github action, start deploy main to ec2"
             cd /var/www/ClarityCall/server
             git switch main
-            git pull
+            git fetch origin main
+            git reset --hard origin/main
             npm install
             npx pm2 restart server
