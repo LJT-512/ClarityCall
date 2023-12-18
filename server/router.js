@@ -5,6 +5,7 @@ import { isAuthenticated } from "./middlewares/isAuthenticated.js";
 import { isMeetingValid } from "./middlewares/meetingValidation.js";
 import * as userController from "./controllers/user.js";
 import * as meetingAnalyticsController from "./controllers/meetingAnalytics.js";
+import { getTurnCredentials } from "./controllers/turnServer.js";
 
 import { fileURLToPath } from "url";
 import { join, dirname } from "path";
@@ -29,6 +30,8 @@ router.get("/", isAuthenticated, isMeetingValid, (req, res) => {
 router.post("/api/upload", upload.single("audio"), (req, res) => {
   res.send({ message: "File uploaded successfully." });
 });
+
+router.get("/getTurnCredentials", isAuthenticated, getTurnCredentials);
 
 router.post("/api/breakoutroom", breakoutRooms);
 
