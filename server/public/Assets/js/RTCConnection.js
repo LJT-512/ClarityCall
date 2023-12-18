@@ -44,8 +44,15 @@ async function fetchTurnCredentails() {
       console.error("Failed to fetch TURN credentials");
     }
 
-    const data = await response.json();
-    iceConfiguration.iceServers.push(...data);
+    const responseData = await response.json();
+
+    if (responseData && responseData.v && responseData.v.iceServers) {
+      iceConfiguration.iceServers.push({
+        urls: responseData.v.iceServers.urls,
+        username: responseData.v.iceServers.username,
+        credential: responseData.v.iceServers.credential,
+      });
+    }
   } catch (err) {
     console.error("Error fetching TURN credentials:", err);
   }
