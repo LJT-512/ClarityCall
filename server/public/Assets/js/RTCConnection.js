@@ -26,49 +26,39 @@ export async function initRTCConnection(
   await eventProcess();
 }
 
-// async function fetchTurnCredentails() {
-let iceConfiguration = {
-  iceServers: [
-    {
-      urls: "stun:stun.l.google.com:19302",
-    },
-    {
-      urls: "stun:stun1.l.google.com:19302",
-    },
-    {
-      urls: "turn:turn1.l.google.com:19305?transport=udp",
-      username: "webrtc",
-      credential: "secret",
-    },
-    {
-      urls: "turn:turn1.l.google.com:19305?transport=tcp",
-      username: "webrtc",
-      credential: "secret",
-    },
-  ],
-};
+async function fetchTurnCredentails() {
+  let iceConfiguration = {
+    iceServers: [
+      {
+        urls: "stun:stun.l.google.com:19302",
+      },
+      {
+        urls: "stun:stun1.l.google.com:19302",
+      },
+    ],
+  };
 
-//   try {
-//     const response = await fetch("/getTurnCredentials");
-//     if (!response.ok) {
-//       console.error("Failed to fetch TURN credentials");
-//     }
+  try {
+    const response = await fetch("/getTurnCredentials");
+    if (!response.ok) {
+      console.error("Failed to fetch TURN credentials");
+    }
 
-//     const responseData = await response.json();
+    const responseData = await response.json();
 
-//     if (responseData && responseData.v && responseData.v.iceServers) {
-//       iceConfiguration.iceServers.push({
-//         urls: responseData.v.iceServers.urls,
-//         username: responseData.v.iceServers.username,
-//         credential: responseData.v.iceServers.credential,
-//       });
-//     }
-//   } catch (err) {
-//     console.error("Error fetching TURN credentials:", err);
-//   }
+    if (responseData && responseData.v && responseData.v.iceServers) {
+      iceConfiguration.iceServers.push({
+        urls: responseData.v.iceServers.urls,
+        username: responseData.v.iceServers.username,
+        credential: responseData.v.iceServers.credential,
+      });
+    }
+  } catch (err) {
+    console.error("Error fetching TURN credentials:", err);
+  }
 
-//   return iceConfiguration;
-// }
+  return iceConfiguration;
+}
 
 export async function setConnection(connId) {
   if (typeof connId === "undefined") {
@@ -76,7 +66,7 @@ export async function setConnection(connId) {
     return;
   }
   console.log("Setting up connection for ID:", connId);
-  // const iceConfiguration = await fetchTurnCredentails();
+  const iceConfiguration = await fetchTurnCredentails();
   let connection = new RTCPeerConnection(iceConfiguration);
   console.log("!!!!!!!!!!setting up RTCPeerConnection!!!!!!!", connection);
 
