@@ -26,16 +26,32 @@ export async function initRTCConnection(
   await eventProcess();
 }
 
-let iceConfiguration = {
-  iceServers: [
-    {
-      urls: "stun:stun.l.google.com:19302",
-    },
-    {
-      urls: "stun:stun1.l.google.com:19302",
-    },
-  ],
-};
+async function fetchTurnCredentails() {
+  let iceConfiguration = {
+    iceServers: [
+      {
+        urls: "stun:stun.l.google.com:19302",
+      },
+      {
+        urls: "stun:stun1.l.google.com:19302",
+      },
+    ],
+  };
+
+  try {
+    const response = await fetch("/getTurnCredentials");
+    if (!response.ok) {
+      console.error("Failed to fetch TURN credentials");
+    }
+
+    const data = await response.json();
+    iceConfiguration.iceServers.push(...data);
+  } catch (err) {
+    console.error("Error fetching TURN credentials:", err);
+  }
+
+  return iceConfiguration;
+}
 
 export async function setConnection(connId) {
   if (typeof connId === "undefined") {
@@ -43,6 +59,7 @@ export async function setConnection(connId) {
     return;
   }
   console.log("Setting up connection for ID:", connId);
+  const iceConfiguration = await fetchTurnCredentails();
   let connection = new RTCPeerConnection(iceConfiguration);
   console.log("!!!!!!!!!!setting up RTCPeerConnection!!!!!!!", connection);
 
