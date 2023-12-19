@@ -163,6 +163,10 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
 
   socket.on("newSubtitle", (data) => {
     console.log("Received subtitle:", data.subtitleContent);
+    const subtitleNotification = document.querySelector(
+      ".subtitles-notification-count"
+    );
+    subtitleNotification.classList.remove("d-none");
     const time = new Date();
     const lTime = time.toLocaleString("en-US", {
       hour: "numeric",
@@ -202,6 +206,8 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   socket.on("showChatMessage", (data) => {
     console.log("in showChatMessage the username is ", username);
     console.log("in showChatMessage the data is", data);
+    const chatNotification = document.querySelector(".chat-notification-count");
+    chatNotification.classList.remove("d-none");
     const time = new Date();
     const lTime = time.toLocaleString("en-US", {
       hour: "numeric",

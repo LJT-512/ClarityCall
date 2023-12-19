@@ -131,6 +131,19 @@ function setupHeadingToggle(
   }
 }
 
+const chatBtn = document.querySelector(".chat-heading");
+const chatNotificationBtn = document.querySelector(".chat-notification-count ");
+const subtitle = document.querySelector(".subtitles-heading");
+const subtitleNotificationBtn = document.querySelector(
+  ".subtitles-notification-count"
+);
+chatBtn.addEventListener("click", () => {
+  chatNotificationBtn.classList.add("d-none");
+});
+subtitle.addEventListener("click", () => {
+  subtitleNotificationBtn.classList.add("d-none");
+});
+
 const breakoutroomBtn = document.getElementById("breakoutRoomOnOff");
 const breakoutroomModal = document.getElementById("breakoutRoomModal");
 const errorMessageDiv = document.getElementById("breakoutRoomErrorMessage");
