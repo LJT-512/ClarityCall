@@ -101,7 +101,23 @@ footer {
   position: relative;
 }
 
+.chat-heading {
+  position: relative;
+}
+
+.subtitles-heading {
+  position: relative;
+}
+
 .peopl-heading-icon {
+  position: relative;
+}
+
+.chat-heading-icon {
+  position: relative;
+}
+
+.subtitle-heading-icon {
   position: relative;
 }
 
@@ -399,4 +415,36 @@ input[type="number"] {
 
 .toast-content .material-icons {
   margin-right: 0.5rem;
+}
+
+.chat-notification-count {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: bold;
+}
+
+.subtitles-notification-count {
+  position: absolute;
+  top: 0px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: bold;
 }
