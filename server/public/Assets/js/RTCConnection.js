@@ -49,11 +49,13 @@ async function fetchTurnCredentails() {
     const responseData = await response.json();
 
     console.log("responseData:", responseData);
-    if (responseData && responseData.v && responseData.v.iceServers) {
-      iceConfiguration.iceServers.push({
-        urls: responseData.v.iceServers.urls,
-        username: responseData.v.iceServers.username,
-        credential: responseData.v.iceServers.credential,
+    if (responseData && responseData.urls && responseData.urls.length > 0) {
+      responseData.urls.forEach((url) => {
+        iceConfiguration.iceServers.push({
+          urls: url,
+          username: responseData.username,
+          credential: responseData.credential,
+        });
       });
     }
   } catch (error) {
