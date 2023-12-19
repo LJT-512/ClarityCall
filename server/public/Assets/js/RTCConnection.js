@@ -38,25 +38,31 @@ async function fetchTurnCredentails() {
     ],
   };
 
+  console.log("Before calling /getTurnCredentials");
   try {
     const response = await fetch("/getTurnCredentials");
     if (!response.ok) {
       console.error("Failed to fetch TURN credentials");
     }
 
+    console.log("turn response", response);
     const responseData = await response.json();
 
-    if (responseData && responseData.v && responseData.v.iceServers) {
-      iceConfiguration.iceServers.push({
-        urls: responseData.v.iceServers.urls,
-        username: responseData.v.iceServers.username,
-        credential: responseData.v.iceServers.credential,
+    console.log("responseData:", responseData);
+    if (responseData && responseData.urls && responseData.urls.length > 0) {
+      responseData.urls.forEach((url) => {
+        iceConfiguration.iceServers.push({
+          urls: url,
+          username: responseData.username,
+          credential: responseData.credential,
+        });
       });
     }
-  } catch (err) {
-    console.error("Error fetching TURN credentials:", err);
+  } catch (error) {
+    console.error("Error fetching TURN credentials:", error);
   }
-
+  console.log("After calling /getTurnCredentials");
+  console.log("this is iceConfiguration", iceConfiguration);
   return iceConfiguration;
 }
 
@@ -67,6 +73,7 @@ export async function setConnection(connId) {
   }
   console.log("Setting up connection for ID:", connId);
   const iceConfiguration = await fetchTurnCredentails();
+  console.log("iceConfiguration", iceConfiguration);
   let connection = new RTCPeerConnection(iceConfiguration);
   console.log("!!!!!!!!!!setting up RTCPeerConnection!!!!!!!", connection);
 
