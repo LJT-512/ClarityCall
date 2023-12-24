@@ -306,12 +306,10 @@ function buttonClickHandler(event) {
   const dataType = event.target.classList.contains("transcript-button")
     ? "transcript"
     : "summary";
-  console.log("apiUrl", apiUrl);
 
   fetch(apiUrl, { credentials: "include" })
     .then((response) => response.json())
     .then((data) => {
-      console.log("data after triggering button", data);
       openModal(data, dataType);
     })
     .catch((err) => console.error("Error fetching data:", err));

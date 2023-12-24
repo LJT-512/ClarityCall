@@ -37,13 +37,11 @@ export async function generateMeetingSummary(meetingId) {
       );
 
       const summary = response.data.choices[0].message.content;
-      console.log("summary from openai", summary);
       return summary;
     } catch (err) {
       console.error("Error generating summary:", err);
     }
   } else {
-    console.log("No subtitles available for meeting ID:", meetingId);
     return "No subtitles were available to generate a summary.";
   }
 }

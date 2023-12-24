@@ -28,17 +28,12 @@ function sendFileToWhisper(filePath, io, connId) {
   };
   axios(config)
     .then((response) => {
-      console.log("Emitting subtitle:", response.data.text);
-      console.log("All user connections:", userConnections);
-      console.log("Looking for connId:", connId);
-
       const userConnection = userConnections.find(
         (u) => u.connectionId === connId
       );
       const list = userConnections.filter(
         (u) => u.meetingId === userConnection.meetingId
       );
-      console.log("list", list);
       if (!userConnection) {
         console.error(`Connection ID ${connId} not found in userConnections.`);
       } else {
@@ -101,19 +96,14 @@ export function startTranscriptionWorker(io) {
 
   watcher.on("add", (filePath) => {
     if (path.basename(filePath) === ".gitkeep") {
-      console.log("Ignoring .gitkeep file.");
       return;
     }
     const fileName = path.basename(filePath);
     const matches = fileName.match(/\[(.*?)\]/);
     const connId = matches ? matches[1] : null;
-    console.log("checking speaker connId", connId);
-    console.log(`File ${filePath} has been added`);
     sendFileToWhisper(filePath, io, connId);
   });
-  watcher.on("unlink", (filePath) => {
-    console.log(`File ${filePath} has been removed`);
-  });
+  watcher.on("unlink", (filePath) => {});
 
   processUploads();
 }

@@ -38,7 +38,6 @@ let drawingCanvas;
 let drawingCtx;
 let mode = "drawing";
 let lastVideoTime = -1;
-let detectionResults = undefined;
 
 localDiv = document.getElementById("localVideoPlayer");
 mainCanvas = document.getElementById("me-output-canvas");
@@ -47,11 +46,9 @@ drawingCanvas = document.getElementById("me-drawing-canvas");
 drawingCtx = drawingCanvas.getContext("2d");
 
 async function initializeHandTracking() {
-  console.log("this is the beginning of handTracker function.......");
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
   );
-  console.log("vision", vision);
   handLandmarker = await HandLandmarker.createFromOptions(vision, {
     baseOptions: {
       modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
@@ -60,8 +57,6 @@ async function initializeHandTracking() {
     runningMode: runningMode,
     numHands: 2,
   });
-
-  console.log("handLandmarker in initializeHandTracking", handLandmarker);
 }
 
 function fingersUp(landmarks) {
@@ -85,11 +80,8 @@ function fingersUp(landmarks) {
 }
 
 function processHandLandmarks(landmarks) {
-  console.log("processHandLandmarks is being called");
   const fingers = fingersUp(landmarks);
   const indexFingerTip = landmarks[8];
-  const middleFingerTip = landmarks[12];
-  console.log("indexFingerTip", indexFingerTip);
   const currentX = indexFingerTip.x * drawingCanvas.width;
   const currentY = indexFingerTip.y * drawingCanvas.height;
 
@@ -107,7 +99,6 @@ function processHandLandmarks(landmarks) {
       previousPosition = { x: currentX, y: currentY };
     } else {
       if (previousPosition.x !== -1 && previousPosition.y !== -1) {
-        console.log("Current mode is .....", mode);
         drawPath(
           previousPosition.x,
           previousPosition.y,
@@ -154,7 +145,6 @@ export function drawPath(startX, startY, endX, endY, mode) {
 }
 
 async function updateCanvas() {
-  console.log("updateCanvas is running!");
   if (videoSt === videoStates.draw) {
     if (runningMode === "IMAGE") {
       runningMode = "VIDEO";
@@ -177,7 +167,6 @@ async function updateCanvas() {
 
       if (detectionResults.landmarks) {
         detectionResults.landmarks.forEach((landmarks) => {
-          console.log("landmarks of detectionResults", landmarks);
           processHandLandmarks(landmarks);
           drawConnectors(mainCtx, landmarks, HAND_CONNECTIONS, {
             color: "#00FF00",
@@ -193,8 +182,6 @@ async function updateCanvas() {
     if (videoCamTrack) {
       window.requestAnimationFrame(updateCanvas);
     } else {
-      console.log("videoCamTrack", videoCamTrack);
-
       drawingCtx.clearRect(0, 0, drawingCanvas.width, mainCanvas.height);
       mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
     }
@@ -216,7 +203,6 @@ export async function eventProcess() {
       return;
     }
     if (isAudioMute) {
-      console.log("Audio is muted so we are turning on");
       await loadAudio();
       audio.enabled = true;
       micBtn.innerHTML =
@@ -224,9 +210,6 @@ export async function eventProcess() {
       updateMediaSenders(audio, rtpAudSenders);
       startRecording();
     } else {
-      console.log(
-        "Audio is not muted. and the mic icon should change to muted."
-      );
       audio.enabled = false;
       micBtn.innerHTML =
         '<span class="material-icons" style="width: 100%">mic_off</span>';
@@ -286,7 +269,6 @@ function startRecording() {
 
     audioChunks = [];
     recorder.start();
-    console.log("Audio recording start!");
     isRecording = true;
 
     recorder.ondataavailable = (event) => {
@@ -294,7 +276,6 @@ function startRecording() {
     };
 
     recorder.onstop = async () => {
-      console.log("Stopping audio recording...");
       await uploadAudioToServer();
       audioChunks = [];
       if (isRecording) {
@@ -330,7 +311,6 @@ async function uploadAudioToServer() {
     });
 
     let data = response.json();
-    console.log("upload to server successful:", data);
   } catch (err) {
     console.error("upload audo failed: ", err);
   }
@@ -350,7 +330,6 @@ function connectionStatus(connection) {
 }
 
 export async function updateMediaSenders(track, rtpSenders) {
-  console.log("peersConnectionIds: ", peersConnectionIds);
   for (let conId in peersConnectionIds) {
     if (connectionStatus(peersConnection[conId])) {
       if (rtpSenders[conId] && rtpSenders[conId].track) {
@@ -364,11 +343,9 @@ export async function updateMediaSenders(track, rtpSenders) {
 
 function removeMediaSenders(rtpSenders) {
   for (let conId in peersConnectionIds) {
-    console.log(`!!!!!!!!!!!!!${conId} in ${peersConnectionIds}!!!!!!!!!!!`);
     if (rtpSenders[conId] && connectionStatus(peersConnection[conId])) {
       peersConnection[conId].removeTrack(rtpSenders[conId]);
       rtpSenders[conId] = null;
-      console.log(`${peersConnection[conId]}'s video track is removed.`);
     }
   }
 }
@@ -380,7 +357,6 @@ function removeVideoStream(rtpVidSenders) {
     localDiv.srcObject = null;
     removeMediaSenders(rtpVidSenders);
   }
-  console.log("local video is removed.");
 }
 
 async function videoProcess(newVideoState) {
@@ -396,9 +372,7 @@ async function videoProcess(newVideoState) {
 
     videoSt = newVideoState;
     removeVideoStream(rtpVidSenders);
-    console.log("!!!setting onCameraToggle off!!!! ");
     onCameraToggle("off", myConnectionId);
-    console.log("turning off drawing camera!!!!!!!!!!!", myConnectionId);
     socket.emit("drawerTurnsOffCanvas", { myConnectionId });
     return;
   }
@@ -430,7 +404,6 @@ async function videoProcess(newVideoState) {
           '<span class="material-icons">cancel_presentation</span>';
       };
     } else if (newVideoState == videoStates.draw) {
-      console.log("draw btn clicked!");
       vStream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: 1920,
@@ -439,16 +412,8 @@ async function videoProcess(newVideoState) {
         audio: false,
       });
       if (!handLandmarker) {
-        console.log(
-          "====================== Initializing hand tracking ====================== "
-        );
         // await hideLoadingAnimation();
         await initializeHandTracking();
-        console.log(
-          "!!!!!!!!!!!!!!!!!!!!! Hand tracking initialized !!!!!!!!!!!!!!!!!!!!!!!!"
-        );
-      } else {
-        console.log("Hand tracking already initialized.");
       }
       if (vStream) {
         vStream.oninactive = (e) => {
@@ -457,20 +422,13 @@ async function videoProcess(newVideoState) {
       }
 
       localDiv.addEventListener("loadeddata", updateCanvas);
-      console.log("after evernt listener loadeddata updateCanvas is loading!");
     }
     if (vStream && vStream.getVideoTracks().length > 0) {
       videoCamTrack = vStream.getVideoTracks()[0];
       if (videoCamTrack) {
         videoSt = newVideoState;
-        console.log(`now my vidoe state is.......${videoSt}`);
         localDiv.srcObject = new MediaStream([videoCamTrack]);
-        console.log("localDiv.srcObject", localDiv.srcObject);
         updateMediaSenders(videoCamTrack, rtpVidSenders);
-        console.log(
-          "==================================this is the value of videoCamTrack",
-          videoCamTrack
-        );
       }
     }
   } catch (err) {
@@ -497,7 +455,6 @@ async function videoProcess(newVideoState) {
     localDiv.style.setProperty("-moz-transform", "none", "important");
     socket.emit("shareScreen", myConnectionId);
   } else if (newVideoState === videoStates.draw) {
-    console.log("should change ");
     document.getElementById("drawOnOff").innerHTML =
       '<span class="material-icons" style="width: 100%">edit_on</span>';
     document.getElementById("screenShareOnOff").innerHTML =

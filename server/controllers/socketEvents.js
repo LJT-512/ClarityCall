@@ -19,7 +19,6 @@ export let userConnections = [];
 
 const setupSocketEvents = (io) => {
   io.on("connection", (socket) => {
-    console.log("socket id is", socket.id);
     socket.on("userconnect", async (data) => {
       console.log("userconnect", data.displayName, data.meetingId);
 
@@ -46,7 +45,6 @@ const setupSocketEvents = (io) => {
           (await isMeetingFinished(data.meetingId)) &&
           !hasOngoingRoomMeeting(data.meetingExists)
         ) {
-          console.log(`About to update ${data.meetingId} start time `);
           await updateMeetingStartAt(data.meetingId);
         }
         await createConnection(data.meetingId, data.userId, socket.id);
@@ -57,7 +55,6 @@ const setupSocketEvents = (io) => {
       console.log("userConnections: ", userConnections);
 
       const userCount = otherUsers.length + 1;
-      console.log("userCount", userCount);
 
       otherUsers.forEach((v) => {
         socket.to(v.connectionId).emit("informOthersAboutMe", {
@@ -67,7 +64,6 @@ const setupSocketEvents = (io) => {
           userNumber: userCount,
         });
       });
-      console.log("Informing new user about others", otherUsers);
       socket.emit("informMeAboutOtherUser", otherUsers);
     });
     socket.on("SDPProcess", (data) => {
@@ -78,17 +74,12 @@ const setupSocketEvents = (io) => {
     });
 
     socket.on("userVideoToggle", (data) => {
-      console.log("userVideoToggle got the message");
       const { connId, status } = data;
-      console.log(`${connId} in server userVideoToggle`);
       // eslint-disable-next-line prefer-destructuring
-      console.log("userConenctions in userVideoToggle", userConnections);
       const meetingId = userConnections.find((u) => u.connectionId === connId)
         .meetingId;
 
-      console.log("camera status chaned: ", meetingId);
       const list = userConnections.filter((p) => p.meetingId === meetingId);
-      console.log("the list to inform to disable the video is...", list);
       list.forEach((v) => {
         socket.to(v.connectionId).emit("updateUserVideo", {
           connId,
@@ -109,13 +100,11 @@ const setupSocketEvents = (io) => {
     });
 
     socket.on("drawCanvas", (data) => {
-      console.log("the server got drawCanvas");
       const { startX, startY, endX, endY, mode, myConnectionId } = data;
       const meetingId = userConnections.find(
         (u) => u.connectionId === myConnectionId
       ).meetingId;
       const list = userConnections.filter((u) => u.meetingId === meetingId);
-      console.log("Inform these users about canvas drawing: ", list);
       list.forEach((v) => {
         socket.to(v.connectionId).emit("updateCanvasDrawing", {
           startX,
@@ -129,18 +118,11 @@ const setupSocketEvents = (io) => {
     });
 
     socket.on("drawerTurnsOffCanvas", (data) => {
-      console.log("the server got drawerTurnsOffCanvas");
       const { myConnectionId } = data;
-      console.log(
-        "userConnections in drawerTurnsOffCanvas event",
-        userConnections
-      );
       const meetingId = userConnections.find(
         (u) => u.connectionId === myConnectionId
       ).meetingId;
       const list = userConnections.filter((u) => u.meetingId === meetingId);
-      console.log("Inform these users about canvas clearing: ", list);
-      console.log("myConnectionId", myConnectionId);
       list.forEach((v) => {
         socket.to(v.connectionId).emit("clearCanvas", {
           fromConnId: myConnectionId,
@@ -149,7 +131,6 @@ const setupSocketEvents = (io) => {
     });
 
     socket.on("sendMessage", async (msg) => {
-      console.log("this is the msg that the server got: ", msg);
       const mUser = userConnections.find((p) => p.connectionId === socket.id);
 
       if (mUser) {
@@ -171,12 +152,9 @@ const setupSocketEvents = (io) => {
     });
 
     socket.on("disconnect", async () => {
-      console.log("Disconnected");
       const disUser = userConnections.find((p) => p.connectionId === socket.id);
-      console.log("this is the disUser:", disUser);
       if (disUser) {
         const { meetingId } = disUser;
-        console.log("this is the disUser meetingId:", meetingId);
         userConnections = userConnections.filter(
           (p) => p.connectionId !== socket.id
         );
@@ -185,13 +163,9 @@ const setupSocketEvents = (io) => {
           (p) => p.meetingId === meetingId
         );
         const userCount = usersInMeeting.length;
-        console.log("User count after disconnect", userCount);
 
         if (userCount === 0 && !(await hasOngoingRoomMeeting(meetingId))) {
           try {
-            console.log(
-              `Ending meeting ${meetingId} as there are no more participants.`
-            );
             await endMeeting(meetingId);
             const summary = await generateMeetingSummary(meetingId);
             if (summary) {

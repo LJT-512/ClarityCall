@@ -87,7 +87,6 @@ export async function getSummary(req, res) {
         .json({ message: "NO subtutles available for this meeting." });
     }
     const list = userConnections.filter((u) => u.meetingId === meetingId);
-    console.log("list", list);
     list.forEach((v) => {
       const speakerName = "ai";
       io.to(v.connectionId).emit("newSubtitle", {

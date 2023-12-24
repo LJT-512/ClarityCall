@@ -1,7 +1,6 @@
 import pool from "./databasePool.js";
 
 export async function createMeeting(meetingId, userId) {
-  console.log("createMeeting in models is called");
   const startAt = new Date();
   const result = await pool.query(
     `
@@ -40,7 +39,6 @@ export async function updateMeetingStartAt(meetingId) {
 }
 
 export async function isMeetingFinished(meetingId) {
-  console.log("isMeetingFinished logged in models/meeting", meetingId);
   const result = await pool.query(
     `
     SELECT end_at
@@ -71,7 +69,6 @@ export async function createConnection(meetingId, userId, connectionId) {
 }
 
 export async function updateParentMeeting(roomId, parentMeetingId) {
-  console.log("updateParentMeeting is called in models");
   try {
     const result = await pool.query(
       `
@@ -89,7 +86,6 @@ export async function updateParentMeeting(roomId, parentMeetingId) {
 }
 
 export async function hasOngoingRoomMeeting(meetingId) {
-  console.log("hasOngoingRoomMeeting is run", meetingId);
   const result = await pool.query(
     `
     SELECT COUNT(*)
@@ -116,7 +112,6 @@ export async function userLeaveMeeting(meetingId, userId) {
 }
 
 export async function endMeeting(meetingId) {
-  console.log("endMeeting is run in the model", meetingId);
   const result = await pool.query(
     `
         UPDATE meetings
@@ -155,8 +150,6 @@ export async function addSubtitle(meetingId, userId, connectionId, text) {
 }
 
 export async function addSummary(meetingId, summary) {
-  console.log("addSummary in models is being called.");
-
   const result = await pool.query(
     `
     UPDATE meetings

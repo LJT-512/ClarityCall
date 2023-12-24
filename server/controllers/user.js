@@ -1,15 +1,8 @@
 import { fileURLToPath } from "url";
 import { join, dirname } from "path";
 import * as userModel from "../models/user.js";
-import {
-  signJWT,
-  getUserInfoWithToken,
-  EXPIRE_TIME,
-} from "../utils/generateJWTToken.js";
+import { signJWT, EXPIRE_TIME } from "../utils/generateJWTToken.js";
 import validator from "validator";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -17,10 +10,6 @@ const COOKIE_OPTIONS = {
   secure: true,
   samesite: "strict",
 };
-
-export async function serveSigninPage(req, res) {
-  res.sendFile(join(__dirname + "./../public/signin.html"));
-}
 
 export async function signUp(req, res) {
   try {

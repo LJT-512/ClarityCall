@@ -11,7 +11,6 @@ export let roomIds = [];
 
 function handleBreakoutSession(meetingId, callback) {
   const io = getIO();
-  console.log("Handling breakout session for meetingId:", meetingId);
   const breakoutInfo = userMeetingRooms[meetingId];
   if (breakoutInfo) {
     breakoutInfo.rooms.forEach((roomUsers) => {
@@ -77,26 +76,16 @@ export async function breakoutRooms(req, res) {
       })),
     });
 
-    console.log(
-      "in breakoutRoom controllers",
-      roomId,
-      usersInThisMeeting[0].userId
-    );
     if (!(await checkMeeting(roomId, usersInThisMeeting[0].userId))) {
       await createMeeting(roomId, usersInThisMeeting[0].userId);
       await updateParentMeeting(roomId, meetingId);
     }
   }
 
-  console.log(
-    `!!!!!!!!there are ${rooms} for this breakoutroom session!!!!!!!!!`
-  );
   userMeetingRooms[meetingId] = {
     setTime,
     rooms: rooms.map((room) => room.roomUsers),
   };
-
-  console.log("userMeetingRooms: ", userMeetingRooms);
 
   setTimeout(() => {
     notifyToast(meetingId);
@@ -106,11 +95,8 @@ export async function breakoutRooms(req, res) {
   }, setTime * 1000);
 
   res.status(200).json({ success: true, message: rooms });
-  console.log("rooms: ", rooms);
   rooms.forEach((room) => {
     room.roomUsers.forEach((user) => {
-      console.log("About to emit informAboutBreakRooms!!!!");
-      console.log(user.roomId, user.connId, user.username, user.userId);
       io.to(user.connId).emit("informAboutBreakRooms", {
         roomId: user.roomId,
         connId: user.connId,

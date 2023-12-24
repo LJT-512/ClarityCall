@@ -55,7 +55,6 @@ export async function findUserById(userId) {
 }
 
 export async function checkPassword(userId, password) {
-  console.log(userId);
   const result = await pool.query(
     `
         SELECT * FROM users
