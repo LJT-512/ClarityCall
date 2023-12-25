@@ -45,11 +45,3 @@ export async function generateMeetingSummary(meetingId) {
     return "No subtitles were available to generate a summary.";
   }
 }
-
-export async function storeMeetingSummary(meetingId, summary) {
-  try {
-    await addSummary(meetingId, summary);
-  } catch (err) {
-    console.error("Failed to store meeting summary", err);
-  }
-}

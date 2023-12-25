@@ -58,6 +58,13 @@ export async function breakoutRooms(req, res) {
     });
   }
 
+  if (setTime <= 5) {
+    return res.status(400).json({
+      success: false,
+      message: "Cannot be shorter than 5 secs",
+    });
+  }
+
   const sliceIndex = Math.ceil(usersInThisMeeting.length / numOfRoom);
 
   for (let i = 0; i < numOfRoom; i += 1) {
@@ -76,7 +83,7 @@ export async function breakoutRooms(req, res) {
       })),
     });
 
-    if (!(await checkMeeting(roomId, usersInThisMeeting[0].userId))) {
+    if (!(await checkMeeting(roomId))) {
       await createMeeting(roomId, usersInThisMeeting[0].userId);
       await updateParentMeeting(roomId, meetingId);
     }

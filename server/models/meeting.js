@@ -1,6 +1,7 @@
 import pool from "./databasePool.js";
 
 export async function createMeeting(meetingId, userId) {
+  console.log("createMeeting in models is called");
   const startAt = new Date();
   const result = await pool.query(
     `
@@ -48,11 +49,7 @@ export async function isMeetingFinished(meetingId) {
     [meetingId]
   );
 
-  if (result.rows[0] == null) {
-    return false;
-  } else {
-    return true;
-  }
+  return result.rows[0] != null;
 }
 
 export async function createConnection(meetingId, userId, connectionId) {
@@ -69,6 +66,7 @@ export async function createConnection(meetingId, userId, connectionId) {
 }
 
 export async function updateParentMeeting(roomId, parentMeetingId) {
+  console.log("updateParentMeeting is called in models");
   try {
     const result = await pool.query(
       `
@@ -112,6 +110,7 @@ export async function userLeaveMeeting(meetingId, userId) {
 }
 
 export async function endMeeting(meetingId) {
+  console.log("endMeeting is run in the model", meetingId);
   const result = await pool.query(
     `
         UPDATE meetings

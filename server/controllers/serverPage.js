@@ -17,5 +17,5 @@ export async function serveMeetingPage(_req, res) {
 }
 
 export async function serveSigninPage(_req, res) {
-  res.sendFile(join(__dirname + "../public/signin.html"));
+  res.sendFile(join(__dirname, "../public/signin.html"));
 }

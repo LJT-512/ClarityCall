@@ -37,9 +37,9 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   }
 
   socket.on("informOthersAboutMe", async function (data) {
-    addUser(data.otherUserId, data.connId, data.userNumber);
+    addUser(data.otherUserName, data.connId, data.userNumber);
     adjustUserBoxSize(data.userNumber);
-    showMeetingToast(data.otherUserId, "joined");
+    showMeetingToast(data.otherUserName, "joined");
     try {
       await setConnection(data.connId);
     } catch (err) {

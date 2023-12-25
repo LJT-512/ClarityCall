@@ -1,5 +1,3 @@
-import { fileURLToPath } from "url";
-import { join, dirname } from "path";
 import * as userModel from "../models/user.js";
 import { signJWT, EXPIRE_TIME } from "../utils/generateJWTToken.js";
 import validator from "validator";
