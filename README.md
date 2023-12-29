@@ -15,6 +15,11 @@
 
 Welcome to ClarityCall, an innovative video conferencing platform designed to revolutionize your virtual communication experience. With ClarityCall, you can enjoy seamless real-time video and audio interactions, integrated with AI-powered features such as live translation and gesture recognition. Dive into our platform to connect, collaborate, and interact more effectively, whether for business meetings, educational sessions, or casual catch-ups. Embrace the future of video conferencing with ClarityCall!
 
+## How to use?
+
+1. Log in with test account
+2.
+
 ## Features
 
 ### Real-Time Video and Audio Streaming
@@ -32,6 +37,8 @@ Welcome to ClarityCall, an innovative video conferencing platform designed to re
 - Engage interactively with our gesture recognition whiteboard.
 - Powered by Google's MediaPipe and enhanced with OpenCV.
 
+https://github.com/LJT-512/ClarityCall/assets/86831309/6e680350-76d4-4add-bbfb-1318d8a35934
+
 ### Breakout Room Sessions
 
 - Split into smaller groups for focused discussions with our breakout room feature.
@@ -41,6 +48,8 @@ Welcome to ClarityCall, an innovative video conferencing platform designed to re
 
 - Securely store meeting data with AWS RDS and PostgreSQL.
 - Analyze meeting engagement with integrated Chart.js and D3.js analytics.
+
+https://github.com/LJT-512/ClarityCall/assets/86831309/bade07f6-b707-4656-82ad-2c775486752d
 
 ## Tech Stack
 
