@@ -2,7 +2,7 @@
 <div align="center">
   <br>
   <h1>Clarity Call</h1>
-  <strong>Clarity Call brings you clear calls, clearer thoughts!</strong>
+  <strong>ClarityCall brings you clear call, clearer thoughts.</strong>
   <div align="center">
     <a href="https://claritycall.co">Home Page</a> |
     <a href="https://drive.google.com/file/d/12S1HUQklEy1wEmxjqk44huwuMb71qP8Z/view?usp=sharing">Video Intro</a> |
@@ -14,34 +14,44 @@
 </div>
 <br>
 
-Welcome to ClarityCall, an innovative video conferencing platform designed to revolutionize your virtual communication experience. With ClarityCall, you can enjoy seamless real-time video and audio interactions, integrated with AI-powered features such as live translation and gesture recognition. Dive into our platform to connect, collaborate, and interact more effectively, whether for business meetings, educational sessions, or casual catch-ups. Embrace the future of video conferencing with ClarityCall!
+Welcome to ClarityCall, a video conferencing platform designed to revolutionize your virtual communication experience. With ClarityCall, you can enjoy seamless real-time video and audio interactions, integrated with AI-powered features such as live translation and gesture recognition. Dive into our platform to connect, collaborate, and interact more effectively, whether for business meetings, educational sessions, or casual catch-ups. Embrace the future of video conferencing with ClarityCall!
 
-## How to use?
-1. Log in with test account
-2. 
+## :tada: Quick Start
+
+1. [Log in](https://claritycall.co/signin) with a test account:
+   | Email | Password |
+   | --------------- | ----------- |
+   | user4@test.com | 12345678hi |
+   <img width="500" alt="signin" src="https://github.com/LJT-512/ClarityCall/assets/86831309/243217dd-88f9-4eea-807e-a7c6f67c1f01">
+2. Create or join a meeting and start experiencing Clarity Call.
 
 ## Features
-### Real-Time Video and Audio Streaming
-- Experience high-quality, real-time video and audio streaming.
+
+### 🎥 Real-Time Video and Audio Streaming
+
+- Experience real-time video and audio streaming.
 - Utilizes WebRTC for seamless peer-to-peer communication.
 
+### 🌐 AI-Powered Live Translation and Summary
 
-### AI-Powered Live Translation and Summary
-- Break language barriers with real-time translation.
-- Get concise summaries of your meetings.
+- Break language barriers with real-time translation with OpenAI API.
+- Get concise summaries of meetings.
 
+### ✍ Gesture Recognition Whiteboard
 
-### Gesture Recognition Whiteboard
-- Engage interactively with our gesture recognition whiteboard.
+- Interact with a whiteboard using just your gestures.
 - Powered by Google's MediaPipe and enhanced with OpenCV.
 
 https://github.com/LJT-512/ClarityCall/assets/86831309/6e680350-76d4-4add-bbfb-1318d8a35934
 
-### Breakout Room Sessions
-- Split into smaller groups for focused discussions with our breakout room feature.
-- Ideal for workshops, classes, and team meetings.
+### 🚀 Breakout Room Sessions
 
-### Persistent Data Storage and Analytics
+- Split into breakout sessions for targeted discussions, ideal for workshops, classes, and team meetings.
+
+https://github.com/LJT-512/ClarityCall/assets/86831309/49fb6c6e-f9a0-4944-96eb-7e1b8bbf454a
+
+### 📊 Persistent Data Storage and Analytics
+
 - Securely store meeting data with AWS RDS and PostgreSQL.
 - Analyze meeting engagement with integrated Chart.js and D3.js analytics.
   
