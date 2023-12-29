@@ -14,19 +14,13 @@ import {
 
 export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   const SDPFunction = function (data, toConnId) {
-    console.log("========== SDPFunction being called ==========");
     socket.emit("SDPProcess", {
       message: data,
       toConnId: toConnId,
     });
-    console.log("After emitting SPDProcess...");
   };
 
   function onCameraToggle(status, connId) {
-    console.log("onCameraToggle is being called!");
-    console.log(
-      `${connId} in onCameraToggle, this is who turns on or off the camera`
-    );
     socket.emit("userVideoToggle", { connId, status });
   }
 
@@ -43,10 +37,9 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   }
 
   socket.on("informOthersAboutMe", async function (data) {
-    addUser(data.otherUserId, data.connId, data.userNumber);
+    addUser(data.otherUserName, data.connId, data.userNumber);
     adjustUserBoxSize(data.userNumber);
-    showMeetingToast(data.otherUserId, "joined");
-    console.log("informOthersAboutMe connId: ", data.connId);
+    showMeetingToast(data.otherUserName, "joined");
     try {
       await setConnection(data.connId);
     } catch (err) {
@@ -59,7 +52,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     const userNumber = userNumberWithoutMe + 1;
     if (otherUsers) {
       for (let i = 0; i < otherUsers.length; i++) {
-        console.log("who are the others:", otherUsers[i]);
         addUser(otherUsers[i].username, otherUsers[i].connectionId, userNumber);
         adjustUserBoxSize(userNumber);
         showMeetingToast(otherUsers[i].username, "joined");
@@ -74,7 +66,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("disconnect", (reason) => {
-    console.log("socket is disconnected.", reason);
     socket.connect();
   });
 
@@ -92,9 +83,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("SDPProcess", async function (data) {
-    console.log(
-      `Received SDPProcess message, toConnId: ${data.toConnId}, fromConnId: ${socket.id}`
-    );
     try {
       await SDPProcess(data.message, data.fromConnId);
     } catch (err) {
@@ -103,7 +91,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("updateUserVideo", (data) => {
-    console.log("client got the updateUserVideo event!!!!");
     const { connId, status } = data;
     const userVideoToRemoved = document.getElementById(`v_${connId}`);
 
@@ -124,11 +111,7 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("updateCanvasDrawing", (data) => {
-    console.log("client side got updateCanvasDrawing event!!!!!");
     const { startX, startY, endX, endY, mode, fromConnId } = data;
-    console.log("coordinates:", startX, startY, endX, endY);
-    const mainCanvas = document.getElementById(`mc_${fromConnId}`);
-    const mainCtx = mainCanvas.getContext("2d");
     const drawingCanvas = document.getElementById(`dc_${fromConnId}`);
     const drawingCtx = drawingCanvas.getContext("2d");
     const eraserThickness = 10;
@@ -152,7 +135,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
 
   socket.on("clearCanvas", (data) => {
     const { fromConnId } = data;
-    console.log("in clearCanvas, the fromConnId is......", fromConnId);
     const mainCanvas = document.getElementById(`mc_${fromConnId}`);
     const mainCtx = mainCanvas.getContext("2d");
     const drawingCanvas = document.getElementById(`dc_${fromConnId}`);
@@ -162,7 +144,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("newSubtitle", (data) => {
-    console.log("Received subtitle:", data.subtitleContent);
     const subtitleNotification = document.querySelector(
       ".subtitles-notification-count"
     );
@@ -189,13 +170,11 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("informAboutBreakRooms", (data) => {
-    console.log("informAboutBreakRooms is running!!!!!");
     console.error(`Breakout room is about to start ${data.roomId}`);
     window.location.href = `/?meetingId=${data.roomId}`;
   });
 
   socket.on("informBackToOriginalMeeting", (data) => {
-    console.log("got informBackToOriginalMeeting");
     window.location.href = `/?meetingId=${data.meetingId}`;
   });
 
@@ -204,8 +183,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
   });
 
   socket.on("showChatMessage", (data) => {
-    console.log("in showChatMessage the username is ", username);
-    console.log("in showChatMessage the data is", data);
     const chatNotification = document.querySelector(".chat-notification-count");
     chatNotification.classList.remove("d-none");
     const time = new Date();
@@ -217,9 +194,6 @@ export const eventProcessForSignalingServer = (socket, username, meetingId) => {
     const div = document.createElement("div");
     div.classList.add("chat-message");
     if (data.from === username) {
-      console.log(
-        `this is data from:  ${data.from} and this is username: ${username}`
-      );
       div.classList.add("message-from-me");
       div.innerHTML = `<div><span class="font-weight-bold" style="color: black;">You</span> ${lTime}</br>${data.message}</div>`;
     } else {
@@ -274,7 +248,6 @@ export const eventHandling = (username) => {
 };
 
 function copyJoiningInfo() {
-  console.log("copyJoiningInfo is running");
   const meetinUrl = document.querySelector(".meeting_url");
   const linkConf = document.querySelector(".link-conf");
   const tempInput = document.createElement("input");

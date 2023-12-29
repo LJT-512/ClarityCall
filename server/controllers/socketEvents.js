@@ -5,94 +5,73 @@ import {
   userLeaveMeeting,
   addChat,
   endMeeting,
-  updateParentMeeting,
   updateMeetingStartAt,
   isMeetingFinished,
   hasOngoingRoomMeeting,
+  addSummary,
 } from "../models/meeting.js";
 
-import {
-  generateMeetingSummary,
-  storeMeetingSummary,
-} from "../utils/summary.js";
-
-import { userMeetingRooms } from "./breakoutroom.js";
+import { generateMeetingSummary } from "../utils/summary.js";
 
 export let userConnections = [];
 
-const setupSocketEvents = (io) => {
-  io.on("connection", (socket) => {
-    console.log("socket id is", socket.id);
-    socket.on("userconnect", async (data) => {
-      console.log("userconnect", data.displayName, data.meetingId);
+const filterConnectionsByMeetingId = (meetingId) => {
+  return userConnections.filter((p) => p.meetingId === meetingId);
+};
 
-      const otherUsers = userConnections.filter(
-        (p) => p.meetingId === data.meetingId
+const getConnectionByConnId = (connId) => {
+  return userConnections.find((p) => p.connectionId === connId);
+};
+
+export const setupSocketEvents = (io) => {
+  io.on("connection", (socket) => {
+    const emitToConnections = (connections, event, data) => {
+      connections.forEach((connection) =>
+        socket.to(connection.connectionId).emit(event, data)
       );
+    };
+
+    socket.on("userconnect", async (data) => {
+      const { displayName, userId, meetingId } = data;
+
+      const otherUsers = filterConnectionsByMeetingId(meetingId);
       console.log("otherUsers: ", otherUsers);
 
       userConnections.push({
         connectionId: socket.id,
-        username: data.displayName,
-        userId: data.userId,
-        meetingId: data.meetingId,
+        username: displayName,
+        userId: userId,
+        meetingId: meetingId,
       });
 
-      let parentMeetingId = null;
-
       try {
-        // const isBreakoutRoom = data.meetingId.length !== 8;
-
-        // if (!isBreakoutRoom) {
-        const meetingExists = await checkMeeting(data.meetingId);
+        const meetingExists = await checkMeeting(meetingId);
 
         if (!meetingExists) {
-          await createMeeting(data.meetingId, data.userId);
+          await createMeeting(meetingId, userId);
         } else if (
-          (await isMeetingFinished(data.meetingId)) &&
-          !hasOngoingRoomMeeting(data.meetingExists)
+          (await isMeetingFinished(meetingId)) &&
+          !(await hasOngoingRoomMeeting(meetingExists))
         ) {
-          console.log(`About to update ${data.meetingId} start time `);
-          await updateMeetingStartAt(data.meetingId);
+          await updateMeetingStartAt(meetingId);
         }
-        // } else {
-        // await createMeeting(data.meetingId, data.userId);
-        // for (const [meetingId, details] of Object.entries(userMeetingRooms)) {
-        //   const roomFound = details.rooms.some((room) =>
-        //     room.some((user) => user.roomId === data.meetingId)
-        //   );
-        //   if (roomFound) {
-        //     parentMeetingId = meetingId;
-        //     break;
-        //   }
-        // }
-        // if (parentMeetingId) {
-        //   await updateParentMeeting(data.meetingId, parentMeetingId);
-        // } else {
-        //   throw new Error("Parent meeting ID not found for breakout room");
-        // }
-        // }
-        await createConnection(data.meetingId, data.userId, socket.id);
+        await createConnection(meetingId, userId, socket.id);
       } catch (err) {
         console.error("Error handling user connection:", err);
       }
 
       console.log("userConnections: ", userConnections);
 
-      const userCount = otherUsers.length + 1;
-      console.log("userCount", userCount);
-
-      otherUsers.forEach((v) => {
-        socket.to(v.connectionId).emit("informOthersAboutMe", {
-          otherUserId: data.displayName,
-          userId: data.userId,
-          connId: socket.id,
-          userNumber: userCount,
-        });
+      emitToConnections(otherUsers, "informOthersAboutMe", {
+        otherUserName: displayName,
+        userId: userId,
+        connId: socket.id,
+        userNumber: otherUsers.length + 1,
       });
-      console.log("Informing new user about others", otherUsers);
+
       socket.emit("informMeAboutOtherUser", otherUsers);
     });
+
     socket.on("SDPProcess", (data) => {
       socket.to(data.toConnId).emit("SDPProcess", {
         message: data.message,
@@ -101,46 +80,34 @@ const setupSocketEvents = (io) => {
     });
 
     socket.on("userVideoToggle", (data) => {
-      console.log("userVideoToggle got the message");
       const { connId, status } = data;
-      console.log(`${connId} in server userVideoToggle`);
       // eslint-disable-next-line prefer-destructuring
-      console.log("userConenctions in userVideoToggle", userConnections);
-      const meetingId = userConnections.find((u) => u.connectionId === connId)
-        .meetingId;
-
-      console.log("camera status chaned: ", meetingId);
-      const list = userConnections.filter((p) => p.meetingId === meetingId);
-      console.log("the list to inform to disable the video is...", list);
-      list.forEach((v) => {
-        socket.to(v.connectionId).emit("updateUserVideo", {
+      const meetingId = getConnectionByConnId(connId)?.meetingId;
+      if (meetingId) {
+        const list = filterConnectionsByMeetingId(meetingId);
+        emitToConnections(list, "updateUserVideo", {
           connId,
           status,
         });
-      });
+      }
     });
 
     socket.on("shareScreen", (connId) => {
-      const meetingId = userConnections.find((u) => u.connectionId === connId)
-        .meetingId;
-      const list = userConnections.filter((p) => p.meetingId === meetingId);
-      list.forEach((v) => {
-        socket.to(v.connectionId).emit("flipVideo", {
+      const meetingId = getConnectionByConnId(connId)?.meetingId;
+      if (meetingId) {
+        const list = filterConnectionsByMeetingId(meetingId);
+        emitToConnections(list, "flipVideo", {
           from: connId,
         });
-      });
+      }
     });
 
     socket.on("drawCanvas", (data) => {
-      console.log("the server got drawCanvas");
       const { startX, startY, endX, endY, mode, myConnectionId } = data;
-      const meetingId = userConnections.find(
-        (u) => u.connectionId === myConnectionId
-      ).meetingId;
-      const list = userConnections.filter((u) => u.meetingId === meetingId);
-      console.log("Inform these users about canvas drawing: ", list);
-      list.forEach((v) => {
-        socket.to(v.connectionId).emit("updateCanvasDrawing", {
+      const meetingId = getConnectionByConnId(myConnectionId)?.meetingId;
+      if (meetingId) {
+        const list = userConnections.filter((u) => u.meetingId === meetingId);
+        emitToConnections(list, "updateCanvasDrawing", {
           startX,
           startY,
           endX,
@@ -148,45 +115,32 @@ const setupSocketEvents = (io) => {
           mode,
           fromConnId: myConnectionId,
         });
-      });
+      }
     });
 
     socket.on("drawerTurnsOffCanvas", (data) => {
-      console.log("the server got drawerTurnsOffCanvas");
       const { myConnectionId } = data;
-      console.log(
-        "userConnections in drawerTurnsOffCanvas event",
-        userConnections
-      );
-      const meetingId = userConnections.find(
-        (u) => u.connectionId === myConnectionId
-      ).meetingId;
-      const list = userConnections.filter((u) => u.meetingId === meetingId);
-      console.log("Inform these users about canvas clearing: ", list);
-      console.log("myConnectionId", myConnectionId);
-      list.forEach((v) => {
-        socket.to(v.connectionId).emit("clearCanvas", {
+      const meetingId = getConnectionByConnId(myConnectionId)?.meetingId;
+      if (meetingId) {
+        const list = userConnections.filter((u) => u.meetingId === meetingId);
+        emitToConnections(list, "clearCanvas", {
           fromConnId: myConnectionId,
         });
-      });
+      }
     });
 
     socket.on("sendMessage", async (msg) => {
-      console.log("this is the msg that the server got: ", msg);
-      const mUser = userConnections.find((p) => p.connectionId === socket.id);
+      const user = getConnectionByConnId(socket.id);
 
-      if (mUser) {
-        const meetingId = mUser.meetingId;
-        const from = mUser.username;
-        const list = userConnections.filter((p) => p.meetingId === meetingId);
-        list.forEach((v) => {
-          socket.to(v.connectionId).emit("showChatMessage", {
-            from: from,
-            message: msg,
-          });
+      if (user) {
+        const { meetingId, userId, username } = user;
+        const list = filterConnectionsByMeetingId(meetingId);
+        emitToConnections(list, "showChatMessage", {
+          from: username,
+          message: msg,
         });
         try {
-          await addChat(mUser.meetingId, mUser.userId, socket.id, msg);
+          await addChat(meetingId, userId, socket.id, msg);
         } catch (err) {
           console.error("Error adding chat:", err);
         }
@@ -194,31 +148,22 @@ const setupSocketEvents = (io) => {
     });
 
     socket.on("disconnect", async () => {
-      console.log("Disconnected");
-      const disUser = userConnections.find((p) => p.connectionId === socket.id);
-      console.log("this is the disUser:", disUser);
+      const disUser = getConnectionByConnId(socket.id);
       if (disUser) {
         const { meetingId } = disUser;
-        console.log("this is the disUser meetingId:", meetingId);
         userConnections = userConnections.filter(
           (p) => p.connectionId !== socket.id
         );
 
-        const usersInMeeting = userConnections.filter(
-          (p) => p.meetingId === meetingId
-        );
+        const usersInMeeting = filterConnectionsByMeetingId(meetingId);
         const userCount = usersInMeeting.length;
-        console.log("User count after disconnect", userCount);
 
         if (userCount === 0 && !(await hasOngoingRoomMeeting(meetingId))) {
           try {
-            console.log(
-              `Ending meeting ${meetingId} as there are no more participants.`
-            );
             await endMeeting(meetingId);
             const summary = await generateMeetingSummary(meetingId);
             if (summary) {
-              await storeMeetingSummary(meetingId, summary);
+              await addSummary(meetingId, summary);
             }
           } catch (err) {
             console.error("Error ending meeting:", err);
@@ -226,13 +171,15 @@ const setupSocketEvents = (io) => {
         }
 
         if (userCount > 0) {
-          usersInMeeting.forEach((v) => {
-            socket.to(v.connectionId).emit("informOtherAboutDisconnectedUser", {
+          emitToConnections(
+            usersInMeeting,
+            "informOtherAboutDisconnectedUser",
+            {
               connId: socket.id,
               userWhoLeft: disUser.username,
               uNumber: userCount,
-            });
-          });
+            }
+          );
         }
         userLeaveMeeting(meetingId, disUser.userId);
       }

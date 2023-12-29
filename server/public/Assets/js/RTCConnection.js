@@ -38,17 +38,13 @@ async function fetchTurnCredentails() {
     ],
   };
 
-  console.log("Before calling /getTurnCredentials");
   try {
-    const response = await fetch("/getTurnCredentials");
+    const response = await fetch("/api/meetings/getTurnCredentials");
     if (!response.ok) {
       console.error("Failed to fetch TURN credentials");
     }
-
-    console.log("turn response", response);
     const responseData = await response.json();
 
-    console.log("responseData:", responseData);
     if (responseData && responseData.urls && responseData.urls.length > 0) {
       responseData.urls.forEach((url) => {
         iceConfiguration.iceServers.push({
@@ -61,8 +57,6 @@ async function fetchTurnCredentails() {
   } catch (error) {
     console.error("Error fetching TURN credentials:", error);
   }
-  console.log("After calling /getTurnCredentials");
-  console.log("this is iceConfiguration", iceConfiguration);
   return iceConfiguration;
 }
 
@@ -71,21 +65,14 @@ export async function setConnection(connId) {
     console.error("Connection ID is undefined when calling setConnection");
     return;
   }
-  console.log("Setting up connection for ID:", connId);
   const iceConfiguration = await fetchTurnCredentails();
-  console.log("iceConfiguration", iceConfiguration);
   let connection = new RTCPeerConnection(iceConfiguration);
-  console.log("!!!!!!!!!!setting up RTCPeerConnection!!!!!!!", connection);
 
   connection.onnegotiationneeded = async function (event) {
     await setOffer(connId);
   };
   connection.onicecandidate = function (event) {
     if (event.candidate) {
-      console.log(
-        `ICE candidate generated for connection [${connId}]:`,
-        event.candidate
-      );
       serverProcess(JSON.stringify({ iceCandidate: event.candidate }), connId);
     }
   };
@@ -102,7 +89,6 @@ export async function setConnection(connId) {
   };
 
   connection.ontrack = function (event) {
-    console.log("Received track:", event.track, "for connection ID:", connId);
     if (!remoteVidStream[connId]) {
       remoteVidStream[connId] = new MediaStream();
     }
@@ -138,9 +124,7 @@ export async function setConnection(connId) {
   };
 
   peersConnectionIds[connId] = connId;
-  console.log("in setConnection - peersConnectionIds:", peersConnectionIds);
   peersConnection[connId] = connection;
-  console.log("in setConnection - peersConnection:", peersConnection);
 
   if (videoSt == videoStates.camera || videoSt == videoStates.screenShare) {
     if (videoCamTrack) {
@@ -170,13 +154,9 @@ export async function setConnection(connId) {
 }
 
 export async function setOffer(connId) {
-  console.log("------------Making an offer------------");
   let connection = peersConnection[connId];
-  console.log("connection from offerer:", connection);
   const offer = await connection.createOffer();
-  console.log(`Offer created for connection [${connId}]:`, offer);
   await connection.setLocalDescription(offer);
-  console.log(`Set local description for connection [${connId}] with offer`);
   serverProcess(
     JSON.stringify({
       offer: connection.localDescription,
@@ -186,31 +166,16 @@ export async function setOffer(connId) {
 }
 
 export async function SDPProcess(message, fromConnId) {
-  console.log(`Received SDP message for connection [${fromConnId}]:`, message);
   if (typeof fromConnId === "undefined") {
     console.error("fromConnId is undefined in SDPProcess");
     return;
   }
   message = JSON.parse(message);
   if (message.answer) {
-    console.log(
-      `Setting remote description with answer for connection [${fromConnId}]`
-    );
     await peersConnection[fromConnId].setRemoteDescription(
       new RTCSessionDescription(message.answer)
     );
-    console.log(
-      "Here's the offer, the is the overall peersConnection: ",
-      peersConnection
-    );
-    console.log(
-      "Here's the offer, the is the overall peersConnection[fromConnId]: ",
-      peersConnection[fromConnId]
-    );
   } else if (message.offer) {
-    console.log(
-      `Setting remote description with offer for connection [${fromConnId}]`
-    );
     if (!peersConnection[fromConnId]) {
       await setConnection(fromConnId);
     }
@@ -225,19 +190,7 @@ export async function SDPProcess(message, fromConnId) {
       }),
       fromConnId
     );
-    console.log(
-      "Here's an answerer, the is the overall peersConnection: ",
-      peersConnection
-    );
-    console.log(
-      "Here's an answerer, the is the overall peersConnection[fromConnId]: ",
-      peersConnection[fromConnId]
-    );
   } else if (message.iceCandidate) {
-    console.log(
-      `Adding ICE candidate for connection [${fromConnId}]`,
-      message.iceCandidate
-    );
     if (!peersConnection[fromConnId]) {
       await setConnection(fromConnId);
     }
@@ -267,5 +220,4 @@ export async function closeConnectionCall(connId) {
     });
     remoteVidStream[connId] = null;
   }
-  console.log("connection closed");
 }

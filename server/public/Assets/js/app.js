@@ -26,14 +26,6 @@ async function initApp() {
     const data = await response.json();
     const username = data.username;
     const userId = data.userId;
-    console.log(
-      "username:",
-      username,
-      "userId:",
-      userId,
-      "socketId",
-      socket.id
-    );
     if (!username) throw new Error("Username not found");
 
     const meetingContainer = document.getElementById("meetingContainer");
@@ -41,8 +33,6 @@ async function initApp() {
     document.querySelector("#me h2").textContent = username + " (me)";
     document.title = username;
     adjustUserBoxSize(1);
-
-    console.log("Emitting userconnect after validation!");
     socket.emit("userconnect", {
       displayName: username,
       userId: userId,
@@ -59,7 +49,6 @@ async function initApp() {
 let socket;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("DOM fully loaded and parsed");
   socket = io.connect();
   window.socket = socket;
   await initApp();
@@ -190,7 +179,6 @@ document.getElementById("breakoutRoomForm").onsubmit = function (e) {
       return response.json();
     })
     .then((data) => {
-      console.log(data);
       breakoutroomModal.style.display = "none";
       errorMessageDiv.style.display = "none";
     })
@@ -217,7 +205,6 @@ cancelCallModel.addEventListener("click", () => {
 });
 meetingDetailsBtn.addEventListener("click", () => {
   const detailsElement = document.querySelector(".g-details");
-  console.log("meetingDetailsBtn is clicked");
   if (detailsElement.style.display === "block") {
     detailsElement.style.display = "none";
     meetingDetailsBtn.innerHTML = `<div class="display-center curosr-pointer meeting-details-button">
