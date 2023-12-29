@@ -40,7 +40,6 @@ export async function updateMeetingStartAt(meetingId) {
 }
 
 export async function isMeetingFinished(meetingId) {
-  console.log("isMeetingFinished logged in models/meeting", meetingId);
   const result = await pool.query(
     `
     SELECT end_at
@@ -50,11 +49,7 @@ export async function isMeetingFinished(meetingId) {
     [meetingId]
   );
 
-  if (result.rows[0] == null) {
-    return false;
-  } else {
-    return true;
-  }
+  return result.rows[0] != null;
 }
 
 export async function createConnection(meetingId, userId, connectionId) {
@@ -89,7 +84,6 @@ export async function updateParentMeeting(roomId, parentMeetingId) {
 }
 
 export async function hasOngoingRoomMeeting(meetingId) {
-  console.log("hasOngoingRoomMeeting is run", meetingId);
   const result = await pool.query(
     `
     SELECT COUNT(*)
@@ -155,8 +149,6 @@ export async function addSubtitle(meetingId, userId, connectionId, text) {
 }
 
 export async function addSummary(meetingId, summary) {
-  console.log("addSummary in models is being called.");
-
   const result = await pool.query(
     `
     UPDATE meetings

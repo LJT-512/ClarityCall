@@ -1,10 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
-import router from "./router.js";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import { init as initIO } from "./io.js";
 import setupSocketEvents from "./controllers/socketEvents.js";
+import pageRouter from "./routes/page.js";
+import breakoutroomRouter from "./routes/breakoutroom.js";
+import meetingRouter from "./routes/meeting.js";
+import userRouter from "./routes/user.js";
+import uploadAudioRouter from "./routes/uploadAudio.js";
 import { startTranscriptionWorker } from "./workers/transcribe.js";
 import { errorHandler } from "./utils/errorHandler.js";
 
@@ -16,7 +20,15 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static("public"));
 app.use(express.json());
 app.use(cookieParser());
-app.use(router);
+
+app.use("/api", [
+  breakoutroomRouter,
+  meetingRouter,
+  userRouter,
+  uploadAudioRouter,
+]);
+
+app.use("/", pageRouter);
 
 app.use(errorHandler);
 
