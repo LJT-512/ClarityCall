@@ -14,7 +14,7 @@
 </div>
 <br>
 
-Welcome to ClarityCall, a video conferencing platform designed to revolutionize your virtual communication experience. With ClarityCall, you can enjoy seamless real-time video and audio interactions, integrated with AI-powered features such as live translation and gesture recognition. Dive into our platform to connect, collaborate, and interact more effectively, whether for business meetings, educational sessions, or casual catch-ups. Embrace the future of video conferencing with ClarityCall!
+Welcome to ClarityCall, a video conferencing platform that enhances your online communication. ClarityCall offers fluid video and audio interactions complemented by AI-driven features like live translation and gesture recognition. Explore our platform for more connected and efficient interactions across business, education, or social gatherings. Discover a new way to meet and collaborate with ClarityCall.
 
 ## :tada: Quick Start
 1. [Log in](https://claritycall.co/signin) with a test account:
@@ -25,27 +25,30 @@ Welcome to ClarityCall, a video conferencing platform designed to revolutionize 
 2. Create or join a meeting and start experiencing Clarity Call.
 ## Features
 ### 🎥 Real-Time Video and Audio Streaming
+
 - Experience real-time video and audio streaming.
 - Utilizes WebRTC for seamless peer-to-peer communication.
 
-
 ### 🌐 AI-Powered Live Translation and Summary
+
 - Break language barriers with real-time translation with OpenAI API.
 - Get concise summaries of meetings.
 
-
 ### ✍ Gesture Recognition Whiteboard
+
 - Interact with a whiteboard using just your gestures.
 - Powered by Google's MediaPipe and enhanced with OpenCV.
 
 https://github.com/LJT-512/ClarityCall/assets/86831309/6e680350-76d4-4add-bbfb-1318d8a35934
 
 ### 🚀 Breakout Room Sessions
+
 - Split into breakout sessions for targeted discussions, ideal for workshops, classes, and team meetings.
 
 https://github.com/LJT-512/ClarityCall/assets/86831309/49fb6c6e-f9a0-4944-96eb-7e1b8bbf454a
 
 ### 📊 Persistent Data Storage and Analytics
+
 - Securely store meeting data with AWS RDS and PostgreSQL.
 - Analyze meeting engagement with integrated Chart.js and D3.js analytics.
   
