@@ -5,7 +5,6 @@ import {
   userLeaveMeeting,
   addChat,
   endMeeting,
-  updateParentMeeting,
   updateMeetingStartAt,
   isMeetingFinished,
   hasOngoingRoomMeeting,
@@ -15,8 +14,6 @@ import {
   generateMeetingSummary,
   storeMeetingSummary,
 } from "../utils/summary.js";
-
-import { userMeetingRooms } from "./breakoutroom.js";
 
 export let userConnections = [];
 
@@ -41,9 +38,6 @@ const setupSocketEvents = (io) => {
       let parentMeetingId = null;
 
       try {
-        // const isBreakoutRoom = data.meetingId.length !== 8;
-
-        // if (!isBreakoutRoom) {
         const meetingExists = await checkMeeting(data.meetingId);
 
         if (!meetingExists) {
@@ -55,23 +49,6 @@ const setupSocketEvents = (io) => {
           console.log(`About to update ${data.meetingId} start time `);
           await updateMeetingStartAt(data.meetingId);
         }
-        // } else {
-        // await createMeeting(data.meetingId, data.userId);
-        // for (const [meetingId, details] of Object.entries(userMeetingRooms)) {
-        //   const roomFound = details.rooms.some((room) =>
-        //     room.some((user) => user.roomId === data.meetingId)
-        //   );
-        //   if (roomFound) {
-        //     parentMeetingId = meetingId;
-        //     break;
-        //   }
-        // }
-        // if (parentMeetingId) {
-        //   await updateParentMeeting(data.meetingId, parentMeetingId);
-        // } else {
-        //   throw new Error("Parent meeting ID not found for breakout room");
-        // }
-        // }
         await createConnection(data.meetingId, data.userId, socket.id);
       } catch (err) {
         console.error("Error handling user connection:", err);
