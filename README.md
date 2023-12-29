@@ -14,19 +14,16 @@
 </div>
 <br>
 
-Welcome to ClarityCall, a video conferencing platform designed to revolutionize your virtual communication experience. With ClarityCall, you can enjoy seamless real-time video and audio interactions, integrated with AI-powered features such as live translation and gesture recognition. Dive into our platform to connect, collaborate, and interact more effectively, whether for business meetings, educational sessions, or casual catch-ups. Embrace the future of video conferencing with ClarityCall!
+Welcome to ClarityCall, a video conferencing platform that enhances your online communication. ClarityCall offers fluid video and audio interactions complemented by AI-driven features like live translation and gesture recognition. Explore our platform for more connected and efficient interactions across business, education, or social gatherings. Discover a new way to meet and collaborate with ClarityCall.
 
 ## :tada: Quick Start
-
 1. [Log in](https://claritycall.co/signin) with a test account:
-   | Email | Password |
+   | Email           | Password    |
    | --------------- | ----------- |
-   | user4@test.com | 12345678hi |
+   | user4@test.com  | 12345678hi  |
    <img width="500" alt="signin" src="https://github.com/LJT-512/ClarityCall/assets/86831309/243217dd-88f9-4eea-807e-a7c6f67c1f01">
 2. Create or join a meeting and start experiencing Clarity Call.
-
 ## Features
-
 ### 🎥 Real-Time Video and Audio Streaming
 
 - Experience real-time video and audio streaming.
@@ -56,9 +53,6 @@ https://github.com/LJT-512/ClarityCall/assets/86831309/49fb6c6e-f9a0-4944-96eb-7
 - Analyze meeting engagement with integrated Chart.js and D3.js analytics.
   
 https://github.com/LJT-512/ClarityCall/assets/86831309/bade07f6-b707-4656-82ad-2c775486752d
-
-
-
 
 ## Tech Stack
  <img width="1000" alt="claritycall" src="https://github.com/LJT-512/ClarityCall/assets/86831309/2df3eeef-afd7-43fc-8ee6-215e1ddd3324">
