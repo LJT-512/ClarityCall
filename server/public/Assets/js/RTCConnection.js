@@ -39,7 +39,7 @@ async function fetchTurnCredentails() {
   };
 
   try {
-    const response = await fetch("api/meetings/getTurnCredentials");
+    const response = await fetch("/api/meetings/getTurnCredentials");
     if (!response.ok) {
       console.error("Failed to fetch TURN credentials");
     }
