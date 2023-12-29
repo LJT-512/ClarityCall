@@ -41,6 +41,8 @@ https://github.com/LJT-512/ClarityCall/assets/86831309/6e680350-76d4-4add-bbfb-1
 - Split into smaller groups for focused discussions with our breakout room feature.
 - Ideal for workshops, classes, and team meetings.
 
+https://github.com/LJT-512/ClarityCall/assets/86831309/49fb6c6e-f9a0-4944-96eb-7e1b8bbf454a
+
 ### Persistent Data Storage and Analytics
 - Securely store meeting data with AWS RDS and PostgreSQL.
 - Analyze meeting engagement with integrated Chart.js and D3.js analytics.
