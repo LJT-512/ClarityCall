@@ -166,39 +166,36 @@ export async function setOffer(connId) {
 }
 
 export async function SDPProcess(message, fromConnId) {
-  if (typeof fromConnId === "undefined") {
-    console.error("fromConnId is undefined in SDPProcess");
-    return;
-  }
-  message = JSON.parse(message);
-  if (message.answer) {
-    await peersConnection[fromConnId].setRemoteDescription(
-      new RTCSessionDescription(message.answer)
-    );
-  } else if (message.offer) {
-    if (!peersConnection[fromConnId]) {
-      await setConnection(fromConnId);
+  try {
+    message = JSON.parse(message);
+    const peerConnection = peersConnection[fromConnId];
+
+    if (!peerConnection) {
+      console.error(
+        `PeerConnection does not exist for connection ID: ${fromConnId}`
+      );
+      return;
     }
-    await peersConnection[fromConnId].setRemoteDescription(
-      new RTCSessionDescription(message.offer)
-    );
-    const answer = await peersConnection[fromConnId].createAnswer();
-    await peersConnection[fromConnId].setLocalDescription(answer);
-    serverProcess(
-      JSON.stringify({
-        answer: answer,
-      }),
-      fromConnId
-    );
-  } else if (message.iceCandidate) {
-    if (!peersConnection[fromConnId]) {
-      await setConnection(fromConnId);
+
+    if (
+      message.answer &&
+      peerConnection.signalingState === "have-local-offer"
+    ) {
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(message.answer)
+      );
+    } else if (message.offer && peerConnection.signalingState === "stable") {
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(message.offer)
+      );
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      serverProcess(JSON.stringify({ answer }), fromConnId);
+    } else if (message.iceCandidate) {
+      await peerConnection.addIceCandidate(message.iceCandidate);
     }
-    try {
-      await peersConnection[fromConnId].addIceCandidate(message.iceCandidate);
-    } catch (err) {
-      console.error("Failed to get ICE: ", err);
-    }
+  } catch (err) {
+    console.error("Error during SDP process:", err);
   }
 }
 
