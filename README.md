@@ -1,3 +1,4 @@
+
 <div align="center">
   <br>
   <h1>Clarity Call</h1>
@@ -53,11 +54,13 @@ https://github.com/LJT-512/ClarityCall/assets/86831309/49fb6c6e-f9a0-4944-96eb-7
 
 - Securely store meeting data with AWS RDS and PostgreSQL.
 - Analyze meeting engagement with integrated Chart.js and D3.js analytics.
-
+  
 https://github.com/LJT-512/ClarityCall/assets/86831309/bade07f6-b707-4656-82ad-2c775486752d
 
-## Tech Stack
 
+
+
+## Tech Stack
  <img width="1000" alt="claritycall" src="https://github.com/LJT-512/ClarityCall/assets/86831309/2df3eeef-afd7-43fc-8ee6-215e1ddd3324">
  
 ### Server-Side
@@ -69,8 +72,8 @@ https://github.com/LJT-512/ClarityCall/assets/86831309/bade07f6-b707-4656-82ad-2
 - NGINX: Acts as a reverse proxy on AWS EC2, providing efficient load balancing and SSL termination for secure connections.
 Infrastructure
 
-### Client-Side
 
+### Client-Side
 ![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![BootStrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
@@ -78,17 +81,17 @@ Infrastructure
 ![D3.js](https://img.shields.io/badge/d3%20js-F9A03C?style=for-the-badge&logo=d3.js&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
 ![openCV](https://img.shields.io/badge/OpenCV-27338e?style=for-the-badge&logo=OpenCV&logoColor=white)
-
 - WebRTC: Enables real-time communication for video and audio streaming directly in the web browser without the need for plugins or third-party software.
 - MediaPipe and OpenCV: Power the gesture recognition and image processing, adding a layer of interactivity with hand-tracking capabilities for whiteboard functionality.
 
 ## Infrastructure
-
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![AWS](https://img.shields.io/badge/Amazon_AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
 
 - STUN/TURN Servers: Assists in network traversal, helping peers to find the best path for the media stream to travel across different networks.
 - AWS RDS (PostgreSQL): Serves as the persistent data storage, ensuring data integrity and efficient access for meeting analytics.
 - AWS CloudWatch: Monitors the application's performance, offering real-time logging and diagnostics.
-  Continuous Integration and Deployment
-  GitHub Actions: Automates the CI/CD pipeline, enabling consistent and reliable code integration and deployment processes.
+Continuous Integration and Deployment
+GitHub Actions: Automates the CI/CD pipeline, enabling consistent and reliable code integration and deployment processes.
+
+ 
