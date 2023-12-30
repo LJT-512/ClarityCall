@@ -8,9 +8,7 @@ export async function isMeetingValid(req, res, next) {
       meetingId.toString().length !== 8 &&
       !roomIds.includes(meetingId))
   ) {
-    return res
-      .status(400)
-      .json({ message: "Invalid meetingId. Should be an 8 digit number." });
+    return res.redirect("/action");
   }
 
   next();
