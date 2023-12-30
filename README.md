@@ -13,7 +13,7 @@
 </div>
 <br>
 
-Welcome to ClarityCall, a video conferencing platform designed to revolutionize your virtual communication experience. With ClarityCall, you can enjoy seamless real-time video and audio interactions, integrated with AI-powered features such as live translation and gesture recognition. Dive into our platform to connect, collaborate, and interact more effectively, whether for business meetings, educational sessions, or casual catch-ups. Embrace the future of video conferencing with ClarityCall!
+Welcome to ClarityCall, a video conferencing platform that enhances your online communication. ClarityCall offers fluid video and audio interactions complemented by AI-driven features like live translation and gesture recognition. Explore our platform for more connected and efficient interactions across business, education, or social gatherings. Discover a new way to meet and collaborate with ClarityCall.
 
 ## :tada: Quick Start
 
