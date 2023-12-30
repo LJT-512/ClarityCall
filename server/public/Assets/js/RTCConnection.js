@@ -66,7 +66,7 @@ export async function setConnection(connId) {
     return;
   }
   const iceConfiguration = await fetchTurnCredentails();
-  let connection = new RTCPeerConnection(iceConfiguration);
+  const connection = new RTCPeerConnection(iceConfiguration);
 
   connection.onnegotiationneeded = async function (event) {
     await setOffer(connId);
@@ -154,7 +154,7 @@ export async function setConnection(connId) {
 }
 
 export async function setOffer(connId) {
-  let connection = peersConnection[connId];
+  const connection = peersConnection[connId];
   const offer = await connection.createOffer();
   await connection.setLocalDescription(offer);
   serverProcess(
