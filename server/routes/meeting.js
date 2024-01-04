@@ -2,10 +2,12 @@ import express from "express";
 import { isAuthenticated } from "../middlewares/isAuthenticated.js";
 import * as meetingAnalyticsController from "../controllers/meetingAnalytics.js";
 import { getTurnCredentials } from "../controllers/turnServer.js";
+import { breakoutRooms } from "../controllers/breakoutroom.js";
 
 const router = express.Router();
 
 router.get("/meetings/getTurnCredentials", isAuthenticated, getTurnCredentials);
+router.post("/meetings/breakoutroom", isAuthenticated, breakoutRooms);
 
 router.get(
   "/meetings/aggregated",
