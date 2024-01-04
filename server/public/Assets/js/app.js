@@ -161,7 +161,7 @@ document.getElementById("breakoutRoomForm").onsubmit = function (e) {
   const numOfRoom = document.getElementById("numOfRooms").value;
   const setTime = document.getElementById("timeSetting").value;
 
-  fetch("/api/breakoutroom", {
+  fetch("/api/meetings/breakoutroom", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
